@@ -1,0 +1,160 @@
+project:
+  name: "Psychosocial Intelligence Framework - PRI Component"
+  institution: "SLIIT Kandy, Sri Lanka"
+  version: "1.0.0"
+  random_seed: 42
+  description: "Psychosocial Risk Index prediction and explainability for student attrition mitigation."
+
+paths:
+  data_raw: "data/raw"
+  data_synthetic: "data/synthetic"
+  data_processed: "data/processed"
+  artifacts_models: "artifacts/models"
+  artifacts_metrics: "artifacts/metrics"
+  artifacts_leaderboards: "artifacts/leaderboards"
+  artifacts_plots: "artifacts/plots"
+  artifacts_shap: "artifacts/shap"
+  docs: "docs"
+
+survey:
+  scale:
+    min: 1
+    max: 5
+    neutral: 3
+    type: "5-point Likert"
+  items:
+    stress:
+      code: "S"
+      items: ["S1", "S2", "S3"]
+      factor_type: "risk"
+      description: "Academic & situational stress (higher = higher risk)"
+    motivation:
+      code: "M"
+      items: ["M1", "M2", "M3"]
+      factor_type: "protective"
+      description: "Intrinsic and academic motivation (higher = lower risk)"
+    belongingness:
+      code: "B"
+      items: ["B1", "B2", "B3"]
+      factor_type: "protective"
+      description: "Sense of institutional and community belongingness (higher = lower risk)"
+    self_efficacy:
+      code: "SE"
+      items: ["SE1", "SE2", "SE3"]
+      factor_type: "protective"
+      description: "Academic self-efficacy and belief in capability (higher = lower risk)"
+    peer_support:
+      code: "PS"
+      items: ["PS1", "PS2", "PS3"]
+      factor_type: "protective"
+      description: "Peer social and academic support networks (higher = lower risk)"
+
+data_split:
+  test_size: 0.20
+  val_size: 0.20
+  cv_folds: 5
+  stratify_column: "risk_category"
+  shuffle: true
+  random_state: 42
+
+risk_scale:
+  min: 0.0
+  max: 100.0
+  categories:
+    low:
+      min: 0.0
+      max: 33.33
+      label: "Low"
+      color: "#10B981"
+    moderate:
+      min: 33.34
+      max: 66.66
+      label: "Moderate"
+      color: "#F59E0B"
+    high:
+      min: 66.67
+      max: 100.0
+      label: "High"
+      color: "#EF4444"
+
+models:
+  baseline: "dummy_stratified"
+  candidates:
+    - "logistic_regression"
+    - "random_forest"
+    - "xgboost"
+    - "lightgbm"
+    - "catboost"
+    - "tabular_mlp"
+  selected_model_path: "artifacts/models/best_pri_model.joblib"
+  optuna:
+    n_trials: 50
+    timeout: 3600
+    metric: "f1_macro"
+    direction: "maximize"
+
+api:
+  title: "Psychosocial Intelligence Framework API"
+  version: "1.0.0"
+  host: "127.0.0.1"
+  port: 8000
+  reload: false
+  max_upload_size_mb: 10
+  upload_ttl_seconds: 3600
+  allow_retraining: true
+  cors_origins:
+    - "http://localhost:3000"
+    - "http://localhost:5173"
+    - "http://127.0.0.1:5173"
+    - "http://127.0.0.1:3000"
+
+ethics:
+  disclaimer: "RESEARCH NOTICE: The Psychosocial Risk Index (PRI) is an academic decision-support indicator developed for educational research at SLIIT Kandy. It is not a clinical psychological evaluation or psychiatric diagnosis."
+  participant_id_field: "study_id"
+
+evaluation:
+  primary_metrics:
+    regression: "r2"          # primary sort metric (higher better)
+    regression_tiebreak: "rmse"
+    classification: "macro_f1"
+    classification_tiebreak: "mcc"
+
+  # Composite leaderboard weights (must sum to 1.0)
+  composite_weights:
+    accuracy: 0.35       # primary metric normalised rank
+    calibration: 0.20    # ECE rank (lower ECE = better)
+    stability: 0.20      # inverse CV std rank
+    explainability: 0.10 # SHAP-compatible bonus
+    latency: 0.15        # inference latency rank (lower = better)
+
+  # Champion eligibility thresholds
+  champion_thresholds:
+    max_overfit_gap: 5.0          # regression RMSE gap; classification F1 gap
+    max_ece: 0.15                 # Expected Calibration Error
+    min_high_risk_recall: 0.70    # mandatory minimum recall on High-Risk class
+    shap_compatible: true         # must support tree/linear SHAP
+
+  # Probability calibration
+  calibration:
+    method: "isotonic"            # isotonic | sigmoid (Platt)
+    cv_folds: 5
+
+  # Statistical comparison
+  statistical_test:
+    method: "wilcoxon"            # corrected_t | wilcoxon
+    alpha: 0.05
+
+  # Robustness checks
+  robustness:
+    noise_levels: [0.05, 0.10, 0.20]   # fraction of items replaced with random values
+    dropout_rates: [0.1, 0.2, 0.33]    # fraction of item columns set to NaN
+    subgroup_columns: ["gender", "year_of_study"]
+
+  # PRI export
+  pri_export:
+    clip_min: 0.0
+    clip_max: 100.0
+    cut_low: 33.33
+    cut_high: 66.67
+    version: "1.0.0"
+

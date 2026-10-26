@@ -1,0 +1,169 @@
+schema_version: "1.0.0"
+
+columns:
+  required_id:
+    name: "study_id"
+    dtype: "string"
+    description: "Anonymized study identifier (e.g. STUDY_0001)"
+    allow_null: false
+
+  required_survey_items:
+    - name: "S1"
+      factor: "stress"
+      type: "risk"
+      dtype: "int"
+      min_value: 1
+      max_value: 5
+      description: "Academic workload pressure"
+      aliases: ["s1", "stress1", "stress_1", "q1", "q1_stress", "workload", "academic_workload"]
+    - name: "S2"
+      factor: "stress"
+      type: "risk"
+      dtype: "int"
+      min_value: 1
+      max_value: 5
+      description: "Exam and assessment anxiety"
+      aliases: ["s2", "stress2", "stress_2", "q2", "q2_stress", "exam_anxiety", "assessment_stress"]
+    - name: "S3"
+      factor: "stress"
+      type: "risk"
+      dtype: "int"
+      min_value: 1
+      max_value: 5
+      description: "Financial or personal life strain"
+      aliases: ["s3", "stress3", "stress_3", "q3", "q3_stress", "personal_strain", "financial_strain"]
+    - name: "M1"
+      factor: "motivation"
+      type: "protective"
+      dtype: "int"
+      min_value: 1
+      max_value: 5
+      description: "Enthusiasm for chosen degree program"
+      aliases: ["m1", "motivation1", "motivation_1", "q4", "q4_motivation", "enthusiasm", "degree_interest"]
+    - name: "M2"
+      factor: "motivation"
+      type: "protective"
+      dtype: "int"
+      min_value: 1
+      max_value: 5
+      description: "Determination to complete studies"
+      aliases: ["m2", "motivation2", "motivation_2", "q5", "q5_motivation", "determination", "persistence"]
+    - name: "M3"
+      factor: "motivation"
+      type: "protective"
+      dtype: "int"
+      min_value: 1
+      max_value: 5
+      description: "Clear future career aspirations"
+      aliases: ["m3", "motivation3", "motivation_3", "q6", "q6_motivation", "career_aspiration", "career_goal"]
+    - name: "B1"
+      factor: "belongingness"
+      type: "protective"
+      dtype: "int"
+      min_value: 1
+      max_value: 5
+      description: "Sense of belonging to university community"
+      aliases: ["b1", "belonging1", "belonging_1", "belongingness1", "q7", "q7_belonging", "community_belonging"]
+    - name: "B2"
+      factor: "belongingness"
+      type: "protective"
+      dtype: "int"
+      min_value: 1
+      max_value: 5
+      description: "Comfort engaging with faculty and campus"
+      aliases: ["b2", "belonging2", "belonging_2", "belongingness2", "q8", "q8_belonging", "faculty_engagement", "campus_comfort"]
+    - name: "B3"
+      factor: "belongingness"
+      type: "protective"
+      dtype: "int"
+      min_value: 1
+      max_value: 5
+      description: "Feeling accepted by university peers"
+      aliases: ["b3", "belonging3", "belonging_3", "belongingness3", "q9", "q9_belonging", "peer_acceptance", "peer_belonging"]
+    - name: "SE1"
+      factor: "self_efficacy"
+      type: "protective"
+      dtype: "int"
+      min_value: 1
+      max_value: 5
+      description: "Confidence in mastering complex coursework"
+      aliases: ["se1", "self_efficacy1", "efficacy1", "q10", "q10_efficacy", "academic_confidence", "coursework_confidence"]
+    - name: "SE2"
+      factor: "self_efficacy"
+      type: "protective"
+      dtype: "int"
+      min_value: 1
+      max_value: 5
+      description: "Resilience in recovering from academic setbacks"
+      aliases: ["se2", "self_efficacy2", "efficacy2", "q11", "q11_efficacy", "academic_resilience", "setback_recovery"]
+    - name: "SE3"
+      factor: "self_efficacy"
+      type: "protective"
+      dtype: "int"
+      min_value: 1
+      max_value: 5
+      description: "Competence in time management and self-study"
+      aliases: ["se3", "self_efficacy3", "efficacy3", "q12", "q12_efficacy", "time_management", "self_study"]
+    - name: "PS1"
+      factor: "peer_support"
+      type: "protective"
+      dtype: "int"
+      min_value: 1
+      max_value: 5
+      description: "Reliable study group or academic peer network"
+      aliases: ["ps1", "peer_support1", "peer1", "peers1", "q13", "q13_peer", "study_group", "academic_peers"]
+    - name: "PS2"
+      factor: "peer_support"
+      type: "protective"
+      dtype: "int"
+      min_value: 1
+      max_value: 5
+      description: "Emotional support from campus friends"
+      aliases: ["ps2", "peer_support2", "peer2", "peers2", "q14", "q14_peer", "emotional_support", "friend_support"]
+    - name: "PS3"
+      factor: "peer_support"
+      type: "protective"
+      dtype: "int"
+      min_value: 1
+      max_value: 5
+      description: "Collaborative problem-solving with coursemates"
+      aliases: ["ps3", "peer_support3", "peer3", "peers3", "q15", "q15_peer", "peer_collaboration", "collaboration"]
+
+  optional_metadata:
+    - name: "age_group"
+      dtype: "string"
+      allowed_values: ["<18", "18-20", "21-23", "24-26", "27+", "prefer_not_to_say"]
+      aliases: ["age", "age_bracket", "age_range", "agegroup"]
+    - name: "gender"
+      dtype: "string"
+      allowed_values: ["male", "female", "non-binary", "other", "prefer_not_to_say"]
+      aliases: ["sex", "gender_identity"]
+    - name: "year_of_study"
+      dtype: "string"
+      allowed_values: ["1", "2", "3", "4", "year 1", "year 2", "year 3", "year 4", "y1", "y2", "y3", "y4"]
+      aliases: ["year", "academic_year", "level", "yos", "study_year"]
+    - name: "programme"
+      dtype: "string"
+      allowed_values: ["se", "cs", "ds", "it", "cn", "cyber_security", "interactive_media", "other"]
+      aliases: ["program", "major", "department", "degree", "course_name"]
+
+  optional_outcomes:
+    - name: "attrition_label"
+      dtype: "int"
+      min_value: 0
+      max_value: 1
+      description: "Binary attrition indicator (0 = Retained/Graduated, 1 = Dropped out)"
+      aliases: ["attrition", "dropout", "withdrawn", "is_attrited", "dropout_status", "label"]
+    - name: "dropout_intention"
+      dtype: "int"
+      min_value: 1
+      max_value: 5
+      description: "Self-reported withdrawal intention on 5-point Likert scale"
+      aliases: ["intention", "turnover_intent", "withdrawal_intention", "dropout_risk_self"]
+
+validation_rules:
+  likert_min: 1
+  likert_max: 5
+  max_missing_ratio_row: 0.20
+  flag_straight_lining: true
+  straight_lining_std_threshold: 0.0
