@@ -1,0 +1,61 @@
+# Virtual Environment
+.venv/
+env/
+venv/
+ENV/
+
+# Data directories (raw is strictly uncommitted; synthetic & interim cached)
+data/raw/*
+!data/raw/.gitkeep
+data/interim/*
+!data/interim/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+
+# Artifacts - large models and binary files
+artifacts/models/*
+!artifacts/models/.gitkeep
+artifacts/scalers/*
+!artifacts/scalers/.gitkeep
+artifacts/calibrators/*
+!artifacts/calibrators/.gitkeep
+*.pt
+*.pth
+*.joblib
+*.pkl
+*.bin
+*.onnx
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.next/
+frontend/build/
+.npm
+.yarn
+
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+.matplotlib/
+.matplotlib_cache/
+scratch/
+
+# OS and Editor files
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Environment variables
+.env
+.env.local
