@@ -1,0 +1,89 @@
+seed: 42
+
+sample_sizes:
+  default: 3000
+  small: 300
+
+demographics:
+  year_of_study:
+    categories: ["1", "2", "3", "4"]
+    probabilities: [0.32, 0.28, 0.22, 0.18]
+    effects:
+      "1": {stress: 0.30, belongingness: -0.25, self_efficacy: -0.20, motivation: -0.10}
+      "2": {stress: 0.15, belongingness: -0.05, self_efficacy: 0.00, motivation: 0.05}
+      "3": {stress: 0.20, belongingness: 0.05, self_efficacy: 0.15, motivation: 0.10}
+      "4": {stress: 0.10, belongingness: 0.20, self_efficacy: 0.25, motivation: 0.30}
+  gender:
+    categories: ["male", "female", "non-binary"]
+    probabilities: [0.52, 0.45, 0.03]
+    effects:
+      "male": {stress: -0.05, peer_support: -0.10}
+      "female": {stress: 0.10, peer_support: 0.15}
+      "non-binary": {stress: 0.15, belongingness: -0.15}
+  programme:
+    categories: ["se", "cs", "ds", "it", "cyber_security"]
+    probabilities: [0.30, 0.25, 0.15, 0.20, 0.10]
+  age_group:
+    categories: ["18-20", "21-23", "24-26", "27+"]
+    probabilities: [0.55, 0.35, 0.08, 0.02]
+
+latent_factors:
+  names: ["stress", "motivation", "belongingness", "self_efficacy", "peer_support"]
+  mean: [0.0, 0.0, 0.0, 0.0, 0.0]
+  correlation_matrix:
+    - [ 1.00, -0.38, -0.35, -0.42, -0.28]  # stress
+    - [-0.38,  1.00,  0.45,  0.55,  0.35]  # motivation
+    - [-0.35,  0.45,  1.00,  0.40,  0.58]  # belongingness
+    - [-0.42,  0.55,  0.40,  1.00,  0.38]  # self_efficacy
+    - [-0.28,  0.35,  0.58,  0.38,  1.00]  # peer_support
+
+items:
+  item_noise_sd: 0.72
+  ordinal_thresholds: [-1.35, -0.42, 0.42, 1.35]
+  target_cronbach_range: [0.70, 0.88]
+
+realism_noise:
+  missing_rate: 0.03
+  mar_stress_influence: 0.35
+  straight_lining_rate: 0.01
+
+outcomes:
+  attrition:
+    intercept: -1.95
+    weights:
+      stress: 0.75
+      motivation: -0.70
+      belongingness: -0.50
+      self_efficacy: -0.45
+      peer_support: -0.35
+    unobserved_confounder_sd: 0.65
+    target_base_rate_range: [0.18, 0.25]
+  dropout_intention:
+    intercept: 2.80
+    weights:
+      stress: 0.65
+      motivation: -0.70
+      belongingness: -0.45
+      self_efficacy: -0.40
+      peer_support: -0.30
+    noise_sd: 0.65
+
+pri_target:
+  weights:
+    stress: 0.28
+    motivation: 0.22
+    belongingness: 0.18
+    self_efficacy: 0.18
+    peer_support: 0.14
+  noise_sd: 1.5
+  cut_points:
+    low_upper: 34.0
+    moderate_upper: 66.0
+
+outputs:
+  synthetic_dir: "data/synthetic"
+  plots_dir: "artifacts/plots"
+  clean_dataset_name: "synthetic_survey_3000.csv"
+  small_dataset_name: "synthetic_survey_300.csv"
+  dirty_dataset_name: "synthetic_survey_dirty.csv"
+  metadata_name: "metadata.json"
