@@ -1,0 +1,59 @@
+# ──────────────────────────────────────────────────────────────────
+# Psychosocial Intelligence Framework — docker-compose.yml
+# Services: backend (FastAPI) + frontend (Vite/React)
+# ──────────────────────────────────────────────────────────────────
+version: "3.9"
+
+services:
+
+  # ── Backend: FastAPI Inference & Explainability API ─────────────
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: pri_backend
+    ports:
+      - "8000:8000"
+    environment:
+      - ETHICS_DISCLAIMER=RESEARCH NOTICE: The PRI is an academic decision-support indicator, NOT a clinical diagnosis.
+      - PYTHONUNBUFFERED=1
+    volumes:
+      # Mount writable artifact directories so results persist outside the container
+      - ./artifacts:/app/artifacts
+      - ./data/processed:/app/data/processed
+      - ./data/synthetic:/app/data/synthetic
+      - ./docs:/app/docs
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    networks:
+      - pri_network
+
+  # ── Frontend: React + Vite Dashboard ───────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.frontend
+    container_name: pri_frontend
+    ports:
+      - "5173:5173"
+    depends_on:
+      backend:
+        condition: service_healthy
+    environment:
+      - VITE_API_BASE_URL=http://localhost:8000
+    networks:
+      - pri_network
+    restart: unless-stopped
+
+networks:
+  pri_network:
+    driver: bridge
+
+volumes:
+  artifacts_vol:
+    driver: local

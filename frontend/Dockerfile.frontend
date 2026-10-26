@@ -1,0 +1,30 @@
+# ──────────────────────────────────────────────────────────────────
+# Frontend Dockerfile — React + Vite (multi-stage build)
+# ──────────────────────────────────────────────────────────────────
+FROM node:22-alpine AS builder
+
+WORKDIR /app
+
+# Install dependencies (layer cached)
+COPY package*.json ./
+RUN npm ci
+
+# Build production bundle
+COPY . .
+ENV VITE_API_BASE_URL=http://localhost:8000
+RUN npm run build
+
+# ── Production stage: serve with lightweight HTTP server ──────────
+FROM node:22-alpine AS runner
+
+RUN npm install -g serve
+
+WORKDIR /app
+COPY --from=builder /app/dist ./dist
+
+EXPOSE 5173
+
+HEALTHCHECK --interval=30s --timeout=5s \
+    CMD wget -qO- http://localhost:5173 || exit 1
+
+CMD ["serve", "-s", "dist", "-l", "5173"]
