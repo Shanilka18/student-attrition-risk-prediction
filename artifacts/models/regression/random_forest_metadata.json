@@ -1,0 +1,37 @@
+{
+  "model_name": "random_forest",
+  "category": "Ensemble/Bagging",
+  "track": "regression",
+  "feature_set": "factor_scores",
+  "best_params": {},
+  "cv_metrics_mean": {
+    "rmse": 3.3148,
+    "mae": 2.3637,
+    "r2": 0.9684,
+    "primary": 3.3148
+  },
+  "cv_metrics_std": {
+    "rmse_std": 0.3587,
+    "mae_std": 0.0465,
+    "r2_std": 0.0078,
+    "primary_std": 0.3587
+  },
+  "train_metrics": {
+    "rmse": 1.6675,
+    "mae": 0.9174,
+    "r2": 0.9922,
+    "primary": 1.6675
+  },
+  "validation_metrics": {
+    "rmse": 2.6855,
+    "mae": 2.0801,
+    "r2": 0.9796,
+    "primary": 2.6855
+  },
+  "overfitting_gap": 1.018,
+  "train_time_sec": 1.872,
+  "inference_latency_ms": 29.998,
+  "model_size_kb": 18407.99,
+  "artifact_path": "artifacts\\models\\regression\\random_forest.joblib",
+  "timestamp_utc": "2026-10-18T06:07:46.363866+00:00"
+}

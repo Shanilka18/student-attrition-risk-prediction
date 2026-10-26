@@ -1,0 +1,174 @@
+{
+  "model_name": "hist_gradient_boosting",
+  "track": "classification",
+  "feature_set": "factor_scores",
+  "version": "1.0.0",
+  "training_date_utc": "2026-10-18T07:17:29.736650+00:00",
+  "test_set_metrics": {
+    "accuracy": 0.935268,
+    "balanced_accuracy": 0.928136,
+    "macro_f1": 0.931423,
+    "weighted_f1": 0.935099,
+    "macro_precision": 0.935264,
+    "weighted_precision": 0.935395,
+    "macro_recall": 0.928136,
+    "weighted_recall": 0.935268,
+    "per_class_f1": {
+      "Low": 0.934132,
+      "Moderate": 0.94347,
+      "High": 0.916667
+    },
+    "per_class_precision": {
+      "Low": 0.928571,
+      "Moderate": 0.934363,
+      "High": 0.942857
+    },
+    "per_class_recall": {
+      "Low": 0.939759,
+      "Moderate": 0.952756,
+      "High": 0.891892
+    },
+    "high_risk_recall": 0.891892,
+    "mcc": 0.888534,
+    "quadratic_weighted_kappa": 0.923759,
+    "confusion_matrix": [
+      [
+        78,
+        5,
+        0
+      ],
+      [
+        6,
+        242,
+        6
+      ],
+      [
+        0,
+        12,
+        99
+      ]
+    ],
+    "confusion_matrix_labels": [
+      "Low",
+      "Moderate",
+      "High"
+    ],
+    "primary": 0.931423,
+    "tiebreak": 0.888534,
+    "roc_auc_ovr_macro": 0.992774,
+    "pr_auc_macro": 0.987814,
+    "pr_auc_per_class": {
+      "Low": 0.989909,
+      "Moderate": 0.991077,
+      "High": 0.982456
+    },
+    "log_loss": 11.520506,
+    "brier_score": 0.0306,
+    "ece": 0.031889,
+    "inference_latency_ms_per_100": 7.8803
+  },
+  "robustness": {
+    "noise": {
+      "5pct": {
+        "primary": 0.920453,
+        "rmse": null,
+        "macro_f1": 0.920453
+      },
+      "10pct": {
+        "primary": 0.874591,
+        "rmse": null,
+        "macro_f1": 0.874591
+      },
+      "20pct": {
+        "primary": 0.782486,
+        "rmse": null,
+        "macro_f1": 0.782486
+      }
+    },
+    "dropout": {
+      "10pct": {
+        "primary": 0.901448,
+        "rmse": null,
+        "macro_f1": 0.901448
+      },
+      "20pct": {
+        "primary": 0.822814,
+        "rmse": null,
+        "macro_f1": 0.822814
+      },
+      "33pct": {
+        "primary": 0.752743,
+        "rmse": null,
+        "macro_f1": 0.752743
+      }
+    }
+  },
+  "fairness": {
+    "gender": {
+      "male": {
+        "n": 241,
+        "primary": 0.95658,
+        "rmse": null,
+        "macro_f1": 0.95658,
+        "high_risk_recall": 0.939394
+      },
+      "female": {
+        "n": 194,
+        "primary": 0.960233,
+        "rmse": null,
+        "macro_f1": 0.960233,
+        "high_risk_recall": 0.976744
+      },
+      "non-binary": {
+        "n": 13,
+        "primary": 0.4,
+        "rmse": null,
+        "macro_f1": 0.4,
+        "high_risk_recall": 0.5
+      }
+    },
+    "year_of_study": {
+      "4": {
+        "n": 73,
+        "primary": 0.940555,
+        "rmse": null,
+        "macro_f1": 0.940555,
+        "high_risk_recall": 0.923077
+      },
+      "2": {
+        "n": 116,
+        "primary": 0.924544,
+        "rmse": null,
+        "macro_f1": 0.924544,
+        "high_risk_recall": 0.896552
+      },
+      "1": {
+        "n": 158,
+        "primary": 0.95508,
+        "rmse": null,
+        "macro_f1": 0.95508,
+        "high_risk_recall": 0.957447
+      },
+      "3": {
+        "n": 101,
+        "primary": 0.976017,
+        "rmse": null,
+        "macro_f1": 0.976017,
+        "high_risk_recall": 1.0
+      }
+    }
+  },
+  "pri_thresholds": {
+    "clip_min": 0.0,
+    "clip_max": 100.0,
+    "cut_low": 33.33,
+    "cut_high": 66.67,
+    "categories": {
+      "Low": "0\u201333.33",
+      "Moderate": "33.34\u201366.67",
+      "High": "66.68\u2013100"
+    }
+  },
+  "data_hash": "dd22171e88b63a74",
+  "disclaimer": "RESEARCH NOTICE: The Psychosocial Risk Index (PRI) is an academic decision-support indicator developed for educational research at SLIIT Kandy. It is not a clinical psychological evaluation or psychiatric diagnosis."
+}

@@ -1,0 +1,212 @@
+{
+  "timestamp_utc": "2026-10-18T05:45:18.215663+00:00",
+  "sample_size": 2086,
+  "alpha_threshold": 0.7,
+  "all_factors_passed": true,
+  "factors": {
+    "stress": {
+      "cronbach_alpha": 0.8328,
+      "mcdonald_omega": 0.8997,
+      "status": "EXCELLENT",
+      "passed": true,
+      "n_items": 3,
+      "item_analysis": {
+        "S1": {
+          "alpha_if_deleted": 0.7698,
+          "corrected_item_total_r": 0.6912,
+          "item_mean": 3.19,
+          "item_std": 1.224
+        },
+        "S2": {
+          "alpha_if_deleted": 0.7671,
+          "corrected_item_total_r": 0.6939,
+          "item_mean": 3.228,
+          "item_std": 1.235
+        },
+        "S3": {
+          "alpha_if_deleted": 0.7686,
+          "corrected_item_total_r": 0.6925,
+          "item_mean": 3.224,
+          "item_std": 1.245
+        }
+      }
+    },
+    "motivation": {
+      "cronbach_alpha": 0.8439,
+      "mcdonald_omega": 0.9058,
+      "status": "EXCELLENT",
+      "passed": true,
+      "n_items": 3,
+      "item_analysis": {
+        "M1": {
+          "alpha_if_deleted": 0.773,
+          "corrected_item_total_r": 0.7198,
+          "item_mean": 3.042,
+          "item_std": 1.235
+        },
+        "M2": {
+          "alpha_if_deleted": 0.7762,
+          "corrected_item_total_r": 0.7165,
+          "item_mean": 3.029,
+          "item_std": 1.252
+        },
+        "M3": {
+          "alpha_if_deleted": 0.7991,
+          "corrected_item_total_r": 0.6927,
+          "item_mean": 3.013,
+          "item_std": 1.248
+        }
+      }
+    },
+    "belongingness": {
+      "cronbach_alpha": 0.8411,
+      "mcdonald_omega": 0.9042,
+      "status": "EXCELLENT",
+      "passed": true,
+      "n_items": 3,
+      "item_analysis": {
+        "B1": {
+          "alpha_if_deleted": 0.7865,
+          "corrected_item_total_r": 0.6977,
+          "item_mean": 2.917,
+          "item_std": 1.262
+        },
+        "B2": {
+          "alpha_if_deleted": 0.7717,
+          "corrected_item_total_r": 0.7129,
+          "item_mean": 2.918,
+          "item_std": 1.246
+        },
+        "B3": {
+          "alpha_if_deleted": 0.7793,
+          "corrected_item_total_r": 0.7051,
+          "item_mean": 2.92,
+          "item_std": 1.244
+        }
+      }
+    },
+    "self_efficacy": {
+      "cronbach_alpha": 0.8455,
+      "mcdonald_omega": 0.9066,
+      "status": "EXCELLENT",
+      "passed": true,
+      "n_items": 3,
+      "item_analysis": {
+        "SE1": {
+          "alpha_if_deleted": 0.7704,
+          "corrected_item_total_r": 0.727,
+          "item_mean": 2.963,
+          "item_std": 1.225
+        },
+        "SE2": {
+          "alpha_if_deleted": 0.7961,
+          "corrected_item_total_r": 0.7002,
+          "item_mean": 3.003,
+          "item_std": 1.229
+        },
+        "SE3": {
+          "alpha_if_deleted": 0.7878,
+          "corrected_item_total_r": 0.7089,
+          "item_mean": 2.961,
+          "item_std": 1.234
+        }
+      }
+    },
+    "peer_support": {
+      "cronbach_alpha": 0.8263,
+      "mcdonald_omega": 0.8962,
+      "status": "EXCELLENT",
+      "passed": true,
+      "n_items": 3,
+      "item_analysis": {
+        "PS1": {
+          "alpha_if_deleted": 0.7607,
+          "corrected_item_total_r": 0.6824,
+          "item_mean": 2.955,
+          "item_std": 1.244
+        },
+        "PS2": {
+          "alpha_if_deleted": 0.7598,
+          "corrected_item_total_r": 0.6834,
+          "item_mean": 2.987,
+          "item_std": 1.227
+        },
+        "PS3": {
+          "alpha_if_deleted": 0.7603,
+          "corrected_item_total_r": 0.6828,
+          "item_mean": 2.943,
+          "item_std": 1.243
+        }
+      }
+    }
+  },
+  "inter_factor_correlation_matrix": {
+    "stress": {
+      "stress": 1.0,
+      "motivation": -0.3224,
+      "belongingness": -0.3034,
+      "self_efficacy": -0.3685,
+      "peer_support": -0.2322
+    },
+    "motivation": {
+      "stress": -0.3224,
+      "motivation": 1.0,
+      "belongingness": 0.3753,
+      "self_efficacy": 0.4384,
+      "peer_support": 0.2865
+    },
+    "belongingness": {
+      "stress": -0.3034,
+      "motivation": 0.3753,
+      "belongingness": 1.0,
+      "self_efficacy": 0.3634,
+      "peer_support": 0.501
+    },
+    "self_efficacy": {
+      "stress": -0.3685,
+      "motivation": 0.4384,
+      "belongingness": 0.3634,
+      "self_efficacy": 1.0,
+      "peer_support": 0.3269
+    },
+    "peer_support": {
+      "stress": -0.2322,
+      "motivation": 0.2865,
+      "belongingness": 0.501,
+      "self_efficacy": 0.3269,
+      "peer_support": 1.0
+    }
+  },
+  "cleaning_audit": {
+    "initial_rows": 3000,
+    "straight_liners_removed": 18,
+    "validation_passed": false,
+    "validation_errors": [
+      "Required column 'S1' contains 91 missing values (3.0%).",
+      "Required column 'S2' contains 93 missing values (3.1%).",
+      "Required column 'S3' contains 90 missing values (3.0%).",
+      "Required column 'M1' contains 95 missing values (3.2%).",
+      "Required column 'M2' contains 98 missing values (3.3%).",
+      "Required column 'M3' contains 91 missing values (3.0%).",
+      "Required column 'B1' contains 90 missing values (3.0%).",
+      "Required column 'B2' contains 105 missing values (3.5%).",
+      "Required column 'B3' contains 97 missing values (3.2%).",
+      "Required column 'SE1' contains 109 missing values (3.6%).",
+      "Required column 'SE2' contains 98 missing values (3.3%).",
+      "Required column 'SE3' contains 102 missing values (3.4%).",
+      "Required column 'PS1' contains 83 missing values (2.8%).",
+      "Required column 'PS2' contains 94 missing values (3.1%).",
+      "Required column 'PS3' contains 87 missing values (2.9%)."
+    ],
+    "validation_warnings": [
+      "Extra unmapped columns detected (3): pri_true, risk_category, is_synthetic",
+      "Detected 18 straight-lining respondents with identical answers across all 15 items: ['SLIIT_00230', 'SLIIT_00269', 'SLIIT_00283', 'SLIIT_00361', 'SLIIT_00385']."
+    ],
+    "final_rows": 2982
+  },
+  "imputation_comparison": {
+    "mae_median": 1.0367,
+    "mae_mice": 0.7743,
+    "recommendation": "mice"
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "model_name": "ridge",
+  "category": "Linear/Shallow",
+  "track": "classification",
+  "feature_set": "factor_scores",
+  "best_params": {},
+  "cv_metrics_mean": {
+    "accuracy": 0.8049,
+    "balanced_accuracy": 0.6785,
+    "macro_f1": 0.6992,
+    "macro_precision": 0.9027,
+    "macro_recall": 0.6785,
+    "primary": 0.6992
+  },
+  "cv_metrics_std": {
+    "accuracy_std": 0.0213,
+    "balanced_accuracy_std": 0.0312,
+    "macro_f1_std": 0.0382,
+    "macro_precision_std": 0.0143,
+    "macro_recall_std": 0.0312,
+    "primary_std": 0.0382
+  },
+  "train_metrics": {
+    "accuracy": 0.8078,
+    "balanced_accuracy": 0.6811,
+    "macro_f1": 0.7044,
+    "macro_precision": 0.9059,
+    "macro_recall": 0.6811,
+    "primary": 0.7044
+  },
+  "validation_metrics": {
+    "accuracy": 0.8147,
+    "balanced_accuracy": 0.692,
+    "macro_f1": 0.7168,
+    "macro_precision": 0.9091,
+    "macro_recall": 0.692,
+    "primary": 0.7168
+  },
+  "overfitting_gap": 0.0124,
+  "train_time_sec": 0.211,
+  "inference_latency_ms": 2.035,
+  "model_size_kb": 1.55,
+  "artifact_path": "artifacts\\models\\classification\\ridge.joblib",
+  "timestamp_utc": "2026-10-18T06:07:49.059278+00:00"
+}

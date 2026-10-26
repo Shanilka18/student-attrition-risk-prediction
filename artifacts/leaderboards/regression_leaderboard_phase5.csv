@@ -1,0 +1,6 @@
+model_name,category,feature_set,overfitting_gap,train_time_sec,latency_ms,size_kb,val_primary_metric,val_tiebreak,ece,high_risk_recall,mcc,quadratic_kappa,roc_auc,pr_auc,log_loss,brier_score,val_r2,val_adj_r2,val_rmse,val_mae,val_median_ae,val_smape,val_explained_var,val_pearson_r,val_spearman_r,val_within_10_acc,composite_score,composite_rank
+ridge,Linear/Shallow,factor_scores,0.5178,0.046,0.967,0.92,0.990817,1.802283,,,,,,,,,0.990817,0.990714,1.802283,1.403597,1.125568,3.1866,0.990818,0.9954,0.994681,1.0,0.7599999999999999,1
+hist_gradient_boosting,Boosting,factor_scores,0.2806,1.94,4.217,355.69,0.985194,2.288533,,,,,,,,,0.985194,0.985027,2.288533,1.817841,1.56424,4.2393,0.985198,0.992576,0.99196,1.0,0.6599999999999999,2
+random_forest,Ensemble/Bagging,factor_scores,1.018,1.872,29.998,18407.99,0.94931,4.23447,,,,,,,,,0.94931,0.948737,4.23447,3.342965,2.769763,7.8512,0.949311,0.97658,0.971491,0.975446,0.5599999999999999,4
+decision_tree,Linear/Shallow,factor_scores,4.0078,0.069,0.826,291.78,0.837245,7.587654,,,,,,,,,0.837245,0.835403,7.587654,6.094588,5.038965,13.7169,0.837427,0.915555,0.904328,0.819196,0.58,3
+dummy,Baseline,factor_scores,0.0592,0.084,0.072,0.75,-1.9e-05,18.808048,,,,,,,,,-1.9e-05,-0.011331,18.808048,15.225068,13.05,31.3471,0.0,,,0.401786,0.4700000000000001,5

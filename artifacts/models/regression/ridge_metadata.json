@@ -1,0 +1,37 @@
+{
+  "model_name": "ridge",
+  "category": "Linear/Shallow",
+  "track": "regression",
+  "feature_set": "factor_scores",
+  "best_params": {},
+  "cv_metrics_mean": {
+    "rmse": 2.2815,
+    "mae": 1.5382,
+    "r2": 0.9847,
+    "primary": 2.2815
+  },
+  "cv_metrics_std": {
+    "rmse_std": 0.4519,
+    "mae_std": 0.0686,
+    "r2_std": 0.0065,
+    "primary_std": 0.4519
+  },
+  "train_metrics": {
+    "rmse": 2.3201,
+    "mae": 1.5332,
+    "r2": 0.9849,
+    "primary": 2.3201
+  },
+  "validation_metrics": {
+    "rmse": 1.8023,
+    "mae": 1.4036,
+    "r2": 0.9908,
+    "primary": 1.8023
+  },
+  "overfitting_gap": 0.5178,
+  "train_time_sec": 0.046,
+  "inference_latency_ms": 0.967,
+  "model_size_kb": 0.92,
+  "artifact_path": "artifacts\\models\\regression\\ridge.joblib",
+  "timestamp_utc": "2026-10-18T06:07:44.182753+00:00"
+}

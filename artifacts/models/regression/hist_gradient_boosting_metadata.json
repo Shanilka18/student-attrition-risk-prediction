@@ -1,0 +1,37 @@
+{
+  "model_name": "hist_gradient_boosting",
+  "category": "Boosting",
+  "track": "regression",
+  "feature_set": "factor_scores",
+  "best_params": {},
+  "cv_metrics_mean": {
+    "rmse": 2.9564,
+    "mae": 2.0682,
+    "r2": 0.9748,
+    "primary": 2.9564
+  },
+  "cv_metrics_std": {
+    "rmse_std": 0.3809,
+    "mae_std": 0.0532,
+    "r2_std": 0.0072,
+    "primary_std": 0.3809
+  },
+  "train_metrics": {
+    "rmse": 2.0079,
+    "mae": 1.2924,
+    "r2": 0.9887,
+    "primary": 2.0079
+  },
+  "validation_metrics": {
+    "rmse": 2.2885,
+    "mae": 1.8178,
+    "r2": 0.9852,
+    "primary": 2.2885
+  },
+  "overfitting_gap": 0.2806,
+  "train_time_sec": 1.94,
+  "inference_latency_ms": 4.217,
+  "model_size_kb": 355.69,
+  "artifact_path": "artifacts\\models\\regression\\hist_gradient_boosting.joblib",
+  "timestamp_utc": "2026-10-18T06:07:48.454409+00:00"
+}

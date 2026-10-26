@@ -1,0 +1,45 @@
+{
+  "model_name": "random_forest",
+  "category": "Ensemble/Bagging",
+  "track": "classification",
+  "feature_set": "factor_scores",
+  "best_params": {},
+  "cv_metrics_mean": {
+    "accuracy": 0.9157,
+    "balanced_accuracy": 0.9012,
+    "macro_f1": 0.9089,
+    "macro_precision": 0.9178,
+    "macro_recall": 0.9012,
+    "primary": 0.9089
+  },
+  "cv_metrics_std": {
+    "accuracy_std": 0.0091,
+    "balanced_accuracy_std": 0.0119,
+    "macro_f1_std": 0.01,
+    "macro_precision_std": 0.0112,
+    "macro_recall_std": 0.0119,
+    "primary_std": 0.01
+  },
+  "train_metrics": {
+    "accuracy": 0.9976,
+    "balanced_accuracy": 0.9966,
+    "macro_f1": 0.9976,
+    "macro_precision": 0.9986,
+    "macro_recall": 0.9966,
+    "primary": 0.9976
+  },
+  "validation_metrics": {
+    "accuracy": 0.9487,
+    "balanced_accuracy": 0.9326,
+    "macro_f1": 0.9428,
+    "macro_precision": 0.9543,
+    "macro_recall": 0.9326,
+    "primary": 0.9428
+  },
+  "overfitting_gap": 0.0548,
+  "train_time_sec": 2.24,
+  "inference_latency_ms": 30.121,
+  "model_size_kb": 4300.63,
+  "artifact_path": "artifacts\\models\\classification\\random_forest.joblib",
+  "timestamp_utc": "2026-10-18T06:07:51.780497+00:00"
+}

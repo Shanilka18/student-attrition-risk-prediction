@@ -1,0 +1,6 @@
+model_name,category,best_feature_set,val_primary_metric,overfitting_gap,train_time_sec,latency_ms,size_kb,val_macro_f1,val_accuracy,val_balanced_acc
+hist_gradient_boosting,Boosting,factor_scores,0.9494,0.0482,5.277,114.674,1059.45,0.9494,0.9531,0.9461
+random_forest,Ensemble/Bagging,factor_scores,0.9428,0.0548,2.24,30.121,4300.63,0.9428,0.9487,0.9326
+decision_tree,Linear/Shallow,factor_scores,0.8937,0.1039,0.125,1.308,48.41,0.8937,0.9018,0.8922
+ridge,Linear/Shallow,factor_scores,0.7168,0.0124,0.211,2.035,1.55,0.7168,0.8147,0.692
+dummy,Baseline,factor_scores,0.2412,0.0002,0.165,0.154,1.03,0.2412,0.567,0.3333

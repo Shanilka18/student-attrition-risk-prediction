@@ -1,0 +1,66 @@
+{
+  "track": "classification",
+  "champion": "hist_gradient_boosting",
+  "champion_category": "Boosting",
+  "selection_metric": "val_macro_f1",
+  "primary_metric_value": 0.949385,
+  "overfitting_gap": 0.0482,
+  "ece": 0.017166,
+  "high_risk_recall": 0.945946,
+  "composite_rank": 1,
+  "eligibility_criteria": {
+    "max_overfit_gap": 5.0,
+    "max_ece": 0.15,
+    "min_high_risk_recall": 0.7
+  },
+  "justification": "'hist_gradient_boosting' selected as classification champion with val_macro_f1=0.9494, overfitting_gap=0.0482. Passes all eligibility thresholds and is SHAP-compatible.",
+  "best_per_category": {
+    "Boosting": "hist_gradient_boosting",
+    "Ensemble/Bagging": "random_forest",
+    "Linear/Shallow": "decision_tree",
+    "Baseline": "dummy"
+  },
+  "statistical_comparisons": [
+    {
+      "champion": "hist_gradient_boosting",
+      "challenger": "random_forest",
+      "champion_mean": 0.9494,
+      "challenger_mean": 0.9428,
+      "wilcoxon_stat": null,
+      "p_value": 1.0,
+      "significant": false,
+      "alpha": 0.05
+    },
+    {
+      "champion": "hist_gradient_boosting",
+      "challenger": "decision_tree",
+      "champion_mean": 0.9494,
+      "challenger_mean": 0.8937,
+      "wilcoxon_stat": null,
+      "p_value": 1.0,
+      "significant": false,
+      "alpha": 0.05
+    },
+    {
+      "champion": "hist_gradient_boosting",
+      "challenger": "ridge",
+      "champion_mean": 0.9494,
+      "challenger_mean": 0.7168,
+      "wilcoxon_stat": null,
+      "p_value": 1.0,
+      "significant": false,
+      "alpha": 0.05
+    },
+    {
+      "champion": "hist_gradient_boosting",
+      "challenger": "dummy",
+      "champion_mean": 0.9494,
+      "challenger_mean": 0.2412,
+      "wilcoxon_stat": null,
+      "p_value": 1.0,
+      "significant": false,
+      "alpha": 0.05
+    }
+  ],
+  "timestamp_utc": "2026-10-18T11:12:16.954597+00:00"
+}

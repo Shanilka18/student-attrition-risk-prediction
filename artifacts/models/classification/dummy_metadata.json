@@ -1,0 +1,45 @@
+{
+  "model_name": "dummy",
+  "category": "Baseline",
+  "track": "classification",
+  "feature_set": "factor_scores",
+  "best_params": {},
+  "cv_metrics_mean": {
+    "accuracy": 0.5661,
+    "balanced_accuracy": 0.3333,
+    "macro_f1": 0.241,
+    "macro_precision": 0.1887,
+    "macro_recall": 0.3333,
+    "primary": 0.241
+  },
+  "cv_metrics_std": {
+    "accuracy_std": 0.0004,
+    "balanced_accuracy_std": 0.0,
+    "macro_f1_std": 0.0001,
+    "macro_precision_std": 0.0002,
+    "macro_recall_std": 0.0,
+    "primary_std": 0.0001
+  },
+  "train_metrics": {
+    "accuracy": 0.5662,
+    "balanced_accuracy": 0.3333,
+    "macro_f1": 0.241,
+    "macro_precision": 0.1887,
+    "macro_recall": 0.3333,
+    "primary": 0.241
+  },
+  "validation_metrics": {
+    "accuracy": 0.567,
+    "balanced_accuracy": 0.3333,
+    "macro_f1": 0.2412,
+    "macro_precision": 0.189,
+    "macro_recall": 0.3333,
+    "primary": 0.2412
+  },
+  "overfitting_gap": 0.0002,
+  "train_time_sec": 0.165,
+  "inference_latency_ms": 0.154,
+  "model_size_kb": 1.03,
+  "artifact_path": "artifacts\\models\\classification\\dummy.joblib",
+  "timestamp_utc": "2026-10-18T06:07:48.765535+00:00"
+}

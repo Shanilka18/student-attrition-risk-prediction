@@ -1,0 +1,37 @@
+{
+  "model_name": "dummy",
+  "category": "Baseline",
+  "track": "regression",
+  "feature_set": "factor_scores",
+  "best_params": {},
+  "cv_metrics_mean": {
+    "rmse": 18.8781,
+    "mae": 15.4558,
+    "r2": -0.0055,
+    "primary": 18.8781
+  },
+  "cv_metrics_std": {
+    "rmse_std": 0.5024,
+    "mae_std": 0.4431,
+    "r2_std": 0.0056,
+    "primary_std": 0.5024
+  },
+  "train_metrics": {
+    "rmse": 18.8672,
+    "mae": 15.4441,
+    "r2": 0.0,
+    "primary": 18.8672
+  },
+  "validation_metrics": {
+    "rmse": 18.808,
+    "mae": 15.2251,
+    "r2": -0.0,
+    "primary": 18.808
+  },
+  "overfitting_gap": 0.0592,
+  "train_time_sec": 0.084,
+  "inference_latency_ms": 0.072,
+  "model_size_kb": 0.75,
+  "artifact_path": "artifacts\\models\\regression\\dummy.joblib",
+  "timestamp_utc": "2026-10-18T06:07:44.104166+00:00"
+}

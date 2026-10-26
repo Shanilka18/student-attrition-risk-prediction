@@ -1,0 +1,88 @@
+{
+  "seed": 42,
+  "determinism_results": [
+    {
+      "model": "regression/decision_tree",
+      "identical_across_calls": true,
+      "max_diff": 0.0,
+      "nondeterminism_source": "None"
+    },
+    {
+      "model": "regression/dummy",
+      "identical_across_calls": true,
+      "max_diff": 0.0,
+      "nondeterminism_source": "None"
+    },
+    {
+      "model": "regression/hist_gradient_boosting",
+      "identical_across_calls": true,
+      "max_diff": 0.0,
+      "nondeterminism_source": "None"
+    },
+    {
+      "model": "regression/random_forest",
+      "identical_across_calls": true,
+      "max_diff": 0.0,
+      "nondeterminism_source": "None"
+    },
+    {
+      "model": "regression/ridge",
+      "identical_across_calls": true,
+      "max_diff": 0.0,
+      "nondeterminism_source": "None"
+    },
+    {
+      "model": "classification/decision_tree",
+      "identical_across_calls": true,
+      "max_diff": 0.0,
+      "nondeterminism_source": "None"
+    },
+    {
+      "model": "classification/dummy",
+      "identical_across_calls": true,
+      "max_diff": 0.0,
+      "nondeterminism_source": "None"
+    },
+    {
+      "model": "classification/hist_gradient_boosting",
+      "identical_across_calls": true,
+      "max_diff": 0.0,
+      "nondeterminism_source": "None"
+    },
+    {
+      "model": "classification/label_encoder",
+      "error": "'LabelEncoder' object has no attribute 'predict'"
+    },
+    {
+      "model": "classification/random_forest",
+      "identical_across_calls": true,
+      "max_diff": 0.0,
+      "nondeterminism_source": "None"
+    },
+    {
+      "model": "classification/ridge",
+      "identical_across_calls": true,
+      "max_diff": 0.0,
+      "nondeterminism_source": "None"
+    }
+  ],
+  "leaderboard_stability": {
+    "regression": {
+      "csv_champion": "ridge",
+      "json_champion": "ridge",
+      "consistent": true
+    },
+    "classification": {
+      "csv_champion": "hist_gradient_boosting",
+      "json_champion": "hist_gradient_boosting",
+      "consistent": true
+    }
+  },
+  "known_nondeterminism_sources": [
+    "HistGradientBoostingClassifier/Regressor: deterministic for same n_iter_no_change and seed",
+    "RandomForest: seed-fixed, deterministic on same n_jobs=1 (parallelism may cause float reordering)",
+    "TabNet/PyTorch MLPs: CUDA-seeded; CPU-only is fully deterministic with manual_seed",
+    "Optuna TPE sampler: fully deterministic with fixed seed (TPESampler(seed=42))",
+    "SHAP TreeExplainer: deterministic (tree-based, no randomness)"
+  ]
+}

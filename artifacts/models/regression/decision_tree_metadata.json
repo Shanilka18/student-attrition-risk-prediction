@@ -1,0 +1,37 @@
+{
+  "model_name": "decision_tree",
+  "category": "Linear/Shallow",
+  "track": "regression",
+  "feature_set": "factor_scores",
+  "best_params": {},
+  "cv_metrics_mean": {
+    "rmse": 5.4193,
+    "mae": 4.1859,
+    "r2": 0.916,
+    "primary": 5.4193
+  },
+  "cv_metrics_std": {
+    "rmse_std": 0.36,
+    "mae_std": 0.1887,
+    "r2_std": 0.0159,
+    "primary_std": 0.36
+  },
+  "train_metrics": {
+    "rmse": 1.2779,
+    "mae": 0.0837,
+    "r2": 0.9954,
+    "primary": 1.2779
+  },
+  "validation_metrics": {
+    "rmse": 5.2857,
+    "mae": 4.0633,
+    "r2": 0.921,
+    "primary": 5.2857
+  },
+  "overfitting_gap": 4.0078,
+  "train_time_sec": 0.069,
+  "inference_latency_ms": 0.826,
+  "model_size_kb": 291.78,
+  "artifact_path": "artifacts\\models\\regression\\decision_tree.joblib",
+  "timestamp_utc": "2026-10-18T06:07:44.281377+00:00"
+}

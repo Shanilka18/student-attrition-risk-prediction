@@ -1,0 +1,227 @@
+[
+  {
+    "model_name": "dummy",
+    "category": "Baseline",
+    "track": "classification",
+    "feature_set": "factor_scores",
+    "best_params": {},
+    "cv_metrics_mean": {
+      "accuracy": 0.5661,
+      "balanced_accuracy": 0.3333,
+      "macro_f1": 0.241,
+      "macro_precision": 0.1887,
+      "macro_recall": 0.3333,
+      "primary": 0.241
+    },
+    "cv_metrics_std": {
+      "accuracy_std": 0.0004,
+      "balanced_accuracy_std": 0.0,
+      "macro_f1_std": 0.0001,
+      "macro_precision_std": 0.0002,
+      "macro_recall_std": 0.0,
+      "primary_std": 0.0001
+    },
+    "train_metrics": {
+      "accuracy": 0.5662,
+      "balanced_accuracy": 0.3333,
+      "macro_f1": 0.241,
+      "macro_precision": 0.1887,
+      "macro_recall": 0.3333,
+      "primary": 0.241
+    },
+    "validation_metrics": {
+      "accuracy": 0.567,
+      "balanced_accuracy": 0.3333,
+      "macro_f1": 0.2412,
+      "macro_precision": 0.189,
+      "macro_recall": 0.3333,
+      "primary": 0.2412
+    },
+    "overfitting_gap": 0.0002,
+    "train_time_sec": 0.165,
+    "inference_latency_ms": 0.154,
+    "model_size_kb": 1.03,
+    "artifact_path": "artifacts\\models\\classification\\dummy.joblib",
+    "timestamp_utc": "2026-10-18T06:07:48.765535+00:00"
+  },
+  {
+    "model_name": "ridge",
+    "category": "Linear/Shallow",
+    "track": "classification",
+    "feature_set": "factor_scores",
+    "best_params": {},
+    "cv_metrics_mean": {
+      "accuracy": 0.8049,
+      "balanced_accuracy": 0.6785,
+      "macro_f1": 0.6992,
+      "macro_precision": 0.9027,
+      "macro_recall": 0.6785,
+      "primary": 0.6992
+    },
+    "cv_metrics_std": {
+      "accuracy_std": 0.0213,
+      "balanced_accuracy_std": 0.0312,
+      "macro_f1_std": 0.0382,
+      "macro_precision_std": 0.0143,
+      "macro_recall_std": 0.0312,
+      "primary_std": 0.0382
+    },
+    "train_metrics": {
+      "accuracy": 0.8078,
+      "balanced_accuracy": 0.6811,
+      "macro_f1": 0.7044,
+      "macro_precision": 0.9059,
+      "macro_recall": 0.6811,
+      "primary": 0.7044
+    },
+    "validation_metrics": {
+      "accuracy": 0.8147,
+      "balanced_accuracy": 0.692,
+      "macro_f1": 0.7168,
+      "macro_precision": 0.9091,
+      "macro_recall": 0.692,
+      "primary": 0.7168
+    },
+    "overfitting_gap": 0.0124,
+    "train_time_sec": 0.211,
+    "inference_latency_ms": 2.035,
+    "model_size_kb": 1.55,
+    "artifact_path": "artifacts\\models\\classification\\ridge.joblib",
+    "timestamp_utc": "2026-10-18T06:07:49.059278+00:00"
+  },
+  {
+    "model_name": "decision_tree",
+    "category": "Linear/Shallow",
+    "track": "classification",
+    "feature_set": "factor_scores",
+    "best_params": {},
+    "cv_metrics_mean": {
+      "accuracy": 0.8509,
+      "balanced_accuracy": 0.8412,
+      "macro_f1": 0.8403,
+      "macro_precision": 0.8396,
+      "macro_recall": 0.8412,
+      "primary": 0.8403
+    },
+    "cv_metrics_std": {
+      "accuracy_std": 0.0144,
+      "balanced_accuracy_std": 0.0162,
+      "macro_f1_std": 0.0145,
+      "macro_precision_std": 0.0131,
+      "macro_recall_std": 0.0162,
+      "primary_std": 0.0145
+    },
+    "train_metrics": {
+      "accuracy": 0.9976,
+      "balanced_accuracy": 0.9969,
+      "macro_f1": 0.9976,
+      "macro_precision": 0.9982,
+      "macro_recall": 0.9969,
+      "primary": 0.9976
+    },
+    "validation_metrics": {
+      "accuracy": 0.9018,
+      "balanced_accuracy": 0.8922,
+      "macro_f1": 0.8937,
+      "macro_precision": 0.8953,
+      "macro_recall": 0.8922,
+      "primary": 0.8937
+    },
+    "overfitting_gap": 0.1039,
+    "train_time_sec": 0.125,
+    "inference_latency_ms": 1.308,
+    "model_size_kb": 48.41,
+    "artifact_path": "artifacts\\models\\classification\\decision_tree.joblib",
+    "timestamp_utc": "2026-10-18T06:07:49.295768+00:00"
+  },
+  {
+    "model_name": "random_forest",
+    "category": "Ensemble/Bagging",
+    "track": "classification",
+    "feature_set": "factor_scores",
+    "best_params": {},
+    "cv_metrics_mean": {
+      "accuracy": 0.9157,
+      "balanced_accuracy": 0.9012,
+      "macro_f1": 0.9089,
+      "macro_precision": 0.9178,
+      "macro_recall": 0.9012,
+      "primary": 0.9089
+    },
+    "cv_metrics_std": {
+      "accuracy_std": 0.0091,
+      "balanced_accuracy_std": 0.0119,
+      "macro_f1_std": 0.01,
+      "macro_precision_std": 0.0112,
+      "macro_recall_std": 0.0119,
+      "primary_std": 0.01
+    },
+    "train_metrics": {
+      "accuracy": 0.9976,
+      "balanced_accuracy": 0.9966,
+      "macro_f1": 0.9976,
+      "macro_precision": 0.9986,
+      "macro_recall": 0.9966,
+      "primary": 0.9976
+    },
+    "validation_metrics": {
+      "accuracy": 0.9487,
+      "balanced_accuracy": 0.9326,
+      "macro_f1": 0.9428,
+      "macro_precision": 0.9543,
+      "macro_recall": 0.9326,
+      "primary": 0.9428
+    },
+    "overfitting_gap": 0.0548,
+    "train_time_sec": 2.24,
+    "inference_latency_ms": 30.121,
+    "model_size_kb": 4300.63,
+    "artifact_path": "artifacts\\models\\classification\\random_forest.joblib",
+    "timestamp_utc": "2026-10-18T06:07:51.780497+00:00"
+  },
+  {
+    "model_name": "hist_gradient_boosting",
+    "category": "Boosting",
+    "track": "classification",
+    "feature_set": "factor_scores",
+    "best_params": {},
+    "cv_metrics_mean": {
+      "accuracy": 0.9209,
+      "balanced_accuracy": 0.9103,
+      "macro_f1": 0.9147,
+      "macro_precision": 0.9196,
+      "macro_recall": 0.9103,
+      "primary": 0.9147
+    },
+    "cv_metrics_std": {
+      "accuracy_std": 0.0087,
+      "balanced_accuracy_std": 0.007,
+      "macro_f1_std": 0.0086,
+      "macro_precision_std": 0.0106,
+      "macro_recall_std": 0.007,
+      "primary_std": 0.0086
+    },
+    "train_metrics": {
+      "accuracy": 0.9976,
+      "balanced_accuracy": 0.9969,
+      "macro_f1": 0.9976,
+      "macro_precision": 0.9982,
+      "macro_recall": 0.9969,
+      "primary": 0.9976
+    },
+    "validation_metrics": {
+      "accuracy": 0.9531,
+      "balanced_accuracy": 0.9461,
+      "macro_f1": 0.9494,
+      "macro_precision": 0.9528,
+      "macro_recall": 0.9461,
+      "primary": 0.9494
+    },
+    "overfitting_gap": 0.0482,
+    "train_time_sec": 5.277,
+    "inference_latency_ms": 114.674,
+    "model_size_kb": 1059.45,
+    "artifact_path": "artifacts\\models\\classification\\hist_gradient_boosting.joblib",
+    "timestamp_utc": "2026-10-18T06:07:57.451528+00:00"
+  }
+]

@@ -1,0 +1,38 @@
+[
+  {
+    "scenario": "a_clean_csv",
+    "status_code": 200,
+    "passed": true,
+    "details": "rows=300 errors=?"
+  },
+  {
+    "scenario": "b_wrong_columns",
+    "status_code": 200,
+    "passed": true,
+    "details": "mappings_found=16 items_mapped_count=15"
+  },
+  {
+    "scenario": "c_missing_out_of_range",
+    "status_code": 200,
+    "passed": true,
+    "details": "errors=5 warnings=0 val_passed=False"
+  },
+  {
+    "scenario": "d_xlsx_file",
+    "status_code": 200,
+    "passed": true,
+    "details": "rows=200"
+  },
+  {
+    "scenario": "e_retrain_outcome_upload",
+    "status_code": 200,
+    "passed": true,
+    "details": "upload_id=upl_518c9a3ae241 has_outcomes=True"
+  },
+  {
+    "scenario": "e_retrain_trigger",
+    "status_code": 202,
+    "passed": true,
+    "details": "queued"
+  }
+]

@@ -1,0 +1,45 @@
+{
+  "model_name": "hist_gradient_boosting",
+  "category": "Boosting",
+  "track": "classification",
+  "feature_set": "factor_scores",
+  "best_params": {},
+  "cv_metrics_mean": {
+    "accuracy": 0.9209,
+    "balanced_accuracy": 0.9103,
+    "macro_f1": 0.9147,
+    "macro_precision": 0.9196,
+    "macro_recall": 0.9103,
+    "primary": 0.9147
+  },
+  "cv_metrics_std": {
+    "accuracy_std": 0.0087,
+    "balanced_accuracy_std": 0.007,
+    "macro_f1_std": 0.0086,
+    "macro_precision_std": 0.0106,
+    "macro_recall_std": 0.007,
+    "primary_std": 0.0086
+  },
+  "train_metrics": {
+    "accuracy": 0.9976,
+    "balanced_accuracy": 0.9969,
+    "macro_f1": 0.9976,
+    "macro_precision": 0.9982,
+    "macro_recall": 0.9969,
+    "primary": 0.9976
+  },
+  "validation_metrics": {
+    "accuracy": 0.9531,
+    "balanced_accuracy": 0.9461,
+    "macro_f1": 0.9494,
+    "macro_precision": 0.9528,
+    "macro_recall": 0.9461,
+    "primary": 0.9494
+  },
+  "overfitting_gap": 0.0482,
+  "train_time_sec": 5.277,
+  "inference_latency_ms": 114.674,
+  "model_size_kb": 1059.45,
+  "artifact_path": "artifacts\\models\\classification\\hist_gradient_boosting.joblib",
+  "timestamp_utc": "2026-10-18T06:07:57.451528+00:00"
+}

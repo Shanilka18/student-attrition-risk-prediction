@@ -1,0 +1,45 @@
+{
+  "model_name": "decision_tree",
+  "category": "Linear/Shallow",
+  "track": "classification",
+  "feature_set": "factor_scores",
+  "best_params": {},
+  "cv_metrics_mean": {
+    "accuracy": 0.8509,
+    "balanced_accuracy": 0.8412,
+    "macro_f1": 0.8403,
+    "macro_precision": 0.8396,
+    "macro_recall": 0.8412,
+    "primary": 0.8403
+  },
+  "cv_metrics_std": {
+    "accuracy_std": 0.0144,
+    "balanced_accuracy_std": 0.0162,
+    "macro_f1_std": 0.0145,
+    "macro_precision_std": 0.0131,
+    "macro_recall_std": 0.0162,
+    "primary_std": 0.0145
+  },
+  "train_metrics": {
+    "accuracy": 0.9976,
+    "balanced_accuracy": 0.9969,
+    "macro_f1": 0.9976,
+    "macro_precision": 0.9982,
+    "macro_recall": 0.9969,
+    "primary": 0.9976
+  },
+  "validation_metrics": {
+    "accuracy": 0.9018,
+    "balanced_accuracy": 0.8922,
+    "macro_f1": 0.8937,
+    "macro_precision": 0.8953,
+    "macro_recall": 0.8922,
+    "primary": 0.8937
+  },
+  "overfitting_gap": 0.1039,
+  "train_time_sec": 0.125,
+  "inference_latency_ms": 1.308,
+  "model_size_kb": 48.41,
+  "artifact_path": "artifacts\\models\\classification\\decision_tree.joblib",
+  "timestamp_utc": "2026-10-18T06:07:49.295768+00:00"
+}
