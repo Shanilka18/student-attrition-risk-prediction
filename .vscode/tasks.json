@@ -1,0 +1,32 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Run Backend (FastAPI)",
+      "type": "shell",
+      "command": "uvicorn src.api.main:app --host 127.0.0.1 --port 8000 --reload",
+      "problemMatcher": [],
+      "isBackground": true,
+      "presentation": {
+        "group": "servers",
+        "panel": "new"
+      }
+    },
+    {
+      "label": "Run Frontend (Vite)",
+      "type": "shell",
+      "command": "cd frontend && npm run dev",
+      "problemMatcher": [],
+      "isBackground": true,
+      "presentation": {
+        "group": "servers",
+        "panel": "new"
+      }
+    },
+    {
+      "label": "Run Full System (Backend + Frontend)",
+      "dependsOn": ["Run Backend (FastAPI)", "Run Frontend (Vite)"],
+      "problemMatcher": []
+    }
+  ]
+}
