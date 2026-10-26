@@ -46,3 +46,18 @@ Thumbs.db
 
 # Large runtime upload artifacts & temporary job files
 data/uploads/
+
+# Personal presentation scripts, viva QA, proposal notes, audit & reference docs
+docs/15_viva_qa.md
+docs/16_presentation_script.md
+docs/17_demo_script.md
+docs/18_proposal_update_notes.md
+docs/19_final_audit.md
+
+# Academic proposals & submission PDFs
+*.pdf
+
+# Local runtime & backup folders
+artifacts/user_dataset/
+artifacts_backup_before_sklearn_fix/
+frontend/tsconfig.tsbuildinfo
