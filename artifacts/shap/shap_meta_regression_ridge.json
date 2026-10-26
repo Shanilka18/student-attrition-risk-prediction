@@ -1,0 +1,15 @@
+{
+  "track": "regression",
+  "model_name": "ridge",
+  "n_samples": 448,
+  "n_features": 5,
+  "base_value": 54.18389425689592,
+  "feature_names": [
+    "factor_stress",
+    "factor_motivation",
+    "factor_belongingness",
+    "factor_self_efficacy",
+    "factor_peer_support"
+  ],
+  "archive_file": "shap_values_regression_ridge.npz"
+}

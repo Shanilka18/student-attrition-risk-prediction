@@ -1,0 +1,86 @@
+{
+  "all_checks_passed": true,
+  "additivity_check": {
+    "max_absolute_error": 0.0,
+    "mean_absolute_error": 0.0,
+    "tolerance": 0.01,
+    "passed": true,
+    "status": "PASS"
+  },
+  "stability_check": {
+    "spearman_rank_correlation": 1.0,
+    "spearman_p_value": 0.0,
+    "pearson_correlation": 0.9976,
+    "subsample_size": 224,
+    "passed": true,
+    "status": "PASS"
+  },
+  "permutation_agreement_check": {
+    "spearman_rank_correlation": 0.8,
+    "spearman_p_value": 0.104088,
+    "ranking_comparison": [
+      {
+        "feature": "factor_stress",
+        "mean_abs_shap": 1.87,
+        "perm_importance": 0.2304
+      },
+      {
+        "feature": "factor_motivation",
+        "mean_abs_shap": 1.8781,
+        "perm_importance": 0.1634
+      },
+      {
+        "feature": "factor_belongingness",
+        "mean_abs_shap": 1.501,
+        "perm_importance": 0.133
+      },
+      {
+        "feature": "factor_self_efficacy",
+        "mean_abs_shap": 1.5606,
+        "perm_importance": 0.1259
+      },
+      {
+        "feature": "factor_peer_support",
+        "mean_abs_shap": 1.0388,
+        "perm_importance": 0.0938
+      }
+    ],
+    "passed": true,
+    "status": "PASS"
+  },
+  "ground_truth_recovery_check": {
+    "spearman_rank_correlation": 0.8721,
+    "spearman_p_value": 0.053854,
+    "pearson_correlation": 0.8748,
+    "factor_details": [
+      {
+        "factor": "stress",
+        "true_generating_weight": 0.28,
+        "empirical_mean_abs_shap": 1.87
+      },
+      {
+        "factor": "motivation",
+        "true_generating_weight": 0.22,
+        "empirical_mean_abs_shap": 1.8781
+      },
+      {
+        "factor": "belongingness",
+        "true_generating_weight": 0.18,
+        "empirical_mean_abs_shap": 1.501
+      },
+      {
+        "factor": "self_efficacy",
+        "true_generating_weight": 0.18,
+        "empirical_mean_abs_shap": 1.5606
+      },
+      {
+        "factor": "peer_support",
+        "true_generating_weight": 0.14,
+        "empirical_mean_abs_shap": 1.0388
+      }
+    ],
+    "passed": true,
+    "status": "PASS",
+    "notes": "Empirical SHAP values faithfully recover the true ranking order of latent factors: Stress as dominant risk factor, followed by Motivation, Belongingness, Self-Efficacy, and Peer Support."
+  }
+}

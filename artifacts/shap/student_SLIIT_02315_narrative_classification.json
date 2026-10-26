@@ -1,0 +1,13 @@
+{
+  "study_id": "SLIIT_02315",
+  "pri_score": 40.3,
+  "risk_category": "MODERATE",
+  "headline": "Student SLIIT_02315: Psychosocial Risk Index is MODERATE (40.3/100).",
+  "risk_increasing_narrative": "The primary contributing indicator elevating psychosocial risk is low or diminished intrinsic academic motivation (score: 2.0).",
+  "protective_narrative": "This profile is actively buffered by low reported stress levels (score: 1.7), strong academic self-efficacy and belief in capability (score: 5.0), and moderate peer social and academic support networks (score: 3.0).",
+  "full_narrative": "Student SLIIT_02315: Psychosocial Risk Index is MODERATE (40.3/100). The primary contributing indicator elevating psychosocial risk is low or diminished intrinsic academic motivation (score: 2.0). This profile is actively buffered by low reported stress levels (score: 1.7), strong academic self-efficacy and belief in capability (score: 5.0), and moderate peer social and academic support networks (score: 3.0). Note that these psychosocial factors serve as contributing indicators to support proactive retention, rather than deterministic causes.",
+  "recommendations": [
+    "Schedule an exploratory career alignment session with academic program coordinators."
+  ],
+  "disclaimer": "RESEARCH NOTICE: The Psychosocial Risk Index (PRI) is an academic decision-support indicator developed for educational research at SLIIT Kandy. It is not a clinical psychological evaluation or psychiatric diagnosis."
+}

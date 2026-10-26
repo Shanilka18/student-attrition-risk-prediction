@@ -1,0 +1,73 @@
+{
+  "study_id": "SLIIT_01453",
+  "student_idx": 1,
+  "base_value": 54.1839,
+  "total_shap_sum": -8.2778,
+  "predicted_value": 45.9061,
+  "feature_breakdown": [
+    {
+      "feature": "factor_stress",
+      "feature_value": 3.5,
+      "shap_value": 0.3327,
+      "effect_direction": "risk_increasing"
+    },
+    {
+      "feature": "factor_motivation",
+      "feature_value": 3.5,
+      "shap_value": -3.6157,
+      "effect_direction": "risk_decreasing"
+    },
+    {
+      "feature": "factor_belongingness",
+      "feature_value": 3.0,
+      "shap_value": -0.1929,
+      "effect_direction": "risk_decreasing"
+    },
+    {
+      "feature": "factor_self_efficacy",
+      "feature_value": 4.333,
+      "shap_value": -6.0027,
+      "effect_direction": "risk_decreasing"
+    },
+    {
+      "feature": "factor_peer_support",
+      "feature_value": 2.667,
+      "shap_value": 1.2008,
+      "effect_direction": "risk_increasing"
+    }
+  ],
+  "top_risk_increasing": [
+    {
+      "feature": "factor_peer_support",
+      "feature_value": 2.667,
+      "shap_value": 1.2008,
+      "effect_direction": "risk_increasing"
+    },
+    {
+      "feature": "factor_stress",
+      "feature_value": 3.5,
+      "shap_value": 0.3327,
+      "effect_direction": "risk_increasing"
+    }
+  ],
+  "top_risk_decreasing": [
+    {
+      "feature": "factor_self_efficacy",
+      "feature_value": 4.333,
+      "shap_value": -6.0027,
+      "effect_direction": "risk_decreasing"
+    },
+    {
+      "feature": "factor_motivation",
+      "feature_value": 3.5,
+      "shap_value": -3.6157,
+      "effect_direction": "risk_decreasing"
+    },
+    {
+      "feature": "factor_belongingness",
+      "feature_value": 3.0,
+      "shap_value": -0.1929,
+      "effect_direction": "risk_decreasing"
+    }
+  ]
+}

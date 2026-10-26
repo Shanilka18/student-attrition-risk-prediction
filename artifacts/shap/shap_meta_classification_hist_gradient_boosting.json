@@ -1,0 +1,15 @@
+{
+  "track": "classification",
+  "model_name": "hist_gradient_boosting",
+  "n_samples": 448,
+  "n_features": 5,
+  "base_value": -3.7911478964234457,
+  "feature_names": [
+    "factor_stress",
+    "factor_motivation",
+    "factor_belongingness",
+    "factor_self_efficacy",
+    "factor_peer_support"
+  ],
+  "archive_file": "shap_values_classification_hist_gradient_boosting.npz"
+}
