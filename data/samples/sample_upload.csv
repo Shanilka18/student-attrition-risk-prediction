@@ -1,0 +1,51 @@
+participant_id,faculty,year_of_study,gender,district_type,household_income_bracket,financial_stress,scholarship_bursary,dependents_count,housing_type,commute_time_min,commute_cost_lkr_week,internet_reliability,internet_affordability,device_type,device_quality,quiet_study_space,part_time_employment,work_hours_per_week,baseline_gpa_band,baseline_engagement_score,later_gpa_decline,later_engagement_decline,financial_hardship,long_commute,inadequate_digital_access,heavy_part_time_work,attrition,intention_to_withdraw,latent_risk_score
+P-00001,Business,3,Male,urban,,2,0,1,home,75.1,1694.35,3,4.0,own laptop,4.0,1.0,0,0.0,Band 4 (3.00 - 3.49),61.1,0,0,0.0,0,0,0,0,2,10.97
+P-00002,Engineering,3,Female,semi-urban,5.0,1,0,1,home,91.4,,2,3.0,own laptop,3.0,,0,0.0,Band 5 (3.50 - 4.00),77.0,1,1,0.0,0,1,0,1,3,20.32
+P-00003,Humanities,2,Male,rural,2.0,4,1,0,boarding,35.0,724.49,3,2.0,shared laptop,2.0,1.0,1,19.1,Band 1 (< 2.00),35.8,1,1,1.0,0,0,1,1,2,37.84
+P-00004,Business,2,Male,urban,4.0,3,0,1,home,54.2,1198.12,4,3.0,own laptop,4.0,0.0,0,0.0,Band 1 (< 2.00),62.2,1,0,0.0,0,0,0,1,3,41.33
+P-00005,Computing,4,Female,urban,5.0,3,0,2,relatives,85.9,1520.68,5,4.0,own laptop,4.0,,0,0.0,Band 1 (< 2.00),69.3,0,0,0.0,0,0,0,0,1,14.1
+P-00006,Humanities,4,Male,semi-urban,3.0,4,0,3,boarding,27.2,1063.63,3,3.0,phone only,1.0,1.0,0,0.0,Band 1 (< 2.00),38.9,1,1,0.0,0,1,0,1,2,45.56
+P-00007,Engineering,2,Male,rural,3.0,4,0,5,home,205.0,4308.8,2,3.0,shared laptop,2.0,1.0,0,0.0,Band 5 (3.50 - 4.00),75.8,0,0,0.0,1,1,0,0,1,14.64
+P-00008,Computing,1,Male,semi-urban,1.0,3,1,3,hostel,29.1,900.5,5,2.0,own laptop,4.0,1.0,1,18.4,Band 3 (2.50 - 2.99),58.3,1,1,0.0,0,0,1,0,2,34.45
+P-00009,Computing,2,Female,semi-urban,1.0,4,0,4,home,141.1,2862.11,2,3.0,own laptop,3.0,1.0,1,18.3,Band 4 (3.00 - 3.49),86.6,1,1,1.0,1,1,1,1,2,46.07
+P-00010,Business,3,Female,semi-urban,3.0,2,0,0,home,80.3,2024.46,4,3.0,shared laptop,,1.0,1,23.5,Band 3 (2.50 - 2.99),84.8,1,0,0.0,0,0,1,0,2,7.39
+P-00011,Computing,3,Female,urban,1.0,3,0,1,hostel,14.8,1014.32,5,2.0,phone only,2.0,1.0,1,30.1,Band 5 (3.50 - 4.00),71.3,1,1,0.0,0,1,1,0,2,17.6
+P-00012,Computing,1,Male,semi-urban,6.0,2,0,2,boarding,40.3,1271.55,3,5.0,own laptop,5.0,1.0,1,30.8,Band 3 (2.50 - 2.99),21.7,0,0,0.0,0,0,1,0,2,1.13
+P-00013,Computing,1,Male,urban,1.0,3,1,0,home,64.8,1977.56,4,2.0,phone only,2.0,1.0,1,17.4,Band 5 (3.50 - 4.00),94.1,1,0,0.0,0,1,1,0,2,3.86
+P-00014,Engineering,2,Male,semi-urban,4.0,2,0,2,boarding,23.6,1159.91,3,4.0,shared laptop,2.0,0.0,1,22.9,Band 4 (3.00 - 3.49),72.1,0,1,0.0,0,0,1,0,2,34.52
+P-00015,Engineering,4,Female,urban,3.0,2,1,0,home,47.3,1523.78,5,5.0,own laptop,4.0,1.0,1,50.0,Band 5 (3.50 - 4.00),78.7,1,1,0.0,0,0,1,0,2,4.07
+P-00016,Engineering,1,Female,urban,6.0,1,0,0,home,62.1,1609.39,4,5.0,own laptop,3.0,1.0,0,0.0,Band 3 (2.50 - 2.99),78.5,1,0,0.0,0,0,0,0,1,0.51
+P-00017,Computing,2,Male,semi-urban,2.0,2,0,0,hostel,20.7,1082.84,1,2.0,own laptop,3.0,1.0,1,30.2,Band 4 (3.00 - 3.49),66.4,0,1,0.0,0,1,1,0,2,30.53
+P-00018,Computing,1,Female,semi-urban,,5,1,1,hostel,29.0,1032.4,4,1.0,phone only,2.0,1.0,1,31.0,Band 3 (2.50 - 2.99),56.2,1,1,,0,1,1,0,3,52.91
+P-00019,Engineering,1,Male,semi-urban,1.0,4,0,1,hostel,28.9,1154.91,4,3.0,shared laptop,2.0,0.0,1,40.0,Band 4 (3.00 - 3.49),66.5,1,0,1.0,0,0,1,0,3,23.82
+P-00020,Computing,3,Male,semi-urban,3.0,4,0,1,home,129.5,2896.52,4,4.0,own laptop,4.0,1.0,1,22.8,Band 3 (2.50 - 2.99),71.8,1,0,0.0,1,0,1,0,2,13.5
+P-00021,Business,2,Male,rural,5.0,2,0,2,relatives,39.4,727.8,3,5.0,own laptop,4.0,1.0,1,34.6,Band 3 (2.50 - 2.99),77.3,0,0,0.0,0,0,1,0,1,11.76
+P-00022,Computing,2,Female,rural,5.0,3,0,6,home,176.7,3954.38,3,3.0,own laptop,5.0,0.0,0,0.0,Band 3 (2.50 - 2.99),87.9,0,1,0.0,1,0,0,0,2,28.28
+P-00023,Computing,4,Male,rural,1.0,4,0,5,hostel,29.4,599.75,3,4.0,own laptop,1.0,0.0,1,22.6,Band 2 (2.00 - 2.49),64.1,1,0,1.0,0,0,1,1,4,31.56
+P-00024,Computing,1,Male,semi-urban,3.0,2,0,1,home,51.4,,3,3.0,own laptop,4.0,1.0,0,0.0,Band 5 (3.50 - 4.00),76.0,0,0,0.0,0,0,0,0,1,4.7
+P-00025,Engineering,1,Male,semi-urban,1.0,4,0,2,boarding,30.5,1179.82,2,2.0,shared laptop,3.0,0.0,1,21.7,Band 3 (2.50 - 2.99),77.4,1,1,1.0,0,1,1,1,3,70.32
+P-00026,Engineering,4,Female,semi-urban,3.0,3,0,0,home,60.3,1612.31,1,3.0,own laptop,5.0,1.0,1,27.8,Band 2 (2.00 - 2.49),44.9,0,1,0.0,0,1,1,0,1,16.68
+P-00027,Business,3,Female,semi-urban,3.0,2,1,1,boarding,24.9,514.23,4,3.0,phone only,3.0,0.0,0,0.0,Band 4 (3.00 - 3.49),91.4,0,0,0.0,0,1,0,1,1,21.49
+P-00028,Computing,1,Female,urban,3.0,4,0,2,home,26.6,1143.15,5,3.0,own laptop,4.0,1.0,1,25.1,Band 4 (3.00 - 3.49),74.5,1,0,0.0,0,0,1,0,1,21.31
+P-00029,Engineering,2,Female,semi-urban,3.0,3,0,2,home,55.3,1677.53,1,3.0,own laptop,4.0,1.0,0,0.0,Band 1 (< 2.00),48.8,1,0,0.0,0,1,0,0,1,7.18
+P-00030,Engineering,3,Male,urban,5.0,1,0,1,relatives,48.8,1900.73,4,4.0,own laptop,4.0,0.0,0,0.0,Band 3 (2.50 - 2.99),51.4,0,0,0.0,0,0,0,0,2,23.19
+P-00031,Computing,2,Male,urban,,4,1,1,relatives,35.9,1243.95,3,2.0,shared laptop,2.0,1.0,1,25.0,Band 3 (2.50 - 2.99),73.8,0,1,,0,0,1,0,1,6.49
+P-00032,Engineering,3,Male,rural,1.0,5,0,1,home,202.0,4257.24,1,2.0,own laptop,,1.0,0,0.0,Band 4 (3.00 - 3.49),67.6,1,1,1.0,1,1,0,0,2,31.93
+P-00033,Computing,3,Female,urban,2.0,4,0,0,home,31.4,,4,2.0,shared laptop,1.0,0.0,1,25.3,Band 3 (2.50 - 2.99),63.7,1,1,1.0,0,0,1,1,2,51.42
+P-00034,Engineering,2,Female,semi-urban,1.0,5,0,1,boarding,16.2,694.32,4,2.0,phone only,3.0,1.0,1,23.7,Band 3 (2.50 - 2.99),41.6,0,1,1.0,0,1,1,0,3,68.21
+P-00035,Computing,4,Female,semi-urban,2.0,3,0,2,home,87.9,1723.13,5,2.0,shared laptop,2.0,0.0,0,0.0,Band 4 (3.00 - 3.49),65.4,0,1,0.0,0,0,0,0,2,8.19
+P-00036,Business,2,Female,urban,4.0,1,0,1,home,44.1,1314.23,3,5.0,own laptop,5.0,1.0,0,0.0,Band 2 (2.00 - 2.49),50.5,0,0,0.0,0,0,0,0,1,3.47
+P-00037,Humanities,4,Female,rural,1.0,3,0,1,boarding,19.4,696.23,2,3.0,shared laptop,2.0,0.0,0,0.0,Band 4 (3.00 - 3.49),77.4,0,0,0.0,0,1,0,1,1,5.83
+P-00038,Computing,1,Female,urban,4.0,2,0,1,home,72.8,1866.46,3,4.0,shared laptop,1.0,1.0,0,0.0,Band 4 (3.00 - 3.49),67.8,0,0,0.0,0,0,0,0,2,1.85
+P-00039,Engineering,2,Female,rural,4.0,2,0,3,home,192.5,4385.42,2,5.0,own laptop,5.0,0.0,1,16.8,Band 4 (3.00 - 3.49),34.4,0,1,0.0,1,1,1,0,3,40.36
+P-00040,Business,3,Male,rural,4.0,2,0,3,hostel,35.2,812.91,3,3.0,phone only,1.0,1.0,0,0.0,Band 3 (2.50 - 2.99),59.2,1,0,0.0,0,1,0,0,1,8.0
+P-00041,Computing,4,Female,urban,4.0,2,0,1,home,79.7,2274.21,5,4.0,shared laptop,3.0,1.0,0,0.0,Band 2 (2.00 - 2.49),38.1,0,0,0.0,0,0,0,0,1,4.56
+P-00042,Business,1,Male,urban,2.0,3,0,2,home,65.5,1680.55,2,4.0,own laptop,4.0,0.0,1,17.2,Band 3 (2.50 - 2.99),50.4,0,0,0.0,0,1,1,0,1,2.69
+P-00043,Engineering,4,Male,urban,2.0,4,1,2,home,32.0,849.68,5,3.0,shared laptop,3.0,0.0,1,37.7,Band 2 (2.00 - 2.49),72.6,0,1,1.0,0,0,1,1,1,16.66
+P-00044,Humanities,1,Female,semi-urban,2.0,4,0,1,home,93.0,2736.46,4,3.0,shared laptop,2.0,1.0,1,12.8,Band 3 (2.50 - 2.99),41.4,0,0,1.0,0,0,0,0,1,11.13
+P-00045,Humanities,2,Male,urban,6.0,1,0,1,home,53.9,1584.71,3,5.0,own laptop,5.0,0.0,0,0.0,Band 3 (2.50 - 2.99),69.1,1,0,0.0,0,0,0,0,2,1.4
+P-00046,Computing,2,Male,rural,5.0,3,0,6,home,146.0,3249.05,3,4.0,own laptop,4.0,0.0,1,29.4,Band 3 (2.50 - 2.99),57.9,0,0,0.0,1,0,1,0,1,1.19
+P-00047,Engineering,2,Female,urban,3.0,4,0,2,home,50.3,1566.03,5,3.0,own laptop,3.0,0.0,0,0.0,Band 3 (2.50 - 2.99),55.2,0,0,0.0,0,0,0,0,2,15.05
+P-00048,Engineering,4,Female,rural,1.0,4,1,2,boarding,32.5,,2,2.0,phone only,4.0,0.0,1,25.2,Band 3 (2.50 - 2.99),51.3,0,0,1.0,0,1,1,1,1,17.35
+P-00049,Computing,3,Male,urban,4.0,1,0,0,home,67.6,1551.91,4,3.0,shared laptop,2.0,1.0,0,0.0,Band 2 (2.00 - 2.49),63.0,0,1,0.0,0,0,0,0,2,2.33
+P-00050,Computing,4,Female,rural,1.0,5,1,3,home,122.4,2395.65,2,2.0,shared laptop,2.0,1.0,1,24.8,Band 4 (3.00 - 3.49),77.5,0,1,1.0,1,1,1,1,4,83.75
