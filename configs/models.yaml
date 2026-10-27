@@ -1,0 +1,339 @@
+# Model Zoo Configuration — Academic Intelligence Framework
+# Every model's default hyperparameters and Optuna search spaces are centralised here.
+# Never hard-code model hyperparameters anywhere in backend/src/models/.
+#
+# Format per model:
+#   models.<key>.default:  deterministic default params for quick tests / unit tests
+#   models.<key>.search:   Optuna search space (type, low, high, choices, log)
+#   models.<key>.meta:     category, proposal_model flag, expected_runtime_mins
+
+models:
+
+  # ════════════════════════════════════════════════════════════════
+  # CATEGORY A — Linear & Simple Baselines (tabular)
+  # ════════════════════════════════════════════════════════════════
+  logistic_l2:
+    meta: {category: "A", label: "Logistic Regression (L2)", proposal_model: false, expected_runtime_mins: 1}
+    default: {C: 1.0, max_iter: 500, solver: "lbfgs", class_weight: "balanced"}
+    search:
+      C: {type: float, low: 0.001, high: 100.0, log: true}
+
+  logistic_elasticnet:
+    meta: {category: "A", label: "Logistic Regression (ElasticNet)", proposal_model: false, expected_runtime_mins: 2}
+    default: {C: 1.0, l1_ratio: 0.5, max_iter: 500, solver: "saga", class_weight: "balanced"}
+    search:
+      C: {type: float, low: 0.001, high: 100.0, log: true}
+      l1_ratio: {type: float, low: 0.0, high: 1.0}
+
+  svm_calibrated:
+    meta: {category: "A", label: "Linear SVM (Calibrated)", proposal_model: false, expected_runtime_mins: 2}
+    default: {C: 1.0, max_iter: 1000, class_weight: "balanced"}
+    search:
+      C: {type: float, low: 0.001, high: 100.0, log: true}
+
+  gaussian_nb:
+    meta: {category: "A", label: "Gaussian Naive Bayes", proposal_model: false, expected_runtime_mins: 1}
+    default: {var_smoothing: 1.0e-9}
+    search:
+      var_smoothing: {type: float, low: 1.0e-12, high: 1.0e-3, log: true}
+
+  knn:
+    meta: {category: "A", label: "k-Nearest Neighbours", proposal_model: false, expected_runtime_mins: 2}
+    default: {n_neighbors: 7, weights: "distance", metric: "euclidean"}
+    search:
+      n_neighbors: {type: int, low: 3, high: 25}
+      weights: {type: categorical, choices: ["uniform", "distance"]}
+      metric: {type: categorical, choices: ["euclidean", "manhattan"]}
+
+  gpa_threshold:
+    meta: {category: "A", label: "GPA Threshold Rule (Reference)", proposal_model: false, expected_runtime_mins: 0}
+    default: {threshold: 2.0}
+    search: {}   # no tuning: rule-based
+
+  # ════════════════════════════════════════════════════════════════
+  # CATEGORY B — Tree & Bagging Ensembles (tabular)
+  # ════════════════════════════════════════════════════════════════
+  decision_tree:
+    meta: {category: "B", label: "Decision Tree", proposal_model: false, expected_runtime_mins: 1}
+    default: {max_depth: 6, min_samples_leaf: 10, class_weight: "balanced"}
+    search:
+      max_depth: {type: int, low: 3, high: 15}
+      min_samples_leaf: {type: int, low: 5, high: 50}
+
+  random_forest:
+    meta: {category: "B", label: "Random Forest", proposal_model: false, expected_runtime_mins: 3}
+    default: {n_estimators: 200, max_depth: 10, min_samples_leaf: 5, class_weight: "balanced", n_jobs: -1}
+    search:
+      n_estimators: {type: int, low: 50, high: 500}
+      max_depth: {type: int, low: 4, high: 20}
+      min_samples_leaf: {type: int, low: 2, high: 30}
+
+  extra_trees:
+    meta: {category: "B", label: "Extra Trees", proposal_model: false, expected_runtime_mins: 3}
+    default: {n_estimators: 200, max_depth: 10, min_samples_leaf: 5, class_weight: "balanced", n_jobs: -1}
+    search:
+      n_estimators: {type: int, low: 50, high: 500}
+      max_depth: {type: int, low: 4, high: 20}
+      min_samples_leaf: {type: int, low: 2, high: 30}
+
+  # ════════════════════════════════════════════════════════════════
+  # CATEGORY C — Boosting (tabular, PROPOSAL BASELINE)
+  # ════════════════════════════════════════════════════════════════
+  gradient_boosting_sklearn:
+    meta: {category: "C", label: "Gradient Boosting (sklearn)", proposal_model: false, expected_runtime_mins: 5}
+    default: {n_estimators: 200, learning_rate: 0.05, max_depth: 4, subsample: 0.8, min_samples_leaf: 10}
+    search:
+      n_estimators: {type: int, low: 50, high: 400}
+      learning_rate: {type: float, low: 0.005, high: 0.3, log: true}
+      max_depth: {type: int, low: 2, high: 8}
+      subsample: {type: float, low: 0.5, high: 1.0}
+
+  xgboost:
+    meta: {category: "C", label: "XGBoost", proposal_model: true, expected_runtime_mins: 4}
+    default:
+      n_estimators: 300
+      learning_rate: 0.05
+      max_depth: 5
+      subsample: 0.8
+      colsample_bytree: 0.8
+      reg_alpha: 0.1
+      reg_lambda: 1.0
+      scale_pos_weight: 4.0   # auto-set per fold; default here as guide
+      use_label_encoder: false
+      eval_metric: "logloss"
+      random_state: 42
+    search:
+      n_estimators: {type: int, low: 50, high: 500}
+      learning_rate: {type: float, low: 0.005, high: 0.3, log: true}
+      max_depth: {type: int, low: 2, high: 10}
+      subsample: {type: float, low: 0.5, high: 1.0}
+      colsample_bytree: {type: float, low: 0.4, high: 1.0}
+      reg_alpha: {type: float, low: 1.0e-4, high: 10.0, log: true}
+      reg_lambda: {type: float, low: 1.0e-4, high: 10.0, log: true}
+
+  lightgbm:
+    meta: {category: "C", label: "LightGBM (Proposal Baseline)", proposal_model: true, expected_runtime_mins: 3}
+    default:
+      n_estimators: 300
+      learning_rate: 0.05
+      num_leaves: 31
+      max_depth: -1
+      subsample: 0.8
+      colsample_bytree: 0.8
+      reg_alpha: 0.1
+      reg_lambda: 1.0
+      class_weight: "balanced"
+      random_state: 42
+      verbosity: -1
+    search:
+      n_estimators: {type: int, low: 50, high: 500}
+      learning_rate: {type: float, low: 0.005, high: 0.3, log: true}
+      num_leaves: {type: int, low: 15, high: 127}
+      subsample: {type: float, low: 0.5, high: 1.0}
+      colsample_bytree: {type: float, low: 0.4, high: 1.0}
+      reg_alpha: {type: float, low: 1.0e-4, high: 10.0, log: true}
+      reg_lambda: {type: float, low: 1.0e-4, high: 10.0, log: true}
+
+  catboost:
+    meta: {category: "C", label: "CatBoost", proposal_model: false, expected_runtime_mins: 5}
+    default: {iterations: 300, learning_rate: 0.05, depth: 6, auto_class_weights: "Balanced", random_seed: 42, verbose: 0}
+    search:
+      iterations: {type: int, low: 50, high: 500}
+      learning_rate: {type: float, low: 0.005, high: 0.3, log: true}
+      depth: {type: int, low: 2, high: 10}
+
+  adaboost:
+    meta: {category: "C", label: "AdaBoost", proposal_model: false, expected_runtime_mins: 3}
+    default: {n_estimators: 200, learning_rate: 0.1}
+    search:
+      n_estimators: {type: int, low: 50, high: 400}
+      learning_rate: {type: float, low: 0.01, high: 2.0, log: true}
+
+  # ════════════════════════════════════════════════════════════════
+  # CATEGORY D — Neural, Tabular
+  # ════════════════════════════════════════════════════════════════
+  mlp_tabular:
+    meta: {category: "D", label: "MLP (Engineered Features)", proposal_model: false, expected_runtime_mins: 5}
+    default:
+      hidden_dims: [128, 64, 32]
+      dropout: 0.3
+      lr: 0.001
+      weight_decay: 1.0e-4
+      epochs: 50
+      batch_size: 256
+      early_stopping_patience: 10
+    search:
+      hidden_dims: {type: categorical, choices: [[64,32], [128,64], [128,64,32], [256,128,64]]}
+      dropout: {type: float, low: 0.1, high: 0.6}
+      lr: {type: float, low: 1.0e-4, high: 1.0e-2, log: true}
+      weight_decay: {type: float, low: 1.0e-6, high: 1.0e-2, log: true}
+
+  # ════════════════════════════════════════════════════════════════
+  # CATEGORY E — Deep Sequence Models (PyTorch, masking, GPU-ready)
+  # ════════════════════════════════════════════════════════════════
+  vanilla_rnn:
+    meta: {category: "E", label: "Vanilla RNN", proposal_model: false, expected_runtime_mins: 5}
+    default: &seq_defaults
+      hidden_size: 64
+      num_layers: 1
+      dropout: 0.3
+      bidirectional: false
+      lr: 0.001
+      weight_decay: 1.0e-4
+      epochs: 50
+      batch_size: 256
+      early_stopping_patience: 10
+      grad_clip: 1.0
+      scheduler: "cosine"
+    search: &seq_search
+      hidden_size: {type: categorical, choices: [32, 64, 128, 256]}
+      num_layers: {type: int, low: 1, high: 3}
+      dropout: {type: float, low: 0.1, high: 0.5}
+      lr: {type: float, low: 1.0e-4, high: 5.0e-3, log: true}
+      weight_decay: {type: float, low: 1.0e-6, high: 1.0e-2, log: true}
+
+  lstm:
+    meta: {category: "E", label: "LSTM (Proposal Model)", proposal_model: true, expected_runtime_mins: 8}
+    default:
+      <<: *seq_defaults
+      hidden_size: 128
+      num_layers: 2
+    search: *seq_search
+
+  gru:
+    meta: {category: "E", label: "GRU (Proposal Model)", proposal_model: true, expected_runtime_mins: 7}
+    default:
+      <<: *seq_defaults
+      hidden_size: 128
+      num_layers: 2
+    search: *seq_search
+
+  bilstm:
+    meta: {category: "E", label: "BiLSTM", proposal_model: false, expected_runtime_mins: 10}
+    default:
+      <<: *seq_defaults
+      hidden_size: 64
+      bidirectional: true
+    search: *seq_search
+
+  bigru:
+    meta: {category: "E", label: "BiGRU", proposal_model: false, expected_runtime_mins: 9}
+    default:
+      <<: *seq_defaults
+      hidden_size: 64
+      bidirectional: true
+    search: *seq_search
+
+  lstm_attention:
+    meta: {category: "E", label: "LSTM + Attention", proposal_model: false, expected_runtime_mins: 10}
+    default:
+      <<: *seq_defaults
+      hidden_size: 128
+      num_layers: 2
+      use_attention: true
+    search: *seq_search
+
+  gru_attention:
+    meta: {category: "E", label: "GRU + Attention", proposal_model: false, expected_runtime_mins: 9}
+    default:
+      <<: *seq_defaults
+      hidden_size: 128
+      num_layers: 2
+      use_attention: true
+    search: *seq_search
+
+  cnn_1d:
+    meta: {category: "E", label: "1D-CNN", proposal_model: false, expected_runtime_mins: 5}
+    default:
+      num_filters: 64
+      kernel_sizes: [2, 3]
+      dropout: 0.3
+      lr: 0.001
+      weight_decay: 1.0e-4
+      epochs: 50
+      batch_size: 256
+      early_stopping_patience: 10
+      grad_clip: 1.0
+      scheduler: "cosine"
+    search:
+      num_filters: {type: categorical, choices: [32, 64, 128]}
+      dropout: {type: float, low: 0.1, high: 0.5}
+      lr: {type: float, low: 1.0e-4, high: 5.0e-3, log: true}
+
+  cnn_lstm:
+    meta: {category: "E", label: "CNN-LSTM Hybrid", proposal_model: false, expected_runtime_mins: 8}
+    default:
+      num_filters: 64
+      lstm_hidden: 64
+      num_layers: 1
+      dropout: 0.3
+      lr: 0.001
+      weight_decay: 1.0e-4
+      epochs: 50
+      batch_size: 256
+      early_stopping_patience: 10
+      grad_clip: 1.0
+      scheduler: "cosine"
+    search:
+      num_filters: {type: categorical, choices: [32, 64, 128]}
+      lstm_hidden: {type: categorical, choices: [32, 64, 128]}
+      dropout: {type: float, low: 0.1, high: 0.5}
+      lr: {type: float, low: 1.0e-4, high: 5.0e-3, log: true}
+
+  tcn:
+    meta: {category: "E", label: "Temporal Convolutional Network", proposal_model: false, expected_runtime_mins: 7}
+    default:
+      num_channels: [64, 64, 64]
+      kernel_size: 2
+      dropout: 0.2
+      lr: 0.001
+      weight_decay: 1.0e-4
+      epochs: 50
+      batch_size: 256
+      early_stopping_patience: 10
+      grad_clip: 1.0
+      scheduler: "cosine"
+    search:
+      num_channels: {type: categorical, choices: [[32,32], [64,64], [64,64,64], [128,128]]}
+      kernel_size: {type: categorical, choices: [2, 3]}
+      dropout: {type: float, low: 0.1, high: 0.4}
+      lr: {type: float, low: 1.0e-4, high: 5.0e-3, log: true}
+
+  transformer_enc:
+    meta: {category: "E", label: "Transformer Encoder", proposal_model: false, expected_runtime_mins: 10}
+    default:
+      d_model: 32
+      nhead: 4
+      num_layers: 2
+      dim_feedforward: 128
+      dropout: 0.2
+      lr: 0.001
+      weight_decay: 1.0e-4
+      epochs: 50
+      batch_size: 256
+      early_stopping_patience: 10
+      grad_clip: 1.0
+      scheduler: "cosine"
+    search:
+      d_model: {type: categorical, choices: [16, 32, 64]}
+      nhead: {type: categorical, choices: [2, 4]}
+      num_layers: {type: int, low: 1, high: 4}
+      dropout: {type: float, low: 0.1, high: 0.4}
+      lr: {type: float, low: 1.0e-4, high: 5.0e-3, log: true}
+
+  # ════════════════════════════════════════════════════════════════
+  # CATEGORY F — Static-snapshot variants (value-of-trajectory study)
+  # ════════════════════════════════════════════════════════════════
+  static_logistic:
+    meta: {category: "F", label: "Logistic Regression (Static Snapshot)", proposal_model: false, expected_runtime_mins: 1}
+    default: {C: 1.0, max_iter: 500, solver: "lbfgs", class_weight: "balanced"}
+    search:
+      C: {type: float, low: 0.001, high: 100.0, log: true}
+
+  static_lightgbm:
+    meta: {category: "F", label: "LightGBM (Static Snapshot)", proposal_model: false, expected_runtime_mins: 2}
+    default: {n_estimators: 200, learning_rate: 0.05, num_leaves: 31, class_weight: "balanced", verbosity: -1, random_state: 42}
+    search:
+      n_estimators: {type: int, low: 50, high: 300}
+      learning_rate: {type: float, low: 0.01, high: 0.2, log: true}
+      num_leaves: {type: int, low: 15, high: 63}
