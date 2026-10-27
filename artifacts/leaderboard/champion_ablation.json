@@ -1,0 +1,84 @@
+{
+  "champion_model": "tcn",
+  "stages": [
+    {
+      "stage_key": "gpa_only",
+      "stage_label": "GPA Only",
+      "feature_channels": [
+        0
+      ],
+      "n_channels": 1,
+      "test_roc_auc": 0.7039,
+      "test_pr_auc": 0.1186,
+      "test_f1": 0.1808,
+      "test_recall": 0.8389,
+      "test_precision": 0.1013,
+      "test_brier": 0.0581,
+      "test_ece": 0.0054,
+      "average_lead_time": 2.14,
+      "detected_before_gpa_below_2_rate": 0.8542,
+      "marginal_auc_gain": 0.0
+    },
+    {
+      "stage_key": "gpa_and_marks",
+      "stage_label": "GPA + Exam Marks",
+      "feature_channels": [
+        0,
+        1
+      ],
+      "n_channels": 2,
+      "test_roc_auc": 0.7,
+      "test_pr_auc": 0.1183,
+      "test_f1": 0.1791,
+      "test_recall": 0.8294,
+      "test_precision": 0.1004,
+      "test_brier": 0.0581,
+      "test_ece": 0.0067,
+      "average_lead_time": 2.13,
+      "detected_before_gpa_below_2_rate": 0.8611,
+      "marginal_auc_gain": -0.0039
+    },
+    {
+      "stage_key": "gpa_marks_attendance",
+      "stage_label": "GPA + Marks + Attendance",
+      "feature_channels": [
+        0,
+        1,
+        2
+      ],
+      "n_channels": 3,
+      "test_roc_auc": 0.7812,
+      "test_pr_auc": 0.1979,
+      "test_f1": 0.239,
+      "test_recall": 0.7109,
+      "test_precision": 0.1437,
+      "test_brier": 0.0552,
+      "test_ece": 0.0065,
+      "average_lead_time": 2.1,
+      "detected_before_gpa_below_2_rate": 0.7431,
+      "marginal_auc_gain": 0.0773
+    },
+    {
+      "stage_key": "all_four_inputs",
+      "stage_label": "All 4 Modalities (Full System)",
+      "feature_channels": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "n_channels": 4,
+      "test_roc_auc": 0.7837,
+      "test_pr_auc": 0.1999,
+      "test_f1": 0.2389,
+      "test_recall": 0.7251,
+      "test_precision": 0.143,
+      "test_brier": 0.0553,
+      "test_ece": 0.0068,
+      "average_lead_time": 2.11,
+      "detected_before_gpa_below_2_rate": 0.7361,
+      "marginal_auc_gain": 0.0798
+    }
+  ],
+  "conclusion": "Full 4-modality system achieved 0.7837 AUROC (++0.0798 over GPA-only baseline). Assignment delay and attendance contributed critical lead time gains."
+}

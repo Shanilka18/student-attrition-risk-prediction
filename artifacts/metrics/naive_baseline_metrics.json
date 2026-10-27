@@ -1,0 +1,13 @@
+{
+  "rule": "GPA < 2.0",
+  "total_evaluated_samples": 21985,
+  "true_positives": 71,
+  "false_positives": 340,
+  "true_negatives": 20299,
+  "false_negatives": 1275,
+  "accuracy": 0.9265,
+  "precision": 0.1727,
+  "recall": 0.0527,
+  "f1_score": 0.0808,
+  "motivating_finding": "The static rule 'GPA < 2.0' misses 1275 out of 1346 approaching dropouts (Recall: 5.3%), proving that single-point threshold monitoring fails to provide timely early warning."
+}
