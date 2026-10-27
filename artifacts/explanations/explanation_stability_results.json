@@ -1,0 +1,8 @@
+{
+  "test_type": "EXPLANATION_STABILITY_CHECK",
+  "mean_spearman_rank_correlation": 0.9605,
+  "min_spearman_rank_correlation": 0.9571,
+  "is_stable": true,
+  "stability_threshold": 0.85,
+  "conclusion": "Feature attribution rankings demonstrated high stability (Mean Spearman rho = 0.960 >= 0.85 threshold). Stable across perturbations: True."
+}

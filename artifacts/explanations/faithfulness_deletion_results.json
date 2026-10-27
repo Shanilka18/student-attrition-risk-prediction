@@ -1,0 +1,42 @@
+{
+  "test_type": "FEATURE_DELETION_FAITHFULNESS",
+  "n_instances_evaluated": 1172,
+  "is_monotonic_decrease": true,
+  "baseline_mean_risk": 13.71,
+  "final_mean_risk": 3.38,
+  "total_risk_drop": 10.33,
+  "comprehensiveness_score": 0.7534,
+  "curve": [
+    {
+      "k_features_neutralized": 0,
+      "mean_academic_risk_index": 13.71,
+      "relative_risk_reduction_pct": 0.0
+    },
+    {
+      "k_features_neutralized": 1,
+      "mean_academic_risk_index": 9.04,
+      "relative_risk_reduction_pct": 34.08
+    },
+    {
+      "k_features_neutralized": 2,
+      "mean_academic_risk_index": 6.31,
+      "relative_risk_reduction_pct": 53.95
+    },
+    {
+      "k_features_neutralized": 3,
+      "mean_academic_risk_index": 4.99,
+      "relative_risk_reduction_pct": 63.62
+    },
+    {
+      "k_features_neutralized": 5,
+      "mean_academic_risk_index": 3.81,
+      "relative_risk_reduction_pct": 72.2
+    },
+    {
+      "k_features_neutralized": 8,
+      "mean_academic_risk_index": 3.38,
+      "relative_risk_reduction_pct": 75.34
+    }
+  ],
+  "conclusion": "Explanations verified faithful: neutralising the top-8 risk drivers reduces predicted Academic Risk Index from 13.7 to 3.4 (75.3% reduction). Monotonic decrease: True."
+}
