@@ -1,0 +1,61 @@
+{
+  "model_key": "logistic_l2",
+  "category": "A",
+  "category_label": "Linear & Simple Baselines (tabular)",
+  "label": "Logistic Regression (L2)",
+  "is_proposal_model": false,
+  "is_sequence_model": false,
+  "status": "COMPLETED",
+  "validation_metrics": {
+    "roc_auc": 0.8198,
+    "pr_auc": 0.2016,
+    "brier_score": 0.0545,
+    "threshold": 0.0496,
+    "f1_score": 0.2381,
+    "recall": 0.835,
+    "precision": 0.1388,
+    "accuracy": 0.6682,
+    "specificity": 0.6571,
+    "confusion_matrix": {
+      "tn": 2045,
+      "fp": 1067,
+      "fn": 34,
+      "tp": 172
+    }
+  },
+  "stability_summary": {
+    "roc_auc_mean": 0.8198,
+    "roc_auc_std": 0.0,
+    "pr_auc_mean": 0.2016,
+    "pr_auc_std": 0.0,
+    "brier_score_mean": 0.1856,
+    "brier_score_std": 0.0,
+    "f1_score_mean": 0.2712,
+    "f1_score_std": 0.0,
+    "recall_mean": 0.767,
+    "recall_std": 0.0,
+    "precision_mean": 0.1648,
+    "precision_std": 0.0,
+    "accuracy_mean": 0.7441,
+    "accuracy_std": 0.0
+  },
+  "calibration": {
+    "method": "platt",
+    "is_fitted": true,
+    "brier_score_before": 0.1856,
+    "brier_score_after": 0.0545,
+    "brier_improvement_pct": 70.61
+  },
+  "threshold": {
+    "strategy": "recall_constrained",
+    "optimal_threshold": 0.0496,
+    "metrics": {
+      "f1_score": 0.2381,
+      "recall": 0.835,
+      "precision": 0.1388,
+      "accuracy": 0.6682
+    }
+  },
+  "runtime_seconds": 6.23,
+  "artifact_dir": "D:\\research project\\artifacts\\models\\Category_A\\logistic_l2"
+}

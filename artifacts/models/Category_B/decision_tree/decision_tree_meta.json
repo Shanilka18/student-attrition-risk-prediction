@@ -1,0 +1,17 @@
+{
+  "model_key": "decision_tree",
+  "category": "B",
+  "category_label": "Tree & Bagging Ensembles (tabular)",
+  "label": "Decision Tree",
+  "is_proposal_model": false,
+  "is_sequence_model": false,
+  "is_fitted": true,
+  "fit_time_seconds": 0.13,
+  "params": {
+    "max_depth": 7,
+    "min_samples_leaf": 48,
+    "class_weight": "balanced",
+    "random_state": 42,
+    "seed": 42
+  }
+}

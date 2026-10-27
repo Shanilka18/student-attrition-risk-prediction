@@ -1,0 +1,27 @@
+{
+  "model_key": "tcn",
+  "category": "E",
+  "category_label": "Deep Sequence Models (PyTorch, masked)",
+  "label": "Temporal Convolutional Network",
+  "is_proposal_model": false,
+  "is_sequence_model": true,
+  "is_fitted": true,
+  "fit_time_seconds": 5.92,
+  "params": {
+    "num_channels": [
+      64,
+      64
+    ],
+    "kernel_size": 2,
+    "dropout": 0.11742508365045984,
+    "lr": 0.0029621516588303515,
+    "weight_decay": 0.0001,
+    "epochs": 3,
+    "batch_size": 256,
+    "early_stopping_patience": 10,
+    "grad_clip": 1.0,
+    "scheduler": "cosine",
+    "random_state": 42,
+    "seed": 42
+  }
+}

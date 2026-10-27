@@ -1,0 +1,17 @@
+{
+  "timestamp": "2026-10-18 21:34:23",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "python_version": "3.12.10",
+  "device": "cpu",
+  "cuda_available": false,
+  "library_versions": {
+    "torch": "2.14.1+cpu",
+    "scikit-learn": "1.9.1",
+    "xgboost": "3.4.1",
+    "lightgbm": "4.7.0",
+    "catboost": "1.2.10",
+    "optuna": "5.0.0"
+  },
+  "preprocessing_reference": "artifacts/models/preprocessor.joblib",
+  "total_runtime_seconds": 36.07
+}

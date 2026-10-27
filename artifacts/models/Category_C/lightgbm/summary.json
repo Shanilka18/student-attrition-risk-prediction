@@ -1,0 +1,61 @@
+{
+  "model_key": "lightgbm",
+  "category": "C",
+  "category_label": "Boosting \u2014 Engineered Trend Features (PROPOSAL BASELINE)",
+  "label": "LightGBM (Proposal Baseline)",
+  "is_proposal_model": true,
+  "is_sequence_model": false,
+  "status": "COMPLETED",
+  "validation_metrics": {
+    "roc_auc": 0.7896,
+    "pr_auc": 0.1792,
+    "brier_score": 0.0544,
+    "threshold": 0.0496,
+    "f1_score": 0.2102,
+    "recall": 0.8107,
+    "precision": 0.1208,
+    "accuracy": 0.6218,
+    "specificity": 0.6093,
+    "confusion_matrix": {
+      "tn": 1896,
+      "fp": 1216,
+      "fn": 39,
+      "tp": 167
+    }
+  },
+  "stability_summary": {
+    "roc_auc_mean": 0.7896,
+    "roc_auc_std": 0.0027,
+    "pr_auc_mean": 0.1831,
+    "pr_auc_std": 0.0042,
+    "brier_score_mean": 0.0974,
+    "brier_score_std": 0.0007,
+    "f1_score_mean": 0.2714,
+    "f1_score_std": 0.0108,
+    "recall_mean": 0.4207,
+    "recall_std": 0.0218,
+    "precision_mean": 0.2003,
+    "precision_std": 0.0068,
+    "accuracy_mean": 0.8599,
+    "accuracy_std": 0.0007
+  },
+  "calibration": {
+    "method": "platt",
+    "is_fitted": true,
+    "brier_score_before": 0.0971,
+    "brier_score_after": 0.0544,
+    "brier_improvement_pct": 44.02
+  },
+  "threshold": {
+    "strategy": "recall_constrained",
+    "optimal_threshold": 0.0496,
+    "metrics": {
+      "f1_score": 0.2101,
+      "recall": 0.8107,
+      "precision": 0.1207,
+      "accuracy": 0.6215
+    }
+  },
+  "runtime_seconds": 9.76,
+  "artifact_dir": "D:\\research project\\artifacts\\models\\Category_C\\lightgbm"
+}

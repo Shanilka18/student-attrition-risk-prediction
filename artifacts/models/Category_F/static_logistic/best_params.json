@@ -1,0 +1,6 @@
+{
+  "C": 56.69849511478853,
+  "max_iter": 500,
+  "solver": "lbfgs",
+  "class_weight": "balanced"
+}

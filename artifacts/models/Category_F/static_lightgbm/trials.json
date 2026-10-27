@@ -1,0 +1,44 @@
+[
+  {
+    "trial": 0,
+    "params": {
+      "n_estimators": 200,
+      "learning_rate": 0.05,
+      "num_leaves": 31
+    },
+    "mean_cv_roc_auc": 0.7426,
+    "fold_scores": [
+      0.7494,
+      0.7357
+    ],
+    "duration_seconds": 0.7
+  },
+  {
+    "trial": 1,
+    "params": {
+      "n_estimators": 144,
+      "learning_rate": 0.17254716573280354,
+      "num_leaves": 50
+    },
+    "mean_cv_roc_auc": 0.7088,
+    "fold_scores": [
+      0.7148,
+      0.7028
+    ],
+    "duration_seconds": 0.56
+  },
+  {
+    "trial": 2,
+    "params": {
+      "n_estimators": 200,
+      "learning_rate": 0.015958237752949748,
+      "num_leaves": 22
+    },
+    "mean_cv_roc_auc": 0.7634,
+    "fold_scores": [
+      0.7716,
+      0.7552
+    ],
+    "duration_seconds": 0.51
+  }
+]

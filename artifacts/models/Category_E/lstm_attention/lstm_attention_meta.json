@@ -1,0 +1,26 @@
+{
+  "model_key": "lstm_attention",
+  "category": "E",
+  "category_label": "Deep Sequence Models (PyTorch, masked)",
+  "label": "LSTM + Attention",
+  "is_proposal_model": false,
+  "is_sequence_model": true,
+  "is_fitted": true,
+  "fit_time_seconds": 9.73,
+  "params": {
+    "hidden_size": 128,
+    "num_layers": 2,
+    "dropout": 0.3,
+    "bidirectional": false,
+    "lr": 0.001,
+    "weight_decay": 0.0001,
+    "epochs": 3,
+    "batch_size": 256,
+    "early_stopping_patience": 10,
+    "grad_clip": 1.0,
+    "scheduler": "cosine",
+    "use_attention": true,
+    "random_state": 42,
+    "seed": 42
+  }
+}

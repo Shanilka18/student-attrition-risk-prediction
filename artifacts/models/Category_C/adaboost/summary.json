@@ -1,0 +1,61 @@
+{
+  "model_key": "adaboost",
+  "category": "C",
+  "category_label": "Boosting \u2014 Engineered Trend Features (PROPOSAL BASELINE)",
+  "label": "AdaBoost",
+  "is_proposal_model": false,
+  "is_sequence_model": false,
+  "status": "COMPLETED",
+  "validation_metrics": {
+    "roc_auc": 0.8101,
+    "pr_auc": 0.2014,
+    "brier_score": 0.0532,
+    "threshold": 0.0595,
+    "f1_score": 0.2409,
+    "recall": 0.8058,
+    "precision": 0.1416,
+    "accuracy": 0.6847,
+    "specificity": 0.6767,
+    "confusion_matrix": {
+      "tn": 2106,
+      "fp": 1006,
+      "fn": 40,
+      "tp": 166
+    }
+  },
+  "stability_summary": {
+    "roc_auc_mean": 0.8101,
+    "roc_auc_std": 0.0,
+    "pr_auc_mean": 0.2014,
+    "pr_auc_std": 0.0,
+    "brier_score_mean": 0.0952,
+    "brier_score_std": 0.0,
+    "f1_score_mean": 0.0,
+    "f1_score_std": 0.0,
+    "recall_mean": 0.0,
+    "recall_std": 0.0,
+    "precision_mean": 0.0,
+    "precision_std": 0.0,
+    "accuracy_mean": 0.9379,
+    "accuracy_std": 0.0
+  },
+  "calibration": {
+    "method": "platt",
+    "is_fitted": true,
+    "brier_score_before": 0.0952,
+    "brier_score_after": 0.0532,
+    "brier_improvement_pct": 44.15
+  },
+  "threshold": {
+    "strategy": "recall_constrained",
+    "optimal_threshold": 0.0595,
+    "metrics": {
+      "f1_score": 0.2409,
+      "recall": 0.8058,
+      "precision": 0.1416,
+      "accuracy": 0.6847
+    }
+  },
+  "runtime_seconds": 39.56,
+  "artifact_dir": "D:\\research project\\artifacts\\models\\Category_C\\adaboost"
+}

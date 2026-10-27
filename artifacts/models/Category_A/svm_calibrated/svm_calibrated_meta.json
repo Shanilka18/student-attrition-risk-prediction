@@ -1,0 +1,17 @@
+{
+  "model_key": "svm_calibrated",
+  "category": "A",
+  "category_label": "Linear & Simple Baselines (tabular)",
+  "label": "Linear SVM (Calibrated)",
+  "is_proposal_model": false,
+  "is_sequence_model": false,
+  "is_fitted": true,
+  "fit_time_seconds": 0.81,
+  "params": {
+    "C": 0.0745934328572655,
+    "max_iter": 1000,
+    "class_weight": "balanced",
+    "random_state": 42,
+    "seed": 42
+  }
+}

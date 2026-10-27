@@ -1,0 +1,10 @@
+[
+  {
+    "trial": 0,
+    "params": {
+      "threshold": 2.0
+    },
+    "value": 0.0,
+    "status": "DEFAULT"
+  }
+]

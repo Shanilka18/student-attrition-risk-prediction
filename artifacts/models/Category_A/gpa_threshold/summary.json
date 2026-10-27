@@ -1,0 +1,61 @@
+{
+  "model_key": "gpa_threshold",
+  "category": "A",
+  "category_label": "Linear & Simple Baselines (tabular)",
+  "label": "GPA Threshold Rule (Reference)",
+  "is_proposal_model": false,
+  "is_sequence_model": false,
+  "status": "COMPLETED",
+  "validation_metrics": {
+    "roc_auc": 0.5106,
+    "pr_auc": 0.065,
+    "brier_score": 0.0581,
+    "threshold": 0.01,
+    "f1_score": 0.1169,
+    "recall": 1.0,
+    "precision": 0.0621,
+    "accuracy": 0.0621,
+    "specificity": 0.0,
+    "confusion_matrix": {
+      "tn": 0,
+      "fp": 3112,
+      "fn": 0,
+      "tp": 206
+    }
+  },
+  "stability_summary": {
+    "roc_auc_mean": 0.5106,
+    "roc_auc_std": 0.0,
+    "pr_auc_mean": 0.065,
+    "pr_auc_std": 0.0,
+    "brier_score_mean": 0.072,
+    "brier_score_std": 0.0,
+    "f1_score_mean": 0.0553,
+    "f1_score_std": 0.0,
+    "recall_mean": 0.034,
+    "recall_std": 0.0,
+    "precision_mean": 0.1489,
+    "precision_std": 0.0,
+    "accuracy_mean": 0.928,
+    "accuracy_std": 0.0
+  },
+  "calibration": {
+    "method": "platt",
+    "is_fitted": true,
+    "brier_score_before": 0.072,
+    "brier_score_after": 0.0581,
+    "brier_improvement_pct": 19.31
+  },
+  "threshold": {
+    "strategy": "recall_constrained",
+    "optimal_threshold": 0.01,
+    "metrics": {
+      "f1_score": 0.1169,
+      "recall": 1.0,
+      "precision": 0.0621,
+      "accuracy": 0.0621
+    }
+  },
+  "runtime_seconds": 1.54,
+  "artifact_dir": "D:\\research project\\artifacts\\models\\Category_A\\gpa_threshold"
+}

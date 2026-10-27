@@ -1,0 +1,18 @@
+{
+  "model_key": "static_logistic",
+  "category": "F",
+  "category_label": "Static-Snapshot Variants (value-of-trajectory study)",
+  "label": "Logistic Regression (Static Snapshot)",
+  "is_proposal_model": false,
+  "is_sequence_model": false,
+  "is_fitted": true,
+  "fit_time_seconds": 0.04,
+  "params": {
+    "C": 56.69849511478853,
+    "max_iter": 500,
+    "solver": "lbfgs",
+    "class_weight": "balanced",
+    "random_state": 42,
+    "seed": 42
+  }
+}

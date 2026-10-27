@@ -1,0 +1,61 @@
+{
+  "model_key": "gru_attention",
+  "category": "E",
+  "category_label": "Deep Sequence Models (PyTorch, masked)",
+  "label": "GRU + Attention",
+  "is_proposal_model": false,
+  "is_sequence_model": true,
+  "status": "COMPLETED",
+  "validation_metrics": {
+    "roc_auc": 0.8191,
+    "pr_auc": 0.2083,
+    "brier_score": 0.0534,
+    "threshold": 0.0496,
+    "f1_score": 0.2306,
+    "recall": 0.8058,
+    "precision": 0.1345,
+    "accuracy": 0.6661,
+    "specificity": 0.6568,
+    "confusion_matrix": {
+      "tn": 2044,
+      "fp": 1068,
+      "fn": 40,
+      "tp": 166
+    }
+  },
+  "stability_summary": {
+    "roc_auc_mean": 0.819,
+    "roc_auc_std": 0.0004,
+    "pr_auc_mean": 0.2061,
+    "pr_auc_std": 0.0024,
+    "brier_score_mean": 0.1877,
+    "brier_score_std": 0.0033,
+    "f1_score_mean": 0.2513,
+    "f1_score_std": 0.0029,
+    "recall_mean": 0.767,
+    "recall_std": 0.0069,
+    "precision_mean": 0.1503,
+    "precision_std": 0.0023,
+    "accuracy_mean": 0.7162,
+    "accuracy_std": 0.0067
+  },
+  "calibration": {
+    "method": "platt",
+    "is_fitted": true,
+    "brier_score_before": 0.1921,
+    "brier_score_after": 0.0534,
+    "brier_improvement_pct": 72.22
+  },
+  "threshold": {
+    "strategy": "recall_constrained",
+    "optimal_threshold": 0.0496,
+    "metrics": {
+      "f1_score": 0.2306,
+      "recall": 0.8058,
+      "precision": 0.1345,
+      "accuracy": 0.6661
+    }
+  },
+  "runtime_seconds": 40.89,
+  "artifact_dir": "D:\\research project\\artifacts\\models\\Category_E\\gru_attention"
+}

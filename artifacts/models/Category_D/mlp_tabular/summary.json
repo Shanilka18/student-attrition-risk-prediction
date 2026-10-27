@@ -1,0 +1,61 @@
+{
+  "model_key": "mlp_tabular",
+  "category": "D",
+  "category_label": "Neural, Tabular (MLP)",
+  "label": "MLP (Engineered Features)",
+  "is_proposal_model": false,
+  "is_sequence_model": false,
+  "status": "COMPLETED",
+  "validation_metrics": {
+    "roc_auc": 0.8204,
+    "pr_auc": 0.2088,
+    "brier_score": 0.0535,
+    "threshold": 0.0595,
+    "f1_score": 0.2562,
+    "recall": 0.8058,
+    "precision": 0.1523,
+    "accuracy": 0.7095,
+    "specificity": 0.7031,
+    "confusion_matrix": {
+      "tn": 2188,
+      "fp": 924,
+      "fn": 40,
+      "tp": 166
+    }
+  },
+  "stability_summary": {
+    "roc_auc_mean": 0.8197,
+    "roc_auc_std": 0.0007,
+    "pr_auc_mean": 0.2115,
+    "pr_auc_std": 0.0023,
+    "brier_score_mean": 0.2023,
+    "brier_score_std": 0.0019,
+    "f1_score_mean": 0.2443,
+    "f1_score_std": 0.004,
+    "recall_mean": 0.8333,
+    "recall_std": 0.0061,
+    "precision_mean": 0.1432,
+    "precision_std": 0.0027,
+    "accuracy_mean": 0.6798,
+    "accuracy_std": 0.0077
+  },
+  "calibration": {
+    "method": "platt",
+    "is_fitted": true,
+    "brier_score_before": 0.2027,
+    "brier_score_after": 0.0535,
+    "brier_improvement_pct": 73.62
+  },
+  "threshold": {
+    "strategy": "recall_constrained",
+    "optimal_threshold": 0.0595,
+    "metrics": {
+      "f1_score": 0.2562,
+      "recall": 0.8058,
+      "precision": 0.1523,
+      "accuracy": 0.7095
+    }
+  },
+  "runtime_seconds": 12.18,
+  "artifact_dir": "D:\\research project\\artifacts\\models\\Category_D\\mlp_tabular"
+}

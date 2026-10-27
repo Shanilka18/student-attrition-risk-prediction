@@ -1,0 +1,7 @@
+{
+  "n_estimators": 319,
+  "max_depth": 6,
+  "min_samples_leaf": 6,
+  "class_weight": "balanced",
+  "n_jobs": -1
+}

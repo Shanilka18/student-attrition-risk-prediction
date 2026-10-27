@@ -26,8 +26,11 @@ data/uploads/*
 !data/**/.gitkeep
 
 # Artifacts (large binary models/checkpoints)
-artifacts/models/*.pt
-artifacts/models/*.bin
+artifacts/models/**/*.pt
+artifacts/models/**/*.bin
+artifacts/models/**/*.joblib
+artifacts/models/**/*.cbm
+artifacts/models/**/*.pth
 artifacts/models/*.joblib
 !artifacts/**/.gitkeep
 

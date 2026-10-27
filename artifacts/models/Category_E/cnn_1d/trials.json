@@ -1,0 +1,30 @@
+[
+  {
+    "trial": 0,
+    "params": {
+      "num_filters": 64,
+      "dropout": 0.3,
+      "lr": 0.001
+    },
+    "mean_cv_roc_auc": 0.7767,
+    "fold_scores": [
+      0.7882,
+      0.7652
+    ],
+    "duration_seconds": 2.3
+  },
+  {
+    "trial": 1,
+    "params": {
+      "num_filters": 64,
+      "dropout": 0.3394633936788146,
+      "lr": 0.00018410729205738696
+    },
+    "mean_cv_roc_auc": 0.768,
+    "fold_scores": [
+      0.7798,
+      0.7561
+    ],
+    "duration_seconds": 2.17
+  }
+]

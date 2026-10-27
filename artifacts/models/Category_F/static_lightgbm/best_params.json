@@ -1,0 +1,8 @@
+{
+  "n_estimators": 200,
+  "learning_rate": 0.015958237752949748,
+  "num_leaves": 22,
+  "class_weight": "balanced",
+  "verbosity": -1,
+  "random_state": 42
+}

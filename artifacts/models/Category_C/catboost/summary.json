@@ -1,0 +1,61 @@
+{
+  "model_key": "catboost",
+  "category": "C",
+  "category_label": "Boosting \u2014 Engineered Trend Features (PROPOSAL BASELINE)",
+  "label": "CatBoost",
+  "is_proposal_model": false,
+  "is_sequence_model": false,
+  "status": "COMPLETED",
+  "validation_metrics": {
+    "roc_auc": 0.8196,
+    "pr_auc": 0.2057,
+    "brier_score": 0.0527,
+    "threshold": 0.0496,
+    "f1_score": 0.2382,
+    "recall": 0.8204,
+    "precision": 0.1393,
+    "accuracy": 0.6742,
+    "specificity": 0.6645,
+    "confusion_matrix": {
+      "tn": 2068,
+      "fp": 1044,
+      "fn": 37,
+      "tp": 169
+    }
+  },
+  "stability_summary": {
+    "roc_auc_mean": 0.8196,
+    "roc_auc_std": 0.0,
+    "pr_auc_mean": 0.2057,
+    "pr_auc_std": 0.0,
+    "brier_score_mean": 0.1869,
+    "brier_score_std": 0.0,
+    "f1_score_mean": 0.2483,
+    "f1_score_std": 0.0,
+    "recall_mean": 0.7864,
+    "recall_std": 0.0,
+    "precision_mean": 0.1474,
+    "precision_std": 0.0,
+    "accuracy_mean": 0.7043,
+    "accuracy_std": 0.0
+  },
+  "calibration": {
+    "method": "platt",
+    "is_fitted": true,
+    "brier_score_before": 0.1869,
+    "brier_score_after": 0.0527,
+    "brier_improvement_pct": 71.79
+  },
+  "threshold": {
+    "strategy": "recall_constrained",
+    "optimal_threshold": 0.0496,
+    "metrics": {
+      "f1_score": 0.2382,
+      "recall": 0.8204,
+      "precision": 0.1393,
+      "accuracy": 0.6742
+    }
+  },
+  "runtime_seconds": 14.76,
+  "artifact_dir": "D:\\research project\\artifacts\\models\\Category_C\\catboost"
+}

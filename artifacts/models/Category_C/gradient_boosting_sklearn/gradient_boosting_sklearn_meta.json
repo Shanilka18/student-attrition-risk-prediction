@@ -1,0 +1,19 @@
+{
+  "model_key": "gradient_boosting_sklearn",
+  "category": "C",
+  "category_label": "Boosting \u2014 Engineered Trend Features (PROPOSAL BASELINE)",
+  "label": "Gradient Boosting (sklearn)",
+  "is_proposal_model": false,
+  "is_sequence_model": false,
+  "is_fitted": true,
+  "fit_time_seconds": 4.33,
+  "params": {
+    "n_estimators": 104,
+    "learning_rate": 0.009470040922904443,
+    "max_depth": 2,
+    "subsample": 0.9330880728874675,
+    "min_samples_leaf": 10,
+    "random_state": 42,
+    "seed": 42
+  }
+}

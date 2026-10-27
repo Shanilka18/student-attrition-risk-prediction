@@ -1,0 +1,39 @@
+[
+  {
+    "trial": 0,
+    "params": {
+      "num_channels": [
+        64,
+        64,
+        64
+      ],
+      "kernel_size": 2,
+      "dropout": 0.2,
+      "lr": 0.001
+    },
+    "mean_cv_roc_auc": 0.7877,
+    "fold_scores": [
+      0.8017,
+      0.7737
+    ],
+    "duration_seconds": 9.49
+  },
+  {
+    "trial": 1,
+    "params": {
+      "num_channels": [
+        64,
+        64
+      ],
+      "kernel_size": 2,
+      "dropout": 0.11742508365045984,
+      "lr": 0.0029621516588303515
+    },
+    "mean_cv_roc_auc": 0.7887,
+    "fold_scores": [
+      0.8029,
+      0.7746
+    ],
+    "duration_seconds": 6.71
+  }
+]

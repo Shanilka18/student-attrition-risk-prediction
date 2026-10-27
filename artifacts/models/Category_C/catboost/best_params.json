@@ -1,0 +1,8 @@
+{
+  "iterations": 319,
+  "learning_rate": 0.009470976192691145,
+  "depth": 3,
+  "auto_class_weights": "Balanced",
+  "random_seed": 42,
+  "verbose": 0
+}
