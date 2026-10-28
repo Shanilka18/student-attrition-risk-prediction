@@ -15,7 +15,7 @@ import type { LeaderboardResponse, LeaderboardModel } from '../api/client';
 
 interface LeaderboardPageProps {
   leaderboard: LeaderboardResponse | null;
-  onSelectModel: (modelKey: string) => void;
+  onSelectModel?: (modelKey: string) => void;
 }
 
 export const LeaderboardPage: React.FC<LeaderboardPageProps> = ({
@@ -116,14 +116,20 @@ export const LeaderboardPage: React.FC<LeaderboardPageProps> = ({
           {Object.entries(catChamps).map(([catKey, champ]) => (
             <div
               key={catKey}
-              onClick={() => onSelectModel(champ.model_key)}
-              className="cursor-pointer rounded-xl border border-slate-800 bg-slate-900/60 p-4 hover:border-indigo-500/50 hover:bg-slate-900 transition-all flex items-center justify-between group"
+              onClick={() => onSelectModel?.(champ.model_key)}
+              className={`rounded-xl border border-slate-800 bg-slate-900/60 p-4 transition-all flex items-center justify-between group ${
+                onSelectModel ? 'cursor-pointer hover:border-indigo-500/50 hover:bg-slate-900' : ''
+              }`}
             >
               <div>
                 <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-400">
                   Category {catKey}
                 </span>
-                <h4 className="font-bold text-sm text-slate-100 group-hover:text-indigo-400 transition-colors mt-1">
+                <h4
+                  className={`font-bold text-sm text-slate-100 transition-colors mt-1 ${
+                    onSelectModel ? 'group-hover:text-indigo-400' : ''
+                  }`}
+                >
                   {champ.label}
                 </h4>
                 <div className="flex items-center gap-3 text-xs text-slate-400 mt-2 font-mono">
@@ -131,7 +137,9 @@ export const LeaderboardPage: React.FC<LeaderboardPageProps> = ({
                   <span>PR-AUC: <strong className="text-slate-200">{champ.test_pr_auc?.toFixed(4)}</strong></span>
                 </div>
               </div>
-              <ArrowRight className="w-4 h-4 text-slate-500 group-hover:text-indigo-400 group-hover:translate-x-1 transition-all" />
+              {onSelectModel && (
+                <ArrowRight className="w-4 h-4 text-slate-500 group-hover:text-indigo-400 group-hover:translate-x-1 transition-all" />
+              )}
             </div>
           ))}
         </div>
@@ -265,8 +273,10 @@ export const LeaderboardPage: React.FC<LeaderboardPageProps> = ({
                 return (
                   <tr
                     key={m.model_key}
-                    onClick={() => onSelectModel(m.model_key)}
-                    className="hover:bg-slate-800/40 cursor-pointer transition-colors group"
+                    onClick={() => onSelectModel?.(m.model_key)}
+                    className={`hover:bg-slate-800/40 transition-colors group ${
+                      onSelectModel ? 'cursor-pointer' : ''
+                    }`}
                   >
                     <td className="py-3 px-3">
                       {isChampion ? (

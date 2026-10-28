@@ -89,28 +89,40 @@ export const ExplainabilityPage: React.FC = () => {
           </span>
         </div>
 
-        <div className="h-72 w-full">
-          <ResponsiveContainer>
+        <div className="h-[480px] w-full">
+          <ResponsiveContainer width="100%" height="100%">
             <BarChart
               layout="vertical"
               data={top10Features}
-              margin={{ top: 5, right: 30, left: 100, bottom: 5 }}
+              margin={{ top: 10, right: 30, left: 10, bottom: 10 }}
+              barSize={18}
             >
-              <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-              <XAxis type="number" stroke="#64748b" fontSize={11} unit=" |phi|" />
+              <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" horizontal={false} />
+              <XAxis
+                type="number"
+                stroke="#64748b"
+                fontSize={12}
+                unit=" |φ|"
+                tick={{ fill: '#94a3b8' }}
+              />
               <YAxis
                 type="category"
                 dataKey="display_name"
                 stroke="#94a3b8"
-                fontSize={11}
+                fontSize={12}
                 tickLine={false}
+                width={250}
+                interval={0}
+                tick={{ fill: '#e2e8f0', fontSize: 12 }}
               />
               <Tooltip
                 contentStyle={{
                   backgroundColor: '#0f172a',
                   borderColor: '#334155',
+                  borderRadius: '0.5rem',
                   fontSize: '12px',
                 }}
+                formatter={(val: number) => [`${val.toFixed(4)} |φ|`, 'Importance']}
               />
               <Bar dataKey="mean_abs_shap" name="Mean |SHAP|" fill="#818cf8" radius={[0, 4, 4, 0]} />
             </BarChart>

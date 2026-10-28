@@ -13,17 +13,14 @@ import type { PageId } from './components/Navbar';
 import { OverviewPage } from './pages/OverviewPage';
 import { DataPage } from './pages/DataPage';
 import { LeaderboardPage } from './pages/LeaderboardPage';
-import { ModelDetailPage } from './pages/ModelDetailPage';
 import { ComparePage } from './pages/ComparePage';
 import { EarlyWarningPage } from './pages/EarlyWarningPage';
 import { ExplainabilityPage } from './pages/ExplainabilityPage';
 import { PredictPage } from './pages/PredictPage';
-import { MethodologyPage } from './pages/MethodologyPage';
 import { ExportPage } from './pages/ExportPage';
 
 export function AppContent() {
   const [currentPage, setCurrentPage] = useState<PageId>('overview');
-  const [selectedModelKey, setSelectedModelKey] = useState<string>('catboost');
 
   // Global Telemetry State
   const [health, setHealth] = useState<HealthResponse | null>(null);
@@ -40,11 +37,6 @@ export function AppContent() {
     api.getResearchAnswer().then(setResearchAnswer).catch(console.warn);
     api.getDataSummary().then(setDataSummary).catch(console.warn);
   }, []);
-
-  const handleSelectModel = (key: string) => {
-    setSelectedModelKey(key);
-    setCurrentPage('model-detail');
-  };
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans transition-colors">
@@ -69,17 +61,7 @@ export function AppContent() {
         {currentPage === 'data' && <DataPage dataSummary={dataSummary} />}
 
         {currentPage === 'leaderboard' && (
-          <LeaderboardPage
-            leaderboard={leaderboard}
-            onSelectModel={handleSelectModel}
-          />
-        )}
-
-        {currentPage === 'model-detail' && (
-          <ModelDetailPage
-            selectedModelKey={selectedModelKey}
-            onSelectModel={setSelectedModelKey}
-          />
+          <LeaderboardPage leaderboard={leaderboard} />
         )}
 
         {currentPage === 'compare' && (
@@ -94,8 +76,6 @@ export function AppContent() {
         {currentPage === 'explainability' && <ExplainabilityPage />}
 
         {currentPage === 'predict' && <PredictPage />}
-
-        {currentPage === 'methodology' && <MethodologyPage />}
 
         {currentPage === 'export' && <ExportPage dataSummary={dataSummary} />}
       </main>
