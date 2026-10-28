@@ -579,3 +579,66 @@ Every design, architectural, and methodological decision is recorded here chrono
 
 
 
+
+---
+
+### D-062: Inline Implementation of `assemble_and_save_regression_leaderboard` in `retrain.py`
+- **Date**: 2026-10-28
+- **Decision**: Implement `assemble_and_save_regression_leaderboard()` inline inside `src/mei/registry/retrain.py` rather than importing it from `mei.models.regression_engine`, which does not expose this function.
+- **Reason**: The function was referenced in the orchestrator design but was never added to `regression_engine.py`. Adding it inline avoids a circular dependency risk and keeps the orchestrator self-contained.
+- **Alternatives Rejected**:
+  - Patching `regression_engine.py`: Would widen the public API of an already complex module and risk breaking existing callers.
+
+---
+
+### D-063: `validate_retrain_dataset` Accepts `Path` Not `DataFrame`
+- **Date**: 2026-10-28
+- **Decision**: Changed the signature of `validate_retrain_dataset()` from `(df: pd.DataFrame)` to `(dataset_path: Path)` so the function reads and parses the file itself.
+- **Reason**: The API endpoint receives a file upload (not a DataFrame). Having the function own file reading keeps the endpoint thin and ensures consistent parsing logic (CSV vs XLSX detection, encoding handling) in one place.
+- **Alternatives Rejected**:
+  - Pass a pre-parsed DataFrame from the endpoint: Requires the endpoint to know file format specifics and duplicates parsing logic.
+
+---
+
+### D-064: SmallDataGuards Traffic Light Values Are Uppercase Strings
+- **Date**: 2026-10-28
+- **Decision**: `SmallDataGuards.evaluate()` returns `traffic_light` as an uppercase string: `"RED"`, `"AMBER"`, or `"GREEN"`.
+- **Reason**: Uppercase matches the convention used by the scoring validation endpoint (Phase 15) and allows direct comparison without case normalisation in the frontend.
+- **Alternatives Rejected**:
+  - Lowercase or enum: Would require extra normalisation in both the API layer and tests.
+
+---
+
+### D-065: Test Helper `make_test_survey_df()` Instead of `SyntheticSurveyGenerator`
+- **Date**: 2026-10-28
+- **Decision**: `tests/test_retraining.py` uses a local `make_test_survey_df()` helper to generate test survey DataFrames rather than importing `SyntheticSurveyGenerator` from `mei.generator`.
+- **Reason**: `SyntheticSurveyGenerator` requires `config/schema.yaml` to be present. When the `config/` directory is absent from the working tree (it is gitignored in some configurations), all tests that depend on the generator fail at import time. The local helper has no external dependencies.
+- **Alternatives Rejected**:
+  - Fixture files on disk: Would need to be committed and kept in sync with schema changes.
+
+---
+
+### D-066: Cooperative Cancellation via `threading.Event` in Orchestrator
+- **Date**: 2026-10-28
+- **Decision**: `run_full_pipeline()` accepts an optional `cancel_event: threading.Event`. At the start of each pipeline stage, the orchestrator checks `cancel_event.is_set()` and raises `CancellationRequested` if set. The API cancel endpoint sets this event via the `JobManager`.
+- **Reason**: Cooperative cancellation avoids abrupt thread termination (which can leave model artifacts in a corrupted state). Each stage completes its current unit of work before honouring the cancel request.
+- **Alternatives Rejected**:
+  - Daemon threads with `Thread.join(timeout)`: Cannot interrupt long-running Optuna trials cleanly.
+  - `multiprocessing.Process.terminate()`: Sends SIGTERM which can corrupt open file handles on Windows.
+
+---
+
+### D-067: Audit Log Written to `artifacts/audit.log` on Activation and Rollback
+- **Date**: 2026-10-28
+- **Decision**: Every call to `activate_pipeline_run()` appends a timestamped line to `artifacts/audit.log` recording the new run id, previous run id, and the actor (user or system that triggered the change).
+- **Reason**: Model governance requires a tamper-evident record of which model was active at which time and who made the change. The append-only log survives run directory deletions and can be reviewed independently.
+- **Alternatives Rejected**:
+  - Storing activation history only in run metadata JSON: Deleted runs would lose their history.
+
+---
+
+### D-068: `client.ts` and `App.tsx` Restored from Git History for Frontend Build
+- **Date**: 2026-10-28
+- **Decision**: `frontend/src/api/client.ts` (from commit `e7c2c7b`) and `frontend/src/App.tsx` (from commit `0af5778`) were missing from the working tree. Restored via `git checkout <commit> -- <file>`. Both files are now tracked and committed as part of the Phase 16 frontend section.
+- **Reason**: These files were present in earlier phase commits but were accidentally excluded from the HEAD working tree (likely during a rebase or selective checkout). The frontend build fails without them.
+
