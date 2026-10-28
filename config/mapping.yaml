@@ -1,0 +1,1214 @@
+version: 1.0.0
+fuzzy_matching:
+  enabled: true
+  threshold: 88.0
+  scorer: token_sort_ratio
+  auto_accept: false
+  description: Fuzzy fallback used only to suggest mappings for manual user confirmation.
+columns:
+  student_id:
+  - student_id
+  - Student ID
+  - Student Identifier
+  - ID
+  - Anonymous ID
+  - Student Number
+  - Registration Number
+  - Student_ID
+  - StudentId
+  timestamp:
+  - timestamp
+  - Timestamp
+  - Submission Time
+  - Date submitted
+  - Time
+  - Timestamp (UTC)
+  - Survey Timestamp
+  consent:
+  - consent
+  - Consent
+  - Informed Consent
+  - Do you consent to participate in this study?
+  - Participation Consent
+  - I agree to take part in this research study
+  resource_access_p1:
+  - resource_access_p1
+  - resource_access_P1
+  - resource_access P1
+  - resource_access period 1
+  - resource_access_1
+  - 'How many days per week did you open online learning materials? [Period 1: Weeks
+    1–4]'
+  - 'How many days per week did you open online learning materials? - Period 1: Weeks
+    1–4'
+  - How many days per week did you open online learning materials? [Period 1 (Weeks
+    1-4)]
+  - How many days per week did you open online learning materials? - Period 1 (Weeks
+    1-4)
+  - How many days per week did you open online learning materials? [Period 1]
+  - How many days per week did you open online learning materials? - Period 1
+  - How many days per week did you open online learning materials? [P1]
+  - How many days per week did you open online learning materials? - P1
+  - 'Days per week accessing online learning materials [Period 1: Weeks 1–4]'
+  - 'Days per week accessing online learning materials - Period 1: Weeks 1–4'
+  - Days per week accessing online learning materials [Period 1 (Weeks 1-4)]
+  - Days per week accessing online learning materials - Period 1 (Weeks 1-4)
+  - Days per week accessing online learning materials [Period 1]
+  - Days per week accessing online learning materials - Period 1
+  - Days per week accessing online learning materials [P1]
+  - Days per week accessing online learning materials - P1
+  - 'Resource Access [Period 1: Weeks 1–4]'
+  - 'Resource Access - Period 1: Weeks 1–4'
+  - Resource Access [Period 1 (Weeks 1-4)]
+  - Resource Access - Period 1 (Weeks 1-4)
+  - Resource Access [Period 1]
+  - Resource Access - Period 1
+  - Resource Access [P1]
+  - Resource Access - P1
+  - 'resource_access [Period 1: Weeks 1–4]'
+  - 'resource_access - Period 1: Weeks 1–4'
+  - resource_access [Period 1 (Weeks 1-4)]
+  - resource_access - Period 1 (Weeks 1-4)
+  - resource_access [Period 1]
+  - resource_access - Period 1
+  - resource_access [P1]
+  - resource_access - P1
+  resource_access_p2:
+  - resource_access_p2
+  - resource_access_P2
+  - resource_access P2
+  - resource_access period 2
+  - resource_access_2
+  - 'How many days per week did you open online learning materials? [Period 2: Weeks
+    5–8]'
+  - 'How many days per week did you open online learning materials? - Period 2: Weeks
+    5–8'
+  - How many days per week did you open online learning materials? [Period 2 (Weeks
+    5-8)]
+  - How many days per week did you open online learning materials? - Period 2 (Weeks
+    5-8)
+  - How many days per week did you open online learning materials? [Period 2]
+  - How many days per week did you open online learning materials? - Period 2
+  - How many days per week did you open online learning materials? [P2]
+  - How many days per week did you open online learning materials? - P2
+  - 'Days per week accessing online learning materials [Period 2: Weeks 5–8]'
+  - 'Days per week accessing online learning materials - Period 2: Weeks 5–8'
+  - Days per week accessing online learning materials [Period 2 (Weeks 5-8)]
+  - Days per week accessing online learning materials - Period 2 (Weeks 5-8)
+  - Days per week accessing online learning materials [Period 2]
+  - Days per week accessing online learning materials - Period 2
+  - Days per week accessing online learning materials [P2]
+  - Days per week accessing online learning materials - P2
+  - 'Resource Access [Period 2: Weeks 5–8]'
+  - 'Resource Access - Period 2: Weeks 5–8'
+  - Resource Access [Period 2 (Weeks 5-8)]
+  - Resource Access - Period 2 (Weeks 5-8)
+  - Resource Access [Period 2]
+  - Resource Access - Period 2
+  - Resource Access [P2]
+  - Resource Access - P2
+  - 'resource_access [Period 2: Weeks 5–8]'
+  - 'resource_access - Period 2: Weeks 5–8'
+  - resource_access [Period 2 (Weeks 5-8)]
+  - resource_access - Period 2 (Weeks 5-8)
+  - resource_access [Period 2]
+  - resource_access - Period 2
+  - resource_access [P2]
+  - resource_access - P2
+  resource_access_p3:
+  - resource_access_p3
+  - resource_access_P3
+  - resource_access P3
+  - resource_access period 3
+  - resource_access_3
+  - 'How many days per week did you open online learning materials? [Period 3: Weeks
+    9–12]'
+  - 'How many days per week did you open online learning materials? - Period 3: Weeks
+    9–12'
+  - How many days per week did you open online learning materials? [Period 3 (Weeks
+    9-12)]
+  - How many days per week did you open online learning materials? - Period 3 (Weeks
+    9-12)
+  - How many days per week did you open online learning materials? [Period 3]
+  - How many days per week did you open online learning materials? - Period 3
+  - How many days per week did you open online learning materials? [P3]
+  - How many days per week did you open online learning materials? - P3
+  - 'Days per week accessing online learning materials [Period 3: Weeks 9–12]'
+  - 'Days per week accessing online learning materials - Period 3: Weeks 9–12'
+  - Days per week accessing online learning materials [Period 3 (Weeks 9-12)]
+  - Days per week accessing online learning materials - Period 3 (Weeks 9-12)
+  - Days per week accessing online learning materials [Period 3]
+  - Days per week accessing online learning materials - Period 3
+  - Days per week accessing online learning materials [P3]
+  - Days per week accessing online learning materials - P3
+  - 'Resource Access [Period 3: Weeks 9–12]'
+  - 'Resource Access - Period 3: Weeks 9–12'
+  - Resource Access [Period 3 (Weeks 9-12)]
+  - Resource Access - Period 3 (Weeks 9-12)
+  - Resource Access [Period 3]
+  - Resource Access - Period 3
+  - Resource Access [P3]
+  - Resource Access - P3
+  - 'resource_access [Period 3: Weeks 9–12]'
+  - 'resource_access - Period 3: Weeks 9–12'
+  - resource_access [Period 3 (Weeks 9-12)]
+  - resource_access - Period 3 (Weeks 9-12)
+  - resource_access [Period 3]
+  - resource_access - Period 3
+  - resource_access [P3]
+  - resource_access - P3
+  resource_access_p4:
+  - resource_access_p4
+  - resource_access_P4
+  - resource_access P4
+  - resource_access period 4
+  - resource_access_4
+  - 'How many days per week did you open online learning materials? [Period 4: Weeks
+    13–16]'
+  - 'How many days per week did you open online learning materials? - Period 4: Weeks
+    13–16'
+  - How many days per week did you open online learning materials? [Period 4 (Weeks
+    13-16)]
+  - How many days per week did you open online learning materials? - Period 4 (Weeks
+    13-16)
+  - How many days per week did you open online learning materials? [Period 4]
+  - How many days per week did you open online learning materials? - Period 4
+  - How many days per week did you open online learning materials? [P4]
+  - How many days per week did you open online learning materials? - P4
+  - 'Days per week accessing online learning materials [Period 4: Weeks 13–16]'
+  - 'Days per week accessing online learning materials - Period 4: Weeks 13–16'
+  - Days per week accessing online learning materials [Period 4 (Weeks 13-16)]
+  - Days per week accessing online learning materials - Period 4 (Weeks 13-16)
+  - Days per week accessing online learning materials [Period 4]
+  - Days per week accessing online learning materials - Period 4
+  - Days per week accessing online learning materials [P4]
+  - Days per week accessing online learning materials - P4
+  - 'Resource Access [Period 4: Weeks 13–16]'
+  - 'Resource Access - Period 4: Weeks 13–16'
+  - Resource Access [Period 4 (Weeks 13-16)]
+  - Resource Access - Period 4 (Weeks 13-16)
+  - Resource Access [Period 4]
+  - Resource Access - Period 4
+  - Resource Access [P4]
+  - Resource Access - P4
+  - 'resource_access [Period 4: Weeks 13–16]'
+  - 'resource_access - Period 4: Weeks 13–16'
+  - resource_access [Period 4 (Weeks 13-16)]
+  - resource_access - Period 4 (Weeks 13-16)
+  - resource_access [Period 4]
+  - resource_access - Period 4
+  - resource_access [P4]
+  - resource_access - P4
+  study_time_p1:
+  - study_time_p1
+  - study_time_P1
+  - study_time P1
+  - study_time period 1
+  - study_time_1
+  - 'How many hours per week did you spend studying independently? [Period 1: Weeks
+    1–4]'
+  - 'How many hours per week did you spend studying independently? - Period 1: Weeks
+    1–4'
+  - How many hours per week did you spend studying independently? [Period 1 (Weeks
+    1-4)]
+  - How many hours per week did you spend studying independently? - Period 1 (Weeks
+    1-4)
+  - How many hours per week did you spend studying independently? [Period 1]
+  - How many hours per week did you spend studying independently? - Period 1
+  - How many hours per week did you spend studying independently? [P1]
+  - How many hours per week did you spend studying independently? - P1
+  - 'Hours per week spent studying [Period 1: Weeks 1–4]'
+  - 'Hours per week spent studying - Period 1: Weeks 1–4'
+  - Hours per week spent studying [Period 1 (Weeks 1-4)]
+  - Hours per week spent studying - Period 1 (Weeks 1-4)
+  - Hours per week spent studying [Period 1]
+  - Hours per week spent studying - Period 1
+  - Hours per week spent studying [P1]
+  - Hours per week spent studying - P1
+  - 'Study Time [Period 1: Weeks 1–4]'
+  - 'Study Time - Period 1: Weeks 1–4'
+  - Study Time [Period 1 (Weeks 1-4)]
+  - Study Time - Period 1 (Weeks 1-4)
+  - Study Time [Period 1]
+  - Study Time - Period 1
+  - Study Time [P1]
+  - Study Time - P1
+  - 'study_time [Period 1: Weeks 1–4]'
+  - 'study_time - Period 1: Weeks 1–4'
+  - study_time [Period 1 (Weeks 1-4)]
+  - study_time - Period 1 (Weeks 1-4)
+  - study_time [Period 1]
+  - study_time - Period 1
+  - study_time [P1]
+  - study_time - P1
+  study_time_p2:
+  - study_time_p2
+  - study_time_P2
+  - study_time P2
+  - study_time period 2
+  - study_time_2
+  - 'How many hours per week did you spend studying independently? [Period 2: Weeks
+    5–8]'
+  - 'How many hours per week did you spend studying independently? - Period 2: Weeks
+    5–8'
+  - How many hours per week did you spend studying independently? [Period 2 (Weeks
+    5-8)]
+  - How many hours per week did you spend studying independently? - Period 2 (Weeks
+    5-8)
+  - How many hours per week did you spend studying independently? [Period 2]
+  - How many hours per week did you spend studying independently? - Period 2
+  - How many hours per week did you spend studying independently? [P2]
+  - How many hours per week did you spend studying independently? - P2
+  - 'Hours per week spent studying [Period 2: Weeks 5–8]'
+  - 'Hours per week spent studying - Period 2: Weeks 5–8'
+  - Hours per week spent studying [Period 2 (Weeks 5-8)]
+  - Hours per week spent studying - Period 2 (Weeks 5-8)
+  - Hours per week spent studying [Period 2]
+  - Hours per week spent studying - Period 2
+  - Hours per week spent studying [P2]
+  - Hours per week spent studying - P2
+  - 'Study Time [Period 2: Weeks 5–8]'
+  - 'Study Time - Period 2: Weeks 5–8'
+  - Study Time [Period 2 (Weeks 5-8)]
+  - Study Time - Period 2 (Weeks 5-8)
+  - Study Time [Period 2]
+  - Study Time - Period 2
+  - Study Time [P2]
+  - Study Time - P2
+  - 'study_time [Period 2: Weeks 5–8]'
+  - 'study_time - Period 2: Weeks 5–8'
+  - study_time [Period 2 (Weeks 5-8)]
+  - study_time - Period 2 (Weeks 5-8)
+  - study_time [Period 2]
+  - study_time - Period 2
+  - study_time [P2]
+  - study_time - P2
+  study_time_p3:
+  - study_time_p3
+  - study_time_P3
+  - study_time P3
+  - study_time period 3
+  - study_time_3
+  - 'How many hours per week did you spend studying independently? [Period 3: Weeks
+    9–12]'
+  - 'How many hours per week did you spend studying independently? - Period 3: Weeks
+    9–12'
+  - How many hours per week did you spend studying independently? [Period 3 (Weeks
+    9-12)]
+  - How many hours per week did you spend studying independently? - Period 3 (Weeks
+    9-12)
+  - How many hours per week did you spend studying independently? [Period 3]
+  - How many hours per week did you spend studying independently? - Period 3
+  - How many hours per week did you spend studying independently? [P3]
+  - How many hours per week did you spend studying independently? - P3
+  - 'Hours per week spent studying [Period 3: Weeks 9–12]'
+  - 'Hours per week spent studying - Period 3: Weeks 9–12'
+  - Hours per week spent studying [Period 3 (Weeks 9-12)]
+  - Hours per week spent studying - Period 3 (Weeks 9-12)
+  - Hours per week spent studying [Period 3]
+  - Hours per week spent studying - Period 3
+  - Hours per week spent studying [P3]
+  - Hours per week spent studying - P3
+  - 'Study Time [Period 3: Weeks 9–12]'
+  - 'Study Time - Period 3: Weeks 9–12'
+  - Study Time [Period 3 (Weeks 9-12)]
+  - Study Time - Period 3 (Weeks 9-12)
+  - Study Time [Period 3]
+  - Study Time - Period 3
+  - Study Time [P3]
+  - Study Time - P3
+  - 'study_time [Period 3: Weeks 9–12]'
+  - 'study_time - Period 3: Weeks 9–12'
+  - study_time [Period 3 (Weeks 9-12)]
+  - study_time - Period 3 (Weeks 9-12)
+  - study_time [Period 3]
+  - study_time - Period 3
+  - study_time [P3]
+  - study_time - P3
+  study_time_p4:
+  - study_time_p4
+  - study_time_P4
+  - study_time P4
+  - study_time period 4
+  - study_time_4
+  - 'How many hours per week did you spend studying independently? [Period 4: Weeks
+    13–16]'
+  - 'How many hours per week did you spend studying independently? - Period 4: Weeks
+    13–16'
+  - How many hours per week did you spend studying independently? [Period 4 (Weeks
+    13-16)]
+  - How many hours per week did you spend studying independently? - Period 4 (Weeks
+    13-16)
+  - How many hours per week did you spend studying independently? [Period 4]
+  - How many hours per week did you spend studying independently? - Period 4
+  - How many hours per week did you spend studying independently? [P4]
+  - How many hours per week did you spend studying independently? - P4
+  - 'Hours per week spent studying [Period 4: Weeks 13–16]'
+  - 'Hours per week spent studying - Period 4: Weeks 13–16'
+  - Hours per week spent studying [Period 4 (Weeks 13-16)]
+  - Hours per week spent studying - Period 4 (Weeks 13-16)
+  - Hours per week spent studying [Period 4]
+  - Hours per week spent studying - Period 4
+  - Hours per week spent studying [P4]
+  - Hours per week spent studying - P4
+  - 'Study Time [Period 4: Weeks 13–16]'
+  - 'Study Time - Period 4: Weeks 13–16'
+  - Study Time [Period 4 (Weeks 13-16)]
+  - Study Time - Period 4 (Weeks 13-16)
+  - Study Time [Period 4]
+  - Study Time - Period 4
+  - Study Time [P4]
+  - Study Time - P4
+  - 'study_time [Period 4: Weeks 13–16]'
+  - 'study_time - Period 4: Weeks 13–16'
+  - study_time [Period 4 (Weeks 13-16)]
+  - study_time - Period 4 (Weeks 13-16)
+  - study_time [Period 4]
+  - study_time - Period 4
+  - study_time [P4]
+  - study_time - P4
+  review_time_p1:
+  - review_time_p1
+  - review_time_P1
+  - review_time P1
+  - review_time period 1
+  - review_time_1
+  - 'How many hours per week did you review past lecture materials? [Period 1: Weeks
+    1–4]'
+  - 'How many hours per week did you review past lecture materials? - Period 1: Weeks
+    1–4'
+  - How many hours per week did you review past lecture materials? [Period 1 (Weeks
+    1-4)]
+  - How many hours per week did you review past lecture materials? - Period 1 (Weeks
+    1-4)
+  - How many hours per week did you review past lecture materials? [Period 1]
+  - How many hours per week did you review past lecture materials? - Period 1
+  - How many hours per week did you review past lecture materials? [P1]
+  - How many hours per week did you review past lecture materials? - P1
+  - 'Hours per week reviewing past material [Period 1: Weeks 1–4]'
+  - 'Hours per week reviewing past material - Period 1: Weeks 1–4'
+  - Hours per week reviewing past material [Period 1 (Weeks 1-4)]
+  - Hours per week reviewing past material - Period 1 (Weeks 1-4)
+  - Hours per week reviewing past material [Period 1]
+  - Hours per week reviewing past material - Period 1
+  - Hours per week reviewing past material [P1]
+  - Hours per week reviewing past material - P1
+  - 'Review Time [Period 1: Weeks 1–4]'
+  - 'Review Time - Period 1: Weeks 1–4'
+  - Review Time [Period 1 (Weeks 1-4)]
+  - Review Time - Period 1 (Weeks 1-4)
+  - Review Time [Period 1]
+  - Review Time - Period 1
+  - Review Time [P1]
+  - Review Time - P1
+  - 'review_time [Period 1: Weeks 1–4]'
+  - 'review_time - Period 1: Weeks 1–4'
+  - review_time [Period 1 (Weeks 1-4)]
+  - review_time - Period 1 (Weeks 1-4)
+  - review_time [Period 1]
+  - review_time - Period 1
+  - review_time [P1]
+  - review_time - P1
+  review_time_p2:
+  - review_time_p2
+  - review_time_P2
+  - review_time P2
+  - review_time period 2
+  - review_time_2
+  - 'How many hours per week did you review past lecture materials? [Period 2: Weeks
+    5–8]'
+  - 'How many hours per week did you review past lecture materials? - Period 2: Weeks
+    5–8'
+  - How many hours per week did you review past lecture materials? [Period 2 (Weeks
+    5-8)]
+  - How many hours per week did you review past lecture materials? - Period 2 (Weeks
+    5-8)
+  - How many hours per week did you review past lecture materials? [Period 2]
+  - How many hours per week did you review past lecture materials? - Period 2
+  - How many hours per week did you review past lecture materials? [P2]
+  - How many hours per week did you review past lecture materials? - P2
+  - 'Hours per week reviewing past material [Period 2: Weeks 5–8]'
+  - 'Hours per week reviewing past material - Period 2: Weeks 5–8'
+  - Hours per week reviewing past material [Period 2 (Weeks 5-8)]
+  - Hours per week reviewing past material - Period 2 (Weeks 5-8)
+  - Hours per week reviewing past material [Period 2]
+  - Hours per week reviewing past material - Period 2
+  - Hours per week reviewing past material [P2]
+  - Hours per week reviewing past material - P2
+  - 'Review Time [Period 2: Weeks 5–8]'
+  - 'Review Time - Period 2: Weeks 5–8'
+  - Review Time [Period 2 (Weeks 5-8)]
+  - Review Time - Period 2 (Weeks 5-8)
+  - Review Time [Period 2]
+  - Review Time - Period 2
+  - Review Time [P2]
+  - Review Time - P2
+  - 'review_time [Period 2: Weeks 5–8]'
+  - 'review_time - Period 2: Weeks 5–8'
+  - review_time [Period 2 (Weeks 5-8)]
+  - review_time - Period 2 (Weeks 5-8)
+  - review_time [Period 2]
+  - review_time - Period 2
+  - review_time [P2]
+  - review_time - P2
+  review_time_p3:
+  - review_time_p3
+  - review_time_P3
+  - review_time P3
+  - review_time period 3
+  - review_time_3
+  - 'How many hours per week did you review past lecture materials? [Period 3: Weeks
+    9–12]'
+  - 'How many hours per week did you review past lecture materials? - Period 3: Weeks
+    9–12'
+  - How many hours per week did you review past lecture materials? [Period 3 (Weeks
+    9-12)]
+  - How many hours per week did you review past lecture materials? - Period 3 (Weeks
+    9-12)
+  - How many hours per week did you review past lecture materials? [Period 3]
+  - How many hours per week did you review past lecture materials? - Period 3
+  - How many hours per week did you review past lecture materials? [P3]
+  - How many hours per week did you review past lecture materials? - P3
+  - 'Hours per week reviewing past material [Period 3: Weeks 9–12]'
+  - 'Hours per week reviewing past material - Period 3: Weeks 9–12'
+  - Hours per week reviewing past material [Period 3 (Weeks 9-12)]
+  - Hours per week reviewing past material - Period 3 (Weeks 9-12)
+  - Hours per week reviewing past material [Period 3]
+  - Hours per week reviewing past material - Period 3
+  - Hours per week reviewing past material [P3]
+  - Hours per week reviewing past material - P3
+  - 'Review Time [Period 3: Weeks 9–12]'
+  - 'Review Time - Period 3: Weeks 9–12'
+  - Review Time [Period 3 (Weeks 9-12)]
+  - Review Time - Period 3 (Weeks 9-12)
+  - Review Time [Period 3]
+  - Review Time - Period 3
+  - Review Time [P3]
+  - Review Time - P3
+  - 'review_time [Period 3: Weeks 9–12]'
+  - 'review_time - Period 3: Weeks 9–12'
+  - review_time [Period 3 (Weeks 9-12)]
+  - review_time - Period 3 (Weeks 9-12)
+  - review_time [Period 3]
+  - review_time - Period 3
+  - review_time [P3]
+  - review_time - P3
+  review_time_p4:
+  - review_time_p4
+  - review_time_P4
+  - review_time P4
+  - review_time period 4
+  - review_time_4
+  - 'How many hours per week did you review past lecture materials? [Period 4: Weeks
+    13–16]'
+  - 'How many hours per week did you review past lecture materials? - Period 4: Weeks
+    13–16'
+  - How many hours per week did you review past lecture materials? [Period 4 (Weeks
+    13-16)]
+  - How many hours per week did you review past lecture materials? - Period 4 (Weeks
+    13-16)
+  - How many hours per week did you review past lecture materials? [Period 4]
+  - How many hours per week did you review past lecture materials? - Period 4
+  - How many hours per week did you review past lecture materials? [P4]
+  - How many hours per week did you review past lecture materials? - P4
+  - 'Hours per week reviewing past material [Period 4: Weeks 13–16]'
+  - 'Hours per week reviewing past material - Period 4: Weeks 13–16'
+  - Hours per week reviewing past material [Period 4 (Weeks 13-16)]
+  - Hours per week reviewing past material - Period 4 (Weeks 13-16)
+  - Hours per week reviewing past material [Period 4]
+  - Hours per week reviewing past material - Period 4
+  - Hours per week reviewing past material [P4]
+  - Hours per week reviewing past material - P4
+  - 'Review Time [Period 4: Weeks 13–16]'
+  - 'Review Time - Period 4: Weeks 13–16'
+  - Review Time [Period 4 (Weeks 13-16)]
+  - Review Time - Period 4 (Weeks 13-16)
+  - Review Time [Period 4]
+  - Review Time - Period 4
+  - Review Time [P4]
+  - Review Time - P4
+  - 'review_time [Period 4: Weeks 13–16]'
+  - 'review_time - Period 4: Weeks 13–16'
+  - review_time [Period 4 (Weeks 13-16)]
+  - review_time - Period 4 (Weeks 13-16)
+  - review_time [Period 4]
+  - review_time - Period 4
+  - review_time [P4]
+  - review_time - P4
+  quiz_practice_p1:
+  - quiz_practice_p1
+  - quiz_practice_P1
+  - quiz_practice P1
+  - quiz_practice period 1
+  - quiz_practice_1
+  - 'How often did you attempt quizzes or practice questions? [Period 1: Weeks 1–4]'
+  - 'How often did you attempt quizzes or practice questions? - Period 1: Weeks 1–4'
+  - How often did you attempt quizzes or practice questions? [Period 1 (Weeks 1-4)]
+  - How often did you attempt quizzes or practice questions? - Period 1 (Weeks 1-4)
+  - How often did you attempt quizzes or practice questions? [Period 1]
+  - How often did you attempt quizzes or practice questions? - Period 1
+  - How often did you attempt quizzes or practice questions? [P1]
+  - How often did you attempt quizzes or practice questions? - P1
+  - 'Attempted quizzes or practice questions [Period 1: Weeks 1–4]'
+  - 'Attempted quizzes or practice questions - Period 1: Weeks 1–4'
+  - Attempted quizzes or practice questions [Period 1 (Weeks 1-4)]
+  - Attempted quizzes or practice questions - Period 1 (Weeks 1-4)
+  - Attempted quizzes or practice questions [Period 1]
+  - Attempted quizzes or practice questions - Period 1
+  - Attempted quizzes or practice questions [P1]
+  - Attempted quizzes or practice questions - P1
+  - 'Quiz & Practice Questions [Period 1: Weeks 1–4]'
+  - 'Quiz & Practice Questions - Period 1: Weeks 1–4'
+  - Quiz & Practice Questions [Period 1 (Weeks 1-4)]
+  - Quiz & Practice Questions - Period 1 (Weeks 1-4)
+  - Quiz & Practice Questions [Period 1]
+  - Quiz & Practice Questions - Period 1
+  - Quiz & Practice Questions [P1]
+  - Quiz & Practice Questions - P1
+  - 'quiz_practice [Period 1: Weeks 1–4]'
+  - 'quiz_practice - Period 1: Weeks 1–4'
+  - quiz_practice [Period 1 (Weeks 1-4)]
+  - quiz_practice - Period 1 (Weeks 1-4)
+  - quiz_practice [Period 1]
+  - quiz_practice - Period 1
+  - quiz_practice [P1]
+  - quiz_practice - P1
+  quiz_practice_p2:
+  - quiz_practice_p2
+  - quiz_practice_P2
+  - quiz_practice P2
+  - quiz_practice period 2
+  - quiz_practice_2
+  - 'How often did you attempt quizzes or practice questions? [Period 2: Weeks 5–8]'
+  - 'How often did you attempt quizzes or practice questions? - Period 2: Weeks 5–8'
+  - How often did you attempt quizzes or practice questions? [Period 2 (Weeks 5-8)]
+  - How often did you attempt quizzes or practice questions? - Period 2 (Weeks 5-8)
+  - How often did you attempt quizzes or practice questions? [Period 2]
+  - How often did you attempt quizzes or practice questions? - Period 2
+  - How often did you attempt quizzes or practice questions? [P2]
+  - How often did you attempt quizzes or practice questions? - P2
+  - 'Attempted quizzes or practice questions [Period 2: Weeks 5–8]'
+  - 'Attempted quizzes or practice questions - Period 2: Weeks 5–8'
+  - Attempted quizzes or practice questions [Period 2 (Weeks 5-8)]
+  - Attempted quizzes or practice questions - Period 2 (Weeks 5-8)
+  - Attempted quizzes or practice questions [Period 2]
+  - Attempted quizzes or practice questions - Period 2
+  - Attempted quizzes or practice questions [P2]
+  - Attempted quizzes or practice questions - P2
+  - 'Quiz & Practice Questions [Period 2: Weeks 5–8]'
+  - 'Quiz & Practice Questions - Period 2: Weeks 5–8'
+  - Quiz & Practice Questions [Period 2 (Weeks 5-8)]
+  - Quiz & Practice Questions - Period 2 (Weeks 5-8)
+  - Quiz & Practice Questions [Period 2]
+  - Quiz & Practice Questions - Period 2
+  - Quiz & Practice Questions [P2]
+  - Quiz & Practice Questions - P2
+  - 'quiz_practice [Period 2: Weeks 5–8]'
+  - 'quiz_practice - Period 2: Weeks 5–8'
+  - quiz_practice [Period 2 (Weeks 5-8)]
+  - quiz_practice - Period 2 (Weeks 5-8)
+  - quiz_practice [Period 2]
+  - quiz_practice - Period 2
+  - quiz_practice [P2]
+  - quiz_practice - P2
+  quiz_practice_p3:
+  - quiz_practice_p3
+  - quiz_practice_P3
+  - quiz_practice P3
+  - quiz_practice period 3
+  - quiz_practice_3
+  - 'How often did you attempt quizzes or practice questions? [Period 3: Weeks 9–12]'
+  - 'How often did you attempt quizzes or practice questions? - Period 3: Weeks 9–12'
+  - How often did you attempt quizzes or practice questions? [Period 3 (Weeks 9-12)]
+  - How often did you attempt quizzes or practice questions? - Period 3 (Weeks 9-12)
+  - How often did you attempt quizzes or practice questions? [Period 3]
+  - How often did you attempt quizzes or practice questions? - Period 3
+  - How often did you attempt quizzes or practice questions? [P3]
+  - How often did you attempt quizzes or practice questions? - P3
+  - 'Attempted quizzes or practice questions [Period 3: Weeks 9–12]'
+  - 'Attempted quizzes or practice questions - Period 3: Weeks 9–12'
+  - Attempted quizzes or practice questions [Period 3 (Weeks 9-12)]
+  - Attempted quizzes or practice questions - Period 3 (Weeks 9-12)
+  - Attempted quizzes or practice questions [Period 3]
+  - Attempted quizzes or practice questions - Period 3
+  - Attempted quizzes or practice questions [P3]
+  - Attempted quizzes or practice questions - P3
+  - 'Quiz & Practice Questions [Period 3: Weeks 9–12]'
+  - 'Quiz & Practice Questions - Period 3: Weeks 9–12'
+  - Quiz & Practice Questions [Period 3 (Weeks 9-12)]
+  - Quiz & Practice Questions - Period 3 (Weeks 9-12)
+  - Quiz & Practice Questions [Period 3]
+  - Quiz & Practice Questions - Period 3
+  - Quiz & Practice Questions [P3]
+  - Quiz & Practice Questions - P3
+  - 'quiz_practice [Period 3: Weeks 9–12]'
+  - 'quiz_practice - Period 3: Weeks 9–12'
+  - quiz_practice [Period 3 (Weeks 9-12)]
+  - quiz_practice - Period 3 (Weeks 9-12)
+  - quiz_practice [Period 3]
+  - quiz_practice - Period 3
+  - quiz_practice [P3]
+  - quiz_practice - P3
+  quiz_practice_p4:
+  - quiz_practice_p4
+  - quiz_practice_P4
+  - quiz_practice P4
+  - quiz_practice period 4
+  - quiz_practice_4
+  - 'How often did you attempt quizzes or practice questions? [Period 4: Weeks 13–16]'
+  - 'How often did you attempt quizzes or practice questions? - Period 4: Weeks 13–16'
+  - How often did you attempt quizzes or practice questions? [Period 4 (Weeks 13-16)]
+  - How often did you attempt quizzes or practice questions? - Period 4 (Weeks 13-16)
+  - How often did you attempt quizzes or practice questions? [Period 4]
+  - How often did you attempt quizzes or practice questions? - Period 4
+  - How often did you attempt quizzes or practice questions? [P4]
+  - How often did you attempt quizzes or practice questions? - P4
+  - 'Attempted quizzes or practice questions [Period 4: Weeks 13–16]'
+  - 'Attempted quizzes or practice questions - Period 4: Weeks 13–16'
+  - Attempted quizzes or practice questions [Period 4 (Weeks 13-16)]
+  - Attempted quizzes or practice questions - Period 4 (Weeks 13-16)
+  - Attempted quizzes or practice questions [Period 4]
+  - Attempted quizzes or practice questions - Period 4
+  - Attempted quizzes or practice questions [P4]
+  - Attempted quizzes or practice questions - P4
+  - 'Quiz & Practice Questions [Period 4: Weeks 13–16]'
+  - 'Quiz & Practice Questions - Period 4: Weeks 13–16'
+  - Quiz & Practice Questions [Period 4 (Weeks 13-16)]
+  - Quiz & Practice Questions - Period 4 (Weeks 13-16)
+  - Quiz & Practice Questions [Period 4]
+  - Quiz & Practice Questions - Period 4
+  - Quiz & Practice Questions [P4]
+  - Quiz & Practice Questions - P4
+  - 'quiz_practice [Period 4: Weeks 13–16]'
+  - 'quiz_practice - Period 4: Weeks 13–16'
+  - quiz_practice [Period 4 (Weeks 13-16)]
+  - quiz_practice - Period 4 (Weeks 13-16)
+  - quiz_practice [Period 4]
+  - quiz_practice - Period 4
+  - quiz_practice [P4]
+  - quiz_practice - P4
+  assignment_engagement_p1:
+  - assignment_engagement_p1
+  - assignment_engagement_P1
+  - assignment_engagement P1
+  - assignment_engagement period 1
+  - assignment_engagement_1
+  - 'How consistently did you start and submit assignments on time? [Period 1: Weeks
+    1–4]'
+  - 'How consistently did you start and submit assignments on time? - Period 1: Weeks
+    1–4'
+  - How consistently did you start and submit assignments on time? [Period 1 (Weeks
+    1-4)]
+  - How consistently did you start and submit assignments on time? - Period 1 (Weeks
+    1-4)
+  - How consistently did you start and submit assignments on time? [Period 1]
+  - How consistently did you start and submit assignments on time? - Period 1
+  - How consistently did you start and submit assignments on time? [P1]
+  - How consistently did you start and submit assignments on time? - P1
+  - 'Started and submitted assignments on time [Period 1: Weeks 1–4]'
+  - 'Started and submitted assignments on time - Period 1: Weeks 1–4'
+  - Started and submitted assignments on time [Period 1 (Weeks 1-4)]
+  - Started and submitted assignments on time - Period 1 (Weeks 1-4)
+  - Started and submitted assignments on time [Period 1]
+  - Started and submitted assignments on time - Period 1
+  - Started and submitted assignments on time [P1]
+  - Started and submitted assignments on time - P1
+  - 'Assignment Engagement [Period 1: Weeks 1–4]'
+  - 'Assignment Engagement - Period 1: Weeks 1–4'
+  - Assignment Engagement [Period 1 (Weeks 1-4)]
+  - Assignment Engagement - Period 1 (Weeks 1-4)
+  - Assignment Engagement [Period 1]
+  - Assignment Engagement - Period 1
+  - Assignment Engagement [P1]
+  - Assignment Engagement - P1
+  - 'assignment_engagement [Period 1: Weeks 1–4]'
+  - 'assignment_engagement - Period 1: Weeks 1–4'
+  - assignment_engagement [Period 1 (Weeks 1-4)]
+  - assignment_engagement - Period 1 (Weeks 1-4)
+  - assignment_engagement [Period 1]
+  - assignment_engagement - Period 1
+  - assignment_engagement [P1]
+  - assignment_engagement - P1
+  assignment_engagement_p2:
+  - assignment_engagement_p2
+  - assignment_engagement_P2
+  - assignment_engagement P2
+  - assignment_engagement period 2
+  - assignment_engagement_2
+  - 'How consistently did you start and submit assignments on time? [Period 2: Weeks
+    5–8]'
+  - 'How consistently did you start and submit assignments on time? - Period 2: Weeks
+    5–8'
+  - How consistently did you start and submit assignments on time? [Period 2 (Weeks
+    5-8)]
+  - How consistently did you start and submit assignments on time? - Period 2 (Weeks
+    5-8)
+  - How consistently did you start and submit assignments on time? [Period 2]
+  - How consistently did you start and submit assignments on time? - Period 2
+  - How consistently did you start and submit assignments on time? [P2]
+  - How consistently did you start and submit assignments on time? - P2
+  - 'Started and submitted assignments on time [Period 2: Weeks 5–8]'
+  - 'Started and submitted assignments on time - Period 2: Weeks 5–8'
+  - Started and submitted assignments on time [Period 2 (Weeks 5-8)]
+  - Started and submitted assignments on time - Period 2 (Weeks 5-8)
+  - Started and submitted assignments on time [Period 2]
+  - Started and submitted assignments on time - Period 2
+  - Started and submitted assignments on time [P2]
+  - Started and submitted assignments on time - P2
+  - 'Assignment Engagement [Period 2: Weeks 5–8]'
+  - 'Assignment Engagement - Period 2: Weeks 5–8'
+  - Assignment Engagement [Period 2 (Weeks 5-8)]
+  - Assignment Engagement - Period 2 (Weeks 5-8)
+  - Assignment Engagement [Period 2]
+  - Assignment Engagement - Period 2
+  - Assignment Engagement [P2]
+  - Assignment Engagement - P2
+  - 'assignment_engagement [Period 2: Weeks 5–8]'
+  - 'assignment_engagement - Period 2: Weeks 5–8'
+  - assignment_engagement [Period 2 (Weeks 5-8)]
+  - assignment_engagement - Period 2 (Weeks 5-8)
+  - assignment_engagement [Period 2]
+  - assignment_engagement - Period 2
+  - assignment_engagement [P2]
+  - assignment_engagement - P2
+  assignment_engagement_p3:
+  - assignment_engagement_p3
+  - assignment_engagement_P3
+  - assignment_engagement P3
+  - assignment_engagement period 3
+  - assignment_engagement_3
+  - 'How consistently did you start and submit assignments on time? [Period 3: Weeks
+    9–12]'
+  - 'How consistently did you start and submit assignments on time? - Period 3: Weeks
+    9–12'
+  - How consistently did you start and submit assignments on time? [Period 3 (Weeks
+    9-12)]
+  - How consistently did you start and submit assignments on time? - Period 3 (Weeks
+    9-12)
+  - How consistently did you start and submit assignments on time? [Period 3]
+  - How consistently did you start and submit assignments on time? - Period 3
+  - How consistently did you start and submit assignments on time? [P3]
+  - How consistently did you start and submit assignments on time? - P3
+  - 'Started and submitted assignments on time [Period 3: Weeks 9–12]'
+  - 'Started and submitted assignments on time - Period 3: Weeks 9–12'
+  - Started and submitted assignments on time [Period 3 (Weeks 9-12)]
+  - Started and submitted assignments on time - Period 3 (Weeks 9-12)
+  - Started and submitted assignments on time [Period 3]
+  - Started and submitted assignments on time - Period 3
+  - Started and submitted assignments on time [P3]
+  - Started and submitted assignments on time - P3
+  - 'Assignment Engagement [Period 3: Weeks 9–12]'
+  - 'Assignment Engagement - Period 3: Weeks 9–12'
+  - Assignment Engagement [Period 3 (Weeks 9-12)]
+  - Assignment Engagement - Period 3 (Weeks 9-12)
+  - Assignment Engagement [Period 3]
+  - Assignment Engagement - Period 3
+  - Assignment Engagement [P3]
+  - Assignment Engagement - P3
+  - 'assignment_engagement [Period 3: Weeks 9–12]'
+  - 'assignment_engagement - Period 3: Weeks 9–12'
+  - assignment_engagement [Period 3 (Weeks 9-12)]
+  - assignment_engagement - Period 3 (Weeks 9-12)
+  - assignment_engagement [Period 3]
+  - assignment_engagement - Period 3
+  - assignment_engagement [P3]
+  - assignment_engagement - P3
+  assignment_engagement_p4:
+  - assignment_engagement_p4
+  - assignment_engagement_P4
+  - assignment_engagement P4
+  - assignment_engagement period 4
+  - assignment_engagement_4
+  - 'How consistently did you start and submit assignments on time? [Period 4: Weeks
+    13–16]'
+  - 'How consistently did you start and submit assignments on time? - Period 4: Weeks
+    13–16'
+  - How consistently did you start and submit assignments on time? [Period 4 (Weeks
+    13-16)]
+  - How consistently did you start and submit assignments on time? - Period 4 (Weeks
+    13-16)
+  - How consistently did you start and submit assignments on time? [Period 4]
+  - How consistently did you start and submit assignments on time? - Period 4
+  - How consistently did you start and submit assignments on time? [P4]
+  - How consistently did you start and submit assignments on time? - P4
+  - 'Started and submitted assignments on time [Period 4: Weeks 13–16]'
+  - 'Started and submitted assignments on time - Period 4: Weeks 13–16'
+  - Started and submitted assignments on time [Period 4 (Weeks 13-16)]
+  - Started and submitted assignments on time - Period 4 (Weeks 13-16)
+  - Started and submitted assignments on time [Period 4]
+  - Started and submitted assignments on time - Period 4
+  - Started and submitted assignments on time [P4]
+  - Started and submitted assignments on time - P4
+  - 'Assignment Engagement [Period 4: Weeks 13–16]'
+  - 'Assignment Engagement - Period 4: Weeks 13–16'
+  - Assignment Engagement [Period 4 (Weeks 13-16)]
+  - Assignment Engagement - Period 4 (Weeks 13-16)
+  - Assignment Engagement [Period 4]
+  - Assignment Engagement - Period 4
+  - Assignment Engagement [P4]
+  - Assignment Engagement - P4
+  - 'assignment_engagement [Period 4: Weeks 13–16]'
+  - 'assignment_engagement - Period 4: Weeks 13–16'
+  - assignment_engagement [Period 4 (Weeks 13-16)]
+  - assignment_engagement - Period 4 (Weeks 13-16)
+  - assignment_engagement [Period 4]
+  - assignment_engagement - Period 4
+  - assignment_engagement [P4]
+  - assignment_engagement - P4
+  study_consistency_p1:
+  - study_consistency_p1
+  - study_consistency_P1
+  - study_consistency P1
+  - study_consistency period 1
+  - study_consistency_1
+  - 'I studied on a regular, structured schedule [Period 1: Weeks 1–4]'
+  - 'I studied on a regular, structured schedule - Period 1: Weeks 1–4'
+  - I studied on a regular, structured schedule [Period 1 (Weeks 1-4)]
+  - I studied on a regular, structured schedule - Period 1 (Weeks 1-4)
+  - I studied on a regular, structured schedule [Period 1]
+  - I studied on a regular, structured schedule - Period 1
+  - I studied on a regular, structured schedule [P1]
+  - I studied on a regular, structured schedule - P1
+  - 'Studied on a regular schedule [Period 1: Weeks 1–4]'
+  - 'Studied on a regular schedule - Period 1: Weeks 1–4'
+  - Studied on a regular schedule [Period 1 (Weeks 1-4)]
+  - Studied on a regular schedule - Period 1 (Weeks 1-4)
+  - Studied on a regular schedule [Period 1]
+  - Studied on a regular schedule - Period 1
+  - Studied on a regular schedule [P1]
+  - Studied on a regular schedule - P1
+  - 'Study Consistency [Period 1: Weeks 1–4]'
+  - 'Study Consistency - Period 1: Weeks 1–4'
+  - Study Consistency [Period 1 (Weeks 1-4)]
+  - Study Consistency - Period 1 (Weeks 1-4)
+  - Study Consistency [Period 1]
+  - Study Consistency - Period 1
+  - Study Consistency [P1]
+  - Study Consistency - P1
+  - 'study_consistency [Period 1: Weeks 1–4]'
+  - 'study_consistency - Period 1: Weeks 1–4'
+  - study_consistency [Period 1 (Weeks 1-4)]
+  - study_consistency - Period 1 (Weeks 1-4)
+  - study_consistency [Period 1]
+  - study_consistency - Period 1
+  - study_consistency [P1]
+  - study_consistency - P1
+  study_consistency_p2:
+  - study_consistency_p2
+  - study_consistency_P2
+  - study_consistency P2
+  - study_consistency period 2
+  - study_consistency_2
+  - 'I studied on a regular, structured schedule [Period 2: Weeks 5–8]'
+  - 'I studied on a regular, structured schedule - Period 2: Weeks 5–8'
+  - I studied on a regular, structured schedule [Period 2 (Weeks 5-8)]
+  - I studied on a regular, structured schedule - Period 2 (Weeks 5-8)
+  - I studied on a regular, structured schedule [Period 2]
+  - I studied on a regular, structured schedule - Period 2
+  - I studied on a regular, structured schedule [P2]
+  - I studied on a regular, structured schedule - P2
+  - 'Studied on a regular schedule [Period 2: Weeks 5–8]'
+  - 'Studied on a regular schedule - Period 2: Weeks 5–8'
+  - Studied on a regular schedule [Period 2 (Weeks 5-8)]
+  - Studied on a regular schedule - Period 2 (Weeks 5-8)
+  - Studied on a regular schedule [Period 2]
+  - Studied on a regular schedule - Period 2
+  - Studied on a regular schedule [P2]
+  - Studied on a regular schedule - P2
+  - 'Study Consistency [Period 2: Weeks 5–8]'
+  - 'Study Consistency - Period 2: Weeks 5–8'
+  - Study Consistency [Period 2 (Weeks 5-8)]
+  - Study Consistency - Period 2 (Weeks 5-8)
+  - Study Consistency [Period 2]
+  - Study Consistency - Period 2
+  - Study Consistency [P2]
+  - Study Consistency - P2
+  - 'study_consistency [Period 2: Weeks 5–8]'
+  - 'study_consistency - Period 2: Weeks 5–8'
+  - study_consistency [Period 2 (Weeks 5-8)]
+  - study_consistency - Period 2 (Weeks 5-8)
+  - study_consistency [Period 2]
+  - study_consistency - Period 2
+  - study_consistency [P2]
+  - study_consistency - P2
+  study_consistency_p3:
+  - study_consistency_p3
+  - study_consistency_P3
+  - study_consistency P3
+  - study_consistency period 3
+  - study_consistency_3
+  - 'I studied on a regular, structured schedule [Period 3: Weeks 9–12]'
+  - 'I studied on a regular, structured schedule - Period 3: Weeks 9–12'
+  - I studied on a regular, structured schedule [Period 3 (Weeks 9-12)]
+  - I studied on a regular, structured schedule - Period 3 (Weeks 9-12)
+  - I studied on a regular, structured schedule [Period 3]
+  - I studied on a regular, structured schedule - Period 3
+  - I studied on a regular, structured schedule [P3]
+  - I studied on a regular, structured schedule - P3
+  - 'Studied on a regular schedule [Period 3: Weeks 9–12]'
+  - 'Studied on a regular schedule - Period 3: Weeks 9–12'
+  - Studied on a regular schedule [Period 3 (Weeks 9-12)]
+  - Studied on a regular schedule - Period 3 (Weeks 9-12)
+  - Studied on a regular schedule [Period 3]
+  - Studied on a regular schedule - Period 3
+  - Studied on a regular schedule [P3]
+  - Studied on a regular schedule - P3
+  - 'Study Consistency [Period 3: Weeks 9–12]'
+  - 'Study Consistency - Period 3: Weeks 9–12'
+  - Study Consistency [Period 3 (Weeks 9-12)]
+  - Study Consistency - Period 3 (Weeks 9-12)
+  - Study Consistency [Period 3]
+  - Study Consistency - Period 3
+  - Study Consistency [P3]
+  - Study Consistency - P3
+  - 'study_consistency [Period 3: Weeks 9–12]'
+  - 'study_consistency - Period 3: Weeks 9–12'
+  - study_consistency [Period 3 (Weeks 9-12)]
+  - study_consistency - Period 3 (Weeks 9-12)
+  - study_consistency [Period 3]
+  - study_consistency - Period 3
+  - study_consistency [P3]
+  - study_consistency - P3
+  study_consistency_p4:
+  - study_consistency_p4
+  - study_consistency_P4
+  - study_consistency P4
+  - study_consistency period 4
+  - study_consistency_4
+  - 'I studied on a regular, structured schedule [Period 4: Weeks 13–16]'
+  - 'I studied on a regular, structured schedule - Period 4: Weeks 13–16'
+  - I studied on a regular, structured schedule [Period 4 (Weeks 13-16)]
+  - I studied on a regular, structured schedule - Period 4 (Weeks 13-16)
+  - I studied on a regular, structured schedule [Period 4]
+  - I studied on a regular, structured schedule - Period 4
+  - I studied on a regular, structured schedule [P4]
+  - I studied on a regular, structured schedule - P4
+  - 'Studied on a regular schedule [Period 4: Weeks 13–16]'
+  - 'Studied on a regular schedule - Period 4: Weeks 13–16'
+  - Studied on a regular schedule [Period 4 (Weeks 13-16)]
+  - Studied on a regular schedule - Period 4 (Weeks 13-16)
+  - Studied on a regular schedule [Period 4]
+  - Studied on a regular schedule - Period 4
+  - Studied on a regular schedule [P4]
+  - Studied on a regular schedule - P4
+  - 'Study Consistency [Period 4: Weeks 13–16]'
+  - 'Study Consistency - Period 4: Weeks 13–16'
+  - Study Consistency [Period 4 (Weeks 13-16)]
+  - Study Consistency - Period 4 (Weeks 13-16)
+  - Study Consistency [Period 4]
+  - Study Consistency - Period 4
+  - Study Consistency [P4]
+  - Study Consistency - P4
+  - 'study_consistency [Period 4: Weeks 13–16]'
+  - 'study_consistency - Period 4: Weeks 13–16'
+  - study_consistency [Period 4 (Weeks 13-16)]
+  - study_consistency - Period 4 (Weeks 13-16)
+  - study_consistency [Period 4]
+  - study_consistency - Period 4
+  - study_consistency [P4]
+  - study_consistency - P4
+  participation_p1:
+  - participation_p1
+  - participation_P1
+  - participation P1
+  - participation period 1
+  - participation_1
+  - 'How often did you participate in lectures, discussions, and group work? [Period
+    1: Weeks 1–4]'
+  - 'How often did you participate in lectures, discussions, and group work? - Period
+    1: Weeks 1–4'
+  - How often did you participate in lectures, discussions, and group work? [Period
+    1 (Weeks 1-4)]
+  - How often did you participate in lectures, discussions, and group work? - Period
+    1 (Weeks 1-4)
+  - How often did you participate in lectures, discussions, and group work? [Period
+    1]
+  - How often did you participate in lectures, discussions, and group work? - Period
+    1
+  - How often did you participate in lectures, discussions, and group work? [P1]
+  - How often did you participate in lectures, discussions, and group work? - P1
+  - 'Took part in lectures, discussions, group work [Period 1: Weeks 1–4]'
+  - 'Took part in lectures, discussions, group work - Period 1: Weeks 1–4'
+  - Took part in lectures, discussions, group work [Period 1 (Weeks 1-4)]
+  - Took part in lectures, discussions, group work - Period 1 (Weeks 1-4)
+  - Took part in lectures, discussions, group work [Period 1]
+  - Took part in lectures, discussions, group work - Period 1
+  - Took part in lectures, discussions, group work [P1]
+  - Took part in lectures, discussions, group work - P1
+  - 'Class Participation [Period 1: Weeks 1–4]'
+  - 'Class Participation - Period 1: Weeks 1–4'
+  - Class Participation [Period 1 (Weeks 1-4)]
+  - Class Participation - Period 1 (Weeks 1-4)
+  - Class Participation [Period 1]
+  - Class Participation - Period 1
+  - Class Participation [P1]
+  - Class Participation - P1
+  - 'participation [Period 1: Weeks 1–4]'
+  - 'participation - Period 1: Weeks 1–4'
+  - participation [Period 1 (Weeks 1-4)]
+  - participation - Period 1 (Weeks 1-4)
+  - participation [Period 1]
+  - participation - Period 1
+  - participation [P1]
+  - participation - P1
+  participation_p2:
+  - participation_p2
+  - participation_P2
+  - participation P2
+  - participation period 2
+  - participation_2
+  - 'How often did you participate in lectures, discussions, and group work? [Period
+    2: Weeks 5–8]'
+  - 'How often did you participate in lectures, discussions, and group work? - Period
+    2: Weeks 5–8'
+  - How often did you participate in lectures, discussions, and group work? [Period
+    2 (Weeks 5-8)]
+  - How often did you participate in lectures, discussions, and group work? - Period
+    2 (Weeks 5-8)
+  - How often did you participate in lectures, discussions, and group work? [Period
+    2]
+  - How often did you participate in lectures, discussions, and group work? - Period
+    2
+  - How often did you participate in lectures, discussions, and group work? [P2]
+  - How often did you participate in lectures, discussions, and group work? - P2
+  - 'Took part in lectures, discussions, group work [Period 2: Weeks 5–8]'
+  - 'Took part in lectures, discussions, group work - Period 2: Weeks 5–8'
+  - Took part in lectures, discussions, group work [Period 2 (Weeks 5-8)]
+  - Took part in lectures, discussions, group work - Period 2 (Weeks 5-8)
+  - Took part in lectures, discussions, group work [Period 2]
+  - Took part in lectures, discussions, group work - Period 2
+  - Took part in lectures, discussions, group work [P2]
+  - Took part in lectures, discussions, group work - P2
+  - 'Class Participation [Period 2: Weeks 5–8]'
+  - 'Class Participation - Period 2: Weeks 5–8'
+  - Class Participation [Period 2 (Weeks 5-8)]
+  - Class Participation - Period 2 (Weeks 5-8)
+  - Class Participation [Period 2]
+  - Class Participation - Period 2
+  - Class Participation [P2]
+  - Class Participation - P2
+  - 'participation [Period 2: Weeks 5–8]'
+  - 'participation - Period 2: Weeks 5–8'
+  - participation [Period 2 (Weeks 5-8)]
+  - participation - Period 2 (Weeks 5-8)
+  - participation [Period 2]
+  - participation - Period 2
+  - participation [P2]
+  - participation - P2
+  participation_p3:
+  - participation_p3
+  - participation_P3
+  - participation P3
+  - participation period 3
+  - participation_3
+  - 'How often did you participate in lectures, discussions, and group work? [Period
+    3: Weeks 9–12]'
+  - 'How often did you participate in lectures, discussions, and group work? - Period
+    3: Weeks 9–12'
+  - How often did you participate in lectures, discussions, and group work? [Period
+    3 (Weeks 9-12)]
+  - How often did you participate in lectures, discussions, and group work? - Period
+    3 (Weeks 9-12)
+  - How often did you participate in lectures, discussions, and group work? [Period
+    3]
+  - How often did you participate in lectures, discussions, and group work? - Period
+    3
+  - How often did you participate in lectures, discussions, and group work? [P3]
+  - How often did you participate in lectures, discussions, and group work? - P3
+  - 'Took part in lectures, discussions, group work [Period 3: Weeks 9–12]'
+  - 'Took part in lectures, discussions, group work - Period 3: Weeks 9–12'
+  - Took part in lectures, discussions, group work [Period 3 (Weeks 9-12)]
+  - Took part in lectures, discussions, group work - Period 3 (Weeks 9-12)
+  - Took part in lectures, discussions, group work [Period 3]
+  - Took part in lectures, discussions, group work - Period 3
+  - Took part in lectures, discussions, group work [P3]
+  - Took part in lectures, discussions, group work - P3
+  - 'Class Participation [Period 3: Weeks 9–12]'
+  - 'Class Participation - Period 3: Weeks 9–12'
+  - Class Participation [Period 3 (Weeks 9-12)]
+  - Class Participation - Period 3 (Weeks 9-12)
+  - Class Participation [Period 3]
+  - Class Participation - Period 3
+  - Class Participation [P3]
+  - Class Participation - P3
+  - 'participation [Period 3: Weeks 9–12]'
+  - 'participation - Period 3: Weeks 9–12'
+  - participation [Period 3 (Weeks 9-12)]
+  - participation - Period 3 (Weeks 9-12)
+  - participation [Period 3]
+  - participation - Period 3
+  - participation [P3]
+  - participation - P3
+  participation_p4:
+  - participation_p4
+  - participation_P4
+  - participation P4
+  - participation period 4
+  - participation_4
+  - 'How often did you participate in lectures, discussions, and group work? [Period
+    4: Weeks 13–16]'
+  - 'How often did you participate in lectures, discussions, and group work? - Period
+    4: Weeks 13–16'
+  - How often did you participate in lectures, discussions, and group work? [Period
+    4 (Weeks 13-16)]
+  - How often did you participate in lectures, discussions, and group work? - Period
+    4 (Weeks 13-16)
+  - How often did you participate in lectures, discussions, and group work? [Period
+    4]
+  - How often did you participate in lectures, discussions, and group work? - Period
+    4
+  - How often did you participate in lectures, discussions, and group work? [P4]
+  - How often did you participate in lectures, discussions, and group work? - P4
+  - 'Took part in lectures, discussions, group work [Period 4: Weeks 13–16]'
+  - 'Took part in lectures, discussions, group work - Period 4: Weeks 13–16'
+  - Took part in lectures, discussions, group work [Period 4 (Weeks 13-16)]
+  - Took part in lectures, discussions, group work - Period 4 (Weeks 13-16)
+  - Took part in lectures, discussions, group work [Period 4]
+  - Took part in lectures, discussions, group work - Period 4
+  - Took part in lectures, discussions, group work [P4]
+  - Took part in lectures, discussions, group work - P4
+  - 'Class Participation [Period 4: Weeks 13–16]'
+  - 'Class Participation - Period 4: Weeks 13–16'
+  - Class Participation [Period 4 (Weeks 13-16)]
+  - Class Participation - Period 4 (Weeks 13-16)
+  - Class Participation [Period 4]
+  - Class Participation - Period 4
+  - Class Participation [P4]
+  - Class Participation - P4
+  - 'participation [Period 4: Weeks 13–16]'
+  - 'participation - Period 4: Weeks 13–16'
+  - participation [Period 4 (Weeks 13-16)]
+  - participation - Period 4 (Weeks 13-16)
+  - participation [Period 4]
+  - participation - Period 4
+  - participation [P4]
+  - participation - P4
+  attention_check:
+  - attention_check
+  - Attention Check
+  - Quality Control Check
+  - Please select 'Sometimes' to confirm you are reading each question carefully.
+  - 'Attention check: Select ''Sometimes'' [Period 1]'
+  - Please select 'Sometimes' to confirm you are paying attention
+  - 'Attention Check [Period 1: Weeks 1–4]'
+  intent_leave:
+  - intent_leave
+  - I have seriously thought about leaving my degree
+  - 'A1: I have seriously thought about leaving my degree'
+  - A1 [I have seriously thought about leaving my degree]
+  - A1_intent_leave
+  - 'Outcome A1: Leave degree'
+  intent_defer:
+  - intent_defer
+  - I have considered deferring or taking a break
+  - 'A2: I have considered deferring or taking a break'
+  - A2 [I have considered deferring or taking a break]
+  - A2_intent_defer
+  - 'Outcome A2: Defer studies'
+  intent_not_continue:
+  - intent_not_continue
+  - I do not plan to continue next semester
+  - 'A3: I do not plan to continue next semester'
+  - A3 [I do not plan to continue next semester]
+  - A3_intent_not_continue
+  - 'Outcome A3: Not continue next semester'

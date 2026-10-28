@@ -1,0 +1,494 @@
+version: 1.0.0
+num_columns: 35
+num_features: 28
+num_outcomes: 3
+columns:
+- name: student_id
+  type: string
+  role: id
+  period: null
+  description: Anonymous unique student identifier token
+  allowed_codes: null
+  text_labels: null
+- name: timestamp
+  type: string
+  role: meta
+  period: null
+  description: Submission timestamp recorded by survey platform
+  allowed_codes: null
+  text_labels: null
+- name: consent
+  type: integer
+  role: consent
+  period: null
+  description: Informed consent to participate in research study
+  allowed_codes:
+  - 1
+  - 0
+  text_labels:
+    1: I consent to participate
+    0: I do not consent
+- name: resource_access_p1
+  type: integer
+  role: feature
+  period: 1
+  indicator: resource_access
+  description: Resource Access in Period 1 (Weeks 1–4)
+  allowed_codes:
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  text_labels: &id001
+    1: 0 days (never)
+    2: 1–2 days
+    3: 3–4 days
+    4: 5–6 days
+    5: Every day
+- name: resource_access_p2
+  type: integer
+  role: feature
+  period: 2
+  indicator: resource_access
+  description: Resource Access in Period 2 (Weeks 5–8)
+  allowed_codes:
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  text_labels: *id001
+- name: resource_access_p3
+  type: integer
+  role: feature
+  period: 3
+  indicator: resource_access
+  description: Resource Access in Period 3 (Weeks 9–12)
+  allowed_codes:
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  text_labels: *id001
+- name: resource_access_p4
+  type: integer
+  role: feature
+  period: 4
+  indicator: resource_access
+  description: Resource Access in Period 4 (Weeks 13–16)
+  allowed_codes:
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  text_labels: *id001
+- name: study_time_p1
+  type: integer
+  role: feature
+  period: 1
+  indicator: study_time
+  description: Study Time in Period 1 (Weeks 1–4)
+  allowed_codes:
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  text_labels: &id002
+    1: <2 hours
+    2: 2–5 hours
+    3: 6–10 hours
+    4: 11–15 hours
+    5: '>15 hours'
+- name: study_time_p2
+  type: integer
+  role: feature
+  period: 2
+  indicator: study_time
+  description: Study Time in Period 2 (Weeks 5–8)
+  allowed_codes:
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  text_labels: *id002
+- name: study_time_p3
+  type: integer
+  role: feature
+  period: 3
+  indicator: study_time
+  description: Study Time in Period 3 (Weeks 9–12)
+  allowed_codes:
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  text_labels: *id002
+- name: study_time_p4
+  type: integer
+  role: feature
+  period: 4
+  indicator: study_time
+  description: Study Time in Period 4 (Weeks 13–16)
+  allowed_codes:
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  text_labels: *id002
+- name: review_time_p1
+  type: integer
+  role: feature
+  period: 1
+  indicator: review_time
+  description: Review Time in Period 1 (Weeks 1–4)
+  allowed_codes:
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  text_labels: &id003
+    1: None
+    2: <1 hour
+    3: 1–2 hours
+    4: 3–4 hours
+    5: '>4 hours'
+- name: review_time_p2
+  type: integer
+  role: feature
+  period: 2
+  indicator: review_time
+  description: Review Time in Period 2 (Weeks 5–8)
+  allowed_codes:
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  text_labels: *id003
+- name: review_time_p3
+  type: integer
+  role: feature
+  period: 3
+  indicator: review_time
+  description: Review Time in Period 3 (Weeks 9–12)
+  allowed_codes:
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  text_labels: *id003
+- name: review_time_p4
+  type: integer
+  role: feature
+  period: 4
+  indicator: review_time
+  description: Review Time in Period 4 (Weeks 13–16)
+  allowed_codes:
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  text_labels: *id003
+- name: quiz_practice_p1
+  type: integer
+  role: feature
+  period: 1
+  indicator: quiz_practice
+  description: Quiz Practice in Period 1 (Weeks 1–4)
+  allowed_codes:
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  text_labels: &id004
+    1: Never
+    2: Rarely
+    3: Sometimes
+    4: Often
+    5: Always
+- name: quiz_practice_p2
+  type: integer
+  role: feature
+  period: 2
+  indicator: quiz_practice
+  description: Quiz Practice in Period 2 (Weeks 5–8)
+  allowed_codes:
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  text_labels: *id004
+- name: quiz_practice_p3
+  type: integer
+  role: feature
+  period: 3
+  indicator: quiz_practice
+  description: Quiz Practice in Period 3 (Weeks 9–12)
+  allowed_codes:
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  text_labels: *id004
+- name: quiz_practice_p4
+  type: integer
+  role: feature
+  period: 4
+  indicator: quiz_practice
+  description: Quiz Practice in Period 4 (Weeks 13–16)
+  allowed_codes:
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  text_labels: *id004
+- name: assignment_engagement_p1
+  type: integer
+  role: feature
+  period: 1
+  indicator: assignment_engagement
+  description: Assignment Engagement in Period 1 (Weeks 1–4)
+  allowed_codes:
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  text_labels: &id005
+    1: Never
+    2: Rarely
+    3: Sometimes
+    4: Often
+    5: Always
+- name: assignment_engagement_p2
+  type: integer
+  role: feature
+  period: 2
+  indicator: assignment_engagement
+  description: Assignment Engagement in Period 2 (Weeks 5–8)
+  allowed_codes:
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  text_labels: *id005
+- name: assignment_engagement_p3
+  type: integer
+  role: feature
+  period: 3
+  indicator: assignment_engagement
+  description: Assignment Engagement in Period 3 (Weeks 9–12)
+  allowed_codes:
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  text_labels: *id005
+- name: assignment_engagement_p4
+  type: integer
+  role: feature
+  period: 4
+  indicator: assignment_engagement
+  description: Assignment Engagement in Period 4 (Weeks 13–16)
+  allowed_codes:
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  text_labels: *id005
+- name: study_consistency_p1
+  type: integer
+  role: feature
+  period: 1
+  indicator: study_consistency
+  description: Study Consistency in Period 1 (Weeks 1–4)
+  allowed_codes:
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  text_labels: &id006
+    1: Strongly disagree
+    2: Disagree
+    3: Neutral
+    4: Agree
+    5: Strongly agree
+- name: study_consistency_p2
+  type: integer
+  role: feature
+  period: 2
+  indicator: study_consistency
+  description: Study Consistency in Period 2 (Weeks 5–8)
+  allowed_codes:
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  text_labels: *id006
+- name: study_consistency_p3
+  type: integer
+  role: feature
+  period: 3
+  indicator: study_consistency
+  description: Study Consistency in Period 3 (Weeks 9–12)
+  allowed_codes:
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  text_labels: *id006
+- name: study_consistency_p4
+  type: integer
+  role: feature
+  period: 4
+  indicator: study_consistency
+  description: Study Consistency in Period 4 (Weeks 13–16)
+  allowed_codes:
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  text_labels: *id006
+- name: participation_p1
+  type: integer
+  role: feature
+  period: 1
+  indicator: participation
+  description: Participation in Period 1 (Weeks 1–4)
+  allowed_codes:
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  text_labels: &id007
+    1: Never
+    2: Rarely
+    3: Sometimes
+    4: Often
+    5: Always
+- name: participation_p2
+  type: integer
+  role: feature
+  period: 2
+  indicator: participation
+  description: Participation in Period 2 (Weeks 5–8)
+  allowed_codes:
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  text_labels: *id007
+- name: participation_p3
+  type: integer
+  role: feature
+  period: 3
+  indicator: participation
+  description: Participation in Period 3 (Weeks 9–12)
+  allowed_codes:
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  text_labels: *id007
+- name: participation_p4
+  type: integer
+  role: feature
+  period: 4
+  indicator: participation
+  description: Participation in Period 4 (Weeks 13–16)
+  allowed_codes:
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  text_labels: *id007
+- name: attention_check
+  type: integer
+  role: attention_check
+  period: null
+  description: 'Attention screener item: Select ''Sometimes'' to confirm reading'
+  allowed_codes:
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  expected_code: 3
+  text_labels:
+    1: Never
+    2: Rarely
+    3: Sometimes
+    4: Often
+    5: Always
+- name: intent_leave
+  type: integer
+  role: outcome
+  period: null
+  item_id: A1
+  statement: I have seriously thought about leaving my degree
+  description: 'Outcome item A1: Thought about leaving degree'
+  allowed_codes:
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  text_labels: &id008
+    1: Strongly disagree
+    2: Disagree
+    3: Neutral
+    4: Agree
+    5: Strongly agree
+- name: intent_defer
+  type: integer
+  role: outcome
+  period: null
+  item_id: A2
+  statement: I have considered deferring or taking a break
+  description: 'Outcome item A2: Considered deferring or taking a break'
+  allowed_codes:
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  text_labels: *id008
+- name: intent_not_continue
+  type: integer
+  role: outcome
+  period: null
+  item_id: A3
+  statement: I do not plan to continue next semester
+  description: 'Outcome item A3: Do not plan to continue next semester'
+  allowed_codes:
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  text_labels: *id008

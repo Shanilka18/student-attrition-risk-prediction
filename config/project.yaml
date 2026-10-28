@@ -1,0 +1,154 @@
+project:
+  name: "Multimodal Student Engagement Intelligence"
+  short_name: "MEI"
+  project_id: "KND_CDAP_IT_05"
+  version: "0.1.0"
+  random_seed: 42
+
+questionnaire:
+  num_periods: 4
+  periods: ["P1", "P2", "P3", "P4"]
+  indicators:
+    - resource_access
+    - study_time
+    - review_time
+    - quiz_practice
+    - assignment_engagement
+    - study_consistency
+    - participation
+  outcome_items: ["A1", "A2", "A3"]
+  attention_check_expected: "Sometimes"
+
+targets:
+  regression_target: "attrition_intent_score"
+  classification_target: "at_risk"
+  at_risk_threshold: 60.0
+  bands:
+    low: [0, 34]
+    moderate: [35, 64]
+    high: [65, 100]
+
+hardware:
+  target_os: "Windows"
+  max_memory_gb: 8
+  use_gpu: false
+  total_training_time_budget_minutes: 60
+
+sample_data:
+  n_students: 2400
+  random_seed: 42
+  signal_strength: 1.0
+
+  archetypes:
+    probabilities:
+      consistent_high: 0.28
+      consistent_moderate: 0.24
+      consistently_low: 0.10
+      declining: 0.17
+      sporadic: 0.13
+      improving: 0.08
+    latent_params:
+      consistent_high:
+        beta_a: 15.6
+        beta_b: 4.4
+        target_mean: 0.78
+        ar1_sigma: 0.04
+      consistent_moderate:
+        beta_a: 11.0
+        beta_b: 9.0
+        target_mean: 0.55
+        ar1_sigma: 0.04
+      consistently_low:
+        beta_a: 5.0
+        beta_b: 15.0
+        target_mean: 0.25
+        ar1_sigma: 0.04
+      declining:
+        start_min: 0.70
+        start_max: 0.90
+        drop_min: 0.08
+        drop_max: 0.20
+      sporadic:
+        base_min: 0.50
+        base_max: 0.70
+        shock_min: 0.15
+        shock_max: 0.30
+      improving:
+        start_min: 0.15
+        start_max: 0.35
+        rise_min: 0.08
+        rise_max: 0.20
+
+  indicator_generation:
+    diligence_sigma: 0.08
+    noise_sigma: 0.10
+    loadings:
+      resource_access: 0.90
+      study_time: 0.85
+      review_time: 0.80
+      quiz_practice: 0.75
+      assignment_engagement: 0.80
+      study_consistency: 0.85
+      participation: 0.70
+    cutpoints: [0.32, 0.48, 0.64, 0.80]
+
+  response_styles:
+    acquiescent_rate: 0.10
+    extreme_rate: 0.05
+    midpoint_rate: 0.05
+    straight_line_rate: 0.02
+    attention_fail_rate: 0.02
+
+  missingness:
+    item_missing_rate: 0.02
+    period_missing_rate: 0.03
+
+  mess:
+    duplicate_rate: 0.005
+    typo_rate: 0.003
+    no_consent_rate: 0.01
+
+  outcome_model:
+    intercept_w0: -1.45
+    weight_w1_low_mean: 2.20
+    weight_w2_drop: 1.80
+    weight_w3_volatility: 1.00
+    weight_w4_recent_low: 1.50
+    epsilon_sigma: 0.35
+    target_prevalence: 0.28
+    target_prevalence_range: [0.24, 0.32]
+
+  calibration:
+    max_iterations: 8
+    target_auc_min: 0.86
+    target_auc_max: 0.92
+    auc_gap_threshold: 0.03
+    cv_folds: 5
+
+engagement_states:
+  clustering:
+    algorithms: ["kmeans", "gmm_diag", "gmm_full", "ward"]
+    k_range: [2, 3, 4, 5, 6]
+    n_bootstrap: 30
+    silhouette_threshold: 0.15
+    random_seed: 42
+  hmm:
+    covariance_type: "diag"
+    k_range: [2, 3, 4]
+    n_restarts: 10
+    max_iter: 100
+    bic_simplicity_threshold: 10.0
+    random_seed: 42
+  patterns:
+    level_thresholds:
+      k3:
+        low_max: 1.67
+        medium_max: 2.33
+      k2:
+        low_max: 1.5
+      k4:
+        low_max: 1.75
+        medium_max: 3.25
+    rule_names: ["Consistent", "Declining", "Improving", "Sporadic"]
+
+

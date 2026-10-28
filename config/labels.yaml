@@ -1,0 +1,60 @@
+version: "1.0.0"
+
+outcome_items:
+  intent_leave:
+    item_id: "A1"
+    statement: "I have seriously thought about leaving my degree"
+    scale_min: 1
+    scale_max: 5
+  intent_defer:
+    item_id: "A2"
+    statement: "I have considered deferring or taking a break"
+    scale_min: 1
+    scale_max: 5
+  intent_not_continue:
+    item_id: "A3"
+    statement: "I do not plan to continue next semester"
+    scale_min: 1
+    scale_max: 5
+
+targets:
+  regression:
+    name: "attrition_intent_score"
+    formula: "((mean(intent_leave, intent_defer, intent_not_continue) - 1) / 4) * 100"
+    min: 0.0
+    max: 100.0
+    description: "Continuous self-reported attrition intention score (0 = definitely staying, 100 = definitely leaving)"
+
+  classification:
+    name: "at_risk"
+    threshold: 60.0
+    rule: "attrition_intent_score >= 60.0"
+    positive_label: "At-Risk"
+    negative_label: "Not-At-Risk"
+    tune_decision_threshold: true
+    default_decision_threshold: 0.5
+
+mei_index:
+  name: "Multimodal Engagement Index"
+  symbol: "MEI"
+  range: [0, 100]
+  formula: "round(100 * calibrated_probability_at_risk)"
+  bands:
+    low:
+      min: 0
+      max: 34
+      label: "Low Risk"
+      hex_color: "#2E7D4F"
+      action: "Routine monitoring and standard learning support"
+    moderate:
+      min: 35
+      max: 64
+      label: "Moderate Risk"
+      hex_color: "#C98A00"
+      action: "Advisor outreach, study group recommendations, and time management resources"
+    high:
+      min: 65
+      max: 100
+      label: "High Risk"
+      hex_color: "#B3261E"
+      action: "Urgent student affairs and academic counseling intervention"
