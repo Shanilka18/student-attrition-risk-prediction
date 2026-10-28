@@ -13,7 +13,6 @@ import type { PageId } from './components/Navbar';
 import { OverviewPage } from './pages/OverviewPage';
 import { DataPage } from './pages/DataPage';
 import { LeaderboardPage } from './pages/LeaderboardPage';
-import { ComparePage } from './pages/ComparePage';
 import { EarlyWarningPage } from './pages/EarlyWarningPage';
 import { ExplainabilityPage } from './pages/ExplainabilityPage';
 import { PredictPage } from './pages/PredictPage';
@@ -62,13 +61,6 @@ export function AppContent() {
 
         {currentPage === 'leaderboard' && (
           <LeaderboardPage leaderboard={leaderboard} />
-        )}
-
-        {currentPage === 'compare' && (
-          <ComparePage
-            leaderboard={leaderboard}
-            researchAnswer={researchAnswer}
-          />
         )}
 
         {currentPage === 'early-warning' && <EarlyWarningPage />}

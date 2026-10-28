@@ -8,7 +8,6 @@ import {
   Layers,
   Database,
   Trophy,
-  GitCompare,
   Clock,
   Sparkles,
   UploadCloud,
@@ -21,7 +20,6 @@ export type PageId =
   | 'overview'
   | 'data'
   | 'leaderboard'
-  | 'compare'
   | 'early-warning'
   | 'explainability'
   | 'predict'
@@ -46,7 +44,6 @@ export const Navbar: React.FC<NavbarProps> = ({
     { id: 'overview', label: 'Overview', icon: <Layers className="w-4 h-4" /> },
     { id: 'data', label: 'Data & Cohort', icon: <Database className="w-4 h-4" /> },
     { id: 'leaderboard', label: 'Leaderboard', icon: <Trophy className="w-4 h-4" /> },
-    { id: 'compare', label: 'Compare', icon: <GitCompare className="w-4 h-4" /> },
     { id: 'early-warning', label: 'Early Warning', icon: <Clock className="w-4 h-4" /> },
     { id: 'explainability', label: 'Explainability', icon: <Sparkles className="w-4 h-4" /> },
     { id: 'predict', label: 'PREDICT (Upload)', icon: <UploadCloud className="w-4 h-4" /> },
@@ -104,25 +101,29 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
       </div>
 
-      {/* 3. Navigation Tabs Bar */}
-      <nav className="max-w-7xl mx-auto px-4 flex gap-1 overflow-x-auto no-scrollbar border-t border-slate-800/80">
-        {navItems.map(item => {
-          const isActive = currentPage === item.id;
-          return (
-            <button
-              key={item.id}
-              onClick={() => onPageChange(item.id)}
-              className={`flex items-center gap-2 px-3 py-2 text-xs md:text-sm font-medium whitespace-nowrap border-b-2 transition-all ${
-                isActive
-                  ? 'border-indigo-500 text-indigo-400 bg-indigo-500/5'
-                  : 'border-transparent text-slate-400 hover:text-slate-200 hover:border-slate-700'
-              }`}
-            >
-              {item.icon}
-              <span>{item.label}</span>
-            </button>
-          );
-        })}
+      {/* 3. Navigation Tabs Bar (Centered) */}
+      <nav className="border-t border-slate-800/80">
+        <div className="max-w-7xl mx-auto px-4 flex justify-center overflow-x-auto no-scrollbar">
+          <div className="flex gap-1 min-w-max py-0.5">
+            {navItems.map(item => {
+              const isActive = currentPage === item.id;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => onPageChange(item.id)}
+                  className={`flex items-center gap-2 px-3 py-2 text-xs md:text-sm font-medium whitespace-nowrap border-b-2 transition-all ${
+                    isActive
+                      ? 'border-indigo-500 text-indigo-400 bg-indigo-500/5'
+                      : 'border-transparent text-slate-400 hover:text-slate-200 hover:border-slate-700'
+                  }`}
+                >
+                  {item.icon}
+                  <span>{item.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
       </nav>
     </header>
   );
