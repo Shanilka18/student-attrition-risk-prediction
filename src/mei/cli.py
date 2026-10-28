@@ -3916,9 +3916,102 @@ def serve(
 
 
 @app.command()
-def retrain() -> None:
-    """Retrain champion model on new incoming survey data."""
-    typer.echo("not implemented yet")
+def retrain(
+    data: Path = typer.Option(..., "--data", "-d", help="Path to survey dataset (.csv, .xlsx, .xls)"),
+    mode: str = typer.Option("quick", "--mode", "-m", help="Retraining mode: 'quick' (10-15 min) or 'full' (all models)"),
+    activate: bool = typer.Option(False, "--activate", "-a", help="Automatically activate candidate run upon completion"),
+    seed: int = typer.Option(42, "--seed", "-s", help="Random seed for reproducibility"),
+) -> None:
+    """Retrain full MEI pipeline on incoming survey data and produce new candidate run."""
+    from rich.console import Console
+    from mei.registry.retrain import run_full_pipeline, activate_pipeline_run, compare_pipeline_runs
+    from mei.config import ARTIFACTS_DIR
+
+    console = Console()
+    console.print(
+        "\n[bold green]================================================================================[/bold green]"
+    )
+    console.print(f"  [bold cyan]MEI RETRAINING PIPELINE (MODE: {mode.upper()})[/bold cyan]")
+    console.print(f"  Dataset: [bold yellow]{data}[/bold yellow] | Seed: {seed}")
+    console.print(
+        "[bold green]================================================================================[/bold green]\n"
+    )
+
+    if not data.exists():
+        console.print(f"[bold red]Error:[/bold red] Dataset file not found: {data}")
+        raise typer.Exit(code=1)
+
+    active_file = ARTIFACTS_DIR / "active_run.txt"
+    old_run_id = active_file.read_text(encoding="utf-8").strip() if active_file.exists() else None
+
+    def on_progress(pct: float, step: str) -> None:
+        console.print(f"  [dim cyan][{pct*100:5.1f}%][/dim cyan] {step}")
+
+    try:
+        result = run_full_pipeline(
+            dataset_path=data,
+            mode=mode,
+            seed=seed,
+            update_fn=on_progress,
+        )
+    except Exception as exc:
+        console.print(f"\n[bold red][FAILED][/bold red] Retraining failed: {exc}")
+        raise typer.Exit(code=1)
+
+    new_run_id = result["run_id"]
+    champ_name = result["champion_name"]
+    elapsed = result["elapsed_sec"]
+
+    console.print(
+        f"\n[bold green][SUCCESS][/bold green] Retraining completed in {elapsed:.1f}s!"
+    )
+    console.print(f"  New Run ID: [bold cyan]{new_run_id}[/bold cyan]")
+    console.print(f"  Selected Champion: [bold yellow]{champ_name}[/bold yellow]")
+
+    if old_run_id and old_run_id != new_run_id:
+        try:
+            comp = compare_pipeline_runs(old_run_id, new_run_id)
+            c = comp["comparison"]
+            console.print("\n[bold]Side-by-Side Comparison with Active Run:[/bold]")
+            console.print(f"  Active Run: {old_run_id} ({c['champion_a']})")
+            console.print(f"  New Run:    {new_run_id} ({c['champion_b']})")
+            console.print(f"  Score Diff: {c['cv_score_diff']:+.4f} | Test F1 Diff: {c['test_f1_diff']:+.4f}")
+            console.print(f"  Verdict:    [italic]{c['verdict_summary']}[/italic]")
+        except Exception as e:
+            logger.warning("Could not compare with active run: %s", e)
+
+    if activate:
+        activate_pipeline_run(new_run_id, actor="CLI User")
+        console.print(
+            f"\n[bold green][ACTIVATED][/bold green] Run {new_run_id} is now the active champion! (Logged to audit.log)"
+        )
+    else:
+        console.print(
+            f"\n[dim]To activate this run later, execute:[/dim]\n  [bold cyan]python -m mei.cli activate {new_run_id}[/bold cyan]\n"
+        )
+
+
+@app.command()
+def activate(
+    run_id: str = typer.Argument(..., help="Run ID to activate as operational champion"),
+    actor: str = typer.Option("CLI Administrator", "--actor", help="User or process activating the model"),
+) -> None:
+    """Activate a retrained pipeline run and update active run pointer."""
+    from rich.console import Console
+    from mei.registry.retrain import activate_pipeline_run
+
+    console = Console()
+    try:
+        res = activate_pipeline_run(run_id, actor=actor)
+        console.print(
+            f"[bold green][SUCCESS][/bold green] Activated run: [bold cyan]{res['active_run_id']}[/bold cyan]"
+        )
+        console.print(f"  Previous Run: {res['previous_run_id']}")
+        console.print(f"  Champion:     {res['champion']}")
+        console.print("  [dim]Audit entry written to artifacts/audit.log[/dim]")
+    except Exception as exc:
+        console.print(f"[bold red]Activation Failed:[/bold red] {exc}")
+        raise typer.Exit(code=1)
 
 
 @app.command()
