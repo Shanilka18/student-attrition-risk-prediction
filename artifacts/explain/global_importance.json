@@ -1,0 +1,1833 @@
+{
+  "baseline_probability": 0.24619047619047618,
+  "baseline_mei": 24.6,
+  "validation_ranking": [
+    {
+      "rank": 1,
+      "feature": "composite_drop_from_best_to_last",
+      "plain_name": "Drop from Peak Engagement",
+      "indicator": "composite",
+      "period": "Overall",
+      "family": "aggregates_drift",
+      "mean_abs_shap": 0.007623,
+      "mean_abs_points": 0.76
+    },
+    {
+      "rank": 2,
+      "feature": "missing_review_time_p2",
+      "plain_name": "Missing Response on Review time (Period 2)",
+      "indicator": "review_time",
+      "period": "P2",
+      "family": "raw_answers",
+      "mean_abs_shap": 0.007066,
+      "mean_abs_points": 0.71
+    },
+    {
+      "rank": 3,
+      "feature": "participation_min",
+      "plain_name": "Lowest Interactive participation",
+      "indicator": "participation",
+      "period": "Overall",
+      "family": "aggregates_drift",
+      "mean_abs_shap": 0.004776,
+      "mean_abs_points": 0.48
+    },
+    {
+      "rank": 4,
+      "feature": "resource_access_p4",
+      "plain_name": "Learning material access (Period 4)",
+      "indicator": "resource_access",
+      "period": "P4",
+      "family": "raw_answers",
+      "mean_abs_shap": 0.004478,
+      "mean_abs_points": 0.45
+    },
+    {
+      "rank": 5,
+      "feature": "assignment_engagement_slope",
+      "plain_name": "Trajectory Slope of Assignment preparation",
+      "indicator": "assignment_engagement",
+      "period": "Overall",
+      "family": "aggregates_drift",
+      "mean_abs_shap": 0.00443,
+      "mean_abs_points": 0.44
+    },
+    {
+      "rank": 6,
+      "feature": "quiz_practice_reversals",
+      "plain_name": "Direction Changes in Practice quiz activity",
+      "indicator": "quiz_practice",
+      "period": "Overall",
+      "family": "aggregates_drift",
+      "mean_abs_shap": 0.004313,
+      "mean_abs_points": 0.43
+    },
+    {
+      "rank": 7,
+      "feature": "resource_access_last_minus_first",
+      "plain_name": "Net Change in Learning material access (P4 vs P1)",
+      "indicator": "resource_access",
+      "period": "Overall",
+      "family": "aggregates_drift",
+      "mean_abs_shap": 0.004311,
+      "mean_abs_points": 0.43
+    },
+    {
+      "rank": 8,
+      "feature": "composite_last_value",
+      "plain_name": "Recent Overall Engagement (Period 4)",
+      "indicator": "composite",
+      "period": "Overall",
+      "family": "aggregates_drift",
+      "mean_abs_shap": 0.004167,
+      "mean_abs_points": 0.42
+    },
+    {
+      "rank": 9,
+      "feature": "composite_p4",
+      "plain_name": "Overall Engagement Level (Period 4)",
+      "indicator": "composite",
+      "period": "P4",
+      "family": "aggregates_drift",
+      "mean_abs_shap": 0.004142,
+      "mean_abs_points": 0.41
+    },
+    {
+      "rank": 10,
+      "feature": "resource_access_last_minus_mean_first_two",
+      "plain_name": "Recent vs Early Learning material access",
+      "indicator": "resource_access",
+      "period": "Overall",
+      "family": "aggregates_drift",
+      "mean_abs_shap": 0.004104,
+      "mean_abs_points": 0.41
+    },
+    {
+      "rank": 11,
+      "feature": "resource_access_slope",
+      "plain_name": "Trajectory Slope of Learning material access",
+      "indicator": "resource_access",
+      "period": "Overall",
+      "family": "aggregates_drift",
+      "mean_abs_shap": 0.004072,
+      "mean_abs_points": 0.41
+    },
+    {
+      "rank": 12,
+      "feature": "assignment_engagement_p3",
+      "plain_name": "Assignment preparation (Period 3)",
+      "indicator": "assignment_engagement",
+      "period": "P3",
+      "family": "raw_answers",
+      "mean_abs_shap": 0.003905,
+      "mean_abs_points": 0.39
+    },
+    {
+      "rank": 13,
+      "feature": "study_consistency_last_minus_mean_first_two",
+      "plain_name": "Recent vs Early Study schedule consistency",
+      "indicator": "study_consistency",
+      "period": "Overall",
+      "family": "aggregates_drift",
+      "mean_abs_shap": 0.003754,
+      "mean_abs_points": 0.38
+    },
+    {
+      "rank": 14,
+      "feature": "study_consistency_last_minus_first",
+      "plain_name": "Net Change in Study schedule consistency (P4 vs P1)",
+      "indicator": "study_consistency",
+      "period": "Overall",
+      "family": "aggregates_drift",
+      "mean_abs_shap": 0.00371,
+      "mean_abs_points": 0.37
+    },
+    {
+      "rank": 15,
+      "feature": "resource_access_p3",
+      "plain_name": "Learning material access (Period 3)",
+      "indicator": "resource_access",
+      "period": "P3",
+      "family": "raw_answers",
+      "mean_abs_shap": 0.003582,
+      "mean_abs_points": 0.36
+    },
+    {
+      "rank": 16,
+      "feature": "study_time_last_minus_mean_first_two",
+      "plain_name": "Recent vs Early Study hours",
+      "indicator": "study_time",
+      "period": "Overall",
+      "family": "aggregates_drift",
+      "mean_abs_shap": 0.003492,
+      "mean_abs_points": 0.35
+    },
+    {
+      "rank": 17,
+      "feature": "resource_access_min",
+      "plain_name": "Lowest Learning material access",
+      "indicator": "resource_access",
+      "period": "Overall",
+      "family": "aggregates_drift",
+      "mean_abs_shap": 0.003445,
+      "mean_abs_points": 0.34
+    },
+    {
+      "rank": 18,
+      "feature": "resource_access_reversals",
+      "plain_name": "Direction Changes in Learning material access",
+      "indicator": "resource_access",
+      "period": "Overall",
+      "family": "aggregates_drift",
+      "mean_abs_shap": 0.00342,
+      "mean_abs_points": 0.34
+    },
+    {
+      "rank": 19,
+      "feature": "resource_access_p2",
+      "plain_name": "Learning material access (Period 2)",
+      "indicator": "resource_access",
+      "period": "P2",
+      "family": "raw_answers",
+      "mean_abs_shap": 0.003266,
+      "mean_abs_points": 0.33
+    },
+    {
+      "rank": 20,
+      "feature": "quiz_practice_max",
+      "plain_name": "Peak Practice quiz activity",
+      "indicator": "quiz_practice",
+      "period": "Overall",
+      "family": "aggregates_drift",
+      "mean_abs_shap": 0.003258,
+      "mean_abs_points": 0.33
+    },
+    {
+      "rank": 21,
+      "feature": "resource_access_mean",
+      "plain_name": "Average Learning material access",
+      "indicator": "resource_access",
+      "period": "Overall",
+      "family": "aggregates_drift",
+      "mean_abs_shap": 0.003229,
+      "mean_abs_points": 0.32
+    },
+    {
+      "rank": 22,
+      "feature": "assignment_engagement_max",
+      "plain_name": "Peak Assignment preparation",
+      "indicator": "assignment_engagement",
+      "period": "Overall",
+      "family": "aggregates_drift",
+      "mean_abs_shap": 0.00322,
+      "mean_abs_points": 0.32
+    },
+    {
+      "rank": 23,
+      "feature": "composite_mean",
+      "plain_name": "Overall Term Engagement Level",
+      "indicator": "composite",
+      "period": "Overall",
+      "family": "aggregates_drift",
+      "mean_abs_shap": 0.00316,
+      "mean_abs_points": 0.32
+    },
+    {
+      "rank": 24,
+      "feature": "assignment_engagement_last_minus_first",
+      "plain_name": "Net Change in Assignment preparation (P4 vs P1)",
+      "indicator": "assignment_engagement",
+      "period": "Overall",
+      "family": "aggregates_drift",
+      "mean_abs_shap": 0.003153,
+      "mean_abs_points": 0.32
+    },
+    {
+      "rank": 25,
+      "feature": "participation_last_minus_mean_first_two",
+      "plain_name": "Recent vs Early Interactive participation",
+      "indicator": "participation",
+      "period": "Overall",
+      "family": "aggregates_drift",
+      "mean_abs_shap": 0.003132,
+      "mean_abs_points": 0.31
+    },
+    {
+      "rank": 26,
+      "feature": "composite_max_drop",
+      "plain_name": "Maximum Term-to-Term Drop",
+      "indicator": "composite",
+      "period": "Overall",
+      "family": "aggregates_drift",
+      "mean_abs_shap": 0.003044,
+      "mean_abs_points": 0.3
+    },
+    {
+      "rank": 27,
+      "feature": "study_time_p4",
+      "plain_name": "Study hours (Period 4)",
+      "indicator": "study_time",
+      "period": "P4",
+      "family": "raw_answers",
+      "mean_abs_shap": 0.003026,
+      "mean_abs_points": 0.3
+    },
+    {
+      "rank": 28,
+      "feature": "study_consistency_mean",
+      "plain_name": "Average Study schedule consistency",
+      "indicator": "study_consistency",
+      "period": "Overall",
+      "family": "aggregates_drift",
+      "mean_abs_shap": 0.003021,
+      "mean_abs_points": 0.3
+    },
+    {
+      "rank": 29,
+      "feature": "study_consistency_reversals",
+      "plain_name": "Direction Changes in Study schedule consistency",
+      "indicator": "study_consistency",
+      "period": "Overall",
+      "family": "aggregates_drift",
+      "mean_abs_shap": 0.003001,
+      "mean_abs_points": 0.3
+    },
+    {
+      "rank": 30,
+      "feature": "composite_p1",
+      "plain_name": "Overall Engagement Level (Period 1)",
+      "indicator": "composite",
+      "period": "P1",
+      "family": "aggregates_drift",
+      "mean_abs_shap": 0.002999,
+      "mean_abs_points": 0.3
+    },
+    {
+      "rank": 31,
+      "feature": "participation_std",
+      "plain_name": "Variability in Interactive participation",
+      "indicator": "participation",
+      "period": "Overall",
+      "family": "aggregates_drift",
+      "mean_abs_shap": 0.00299,
+      "mean_abs_points": 0.3
+    },
+    {
+      "rank": 32,
+      "feature": "participation_slope",
+      "plain_name": "Trajectory Slope of Interactive participation",
+      "indicator": "participation",
+      "period": "Overall",
+      "family": "aggregates_drift",
+      "mean_abs_shap": 0.002978,
+      "mean_abs_points": 0.3
+    },
+    {
+      "rank": 33,
+      "feature": "study_consistency_slope",
+      "plain_name": "Trajectory Slope of Study schedule consistency",
+      "indicator": "study_consistency",
+      "period": "Overall",
+      "family": "aggregates_drift",
+      "mean_abs_shap": 0.00293,
+      "mean_abs_points": 0.29
+    },
+    {
+      "rank": 34,
+      "feature": "study_time_min",
+      "plain_name": "Lowest Study hours",
+      "indicator": "study_time",
+      "period": "Overall",
+      "family": "aggregates_drift",
+      "mean_abs_shap": 0.002927,
+      "mean_abs_points": 0.29
+    },
+    {
+      "rank": 35,
+      "feature": "study_time_last_minus_first",
+      "plain_name": "Net Change in Study hours (P4 vs P1)",
+      "indicator": "study_time",
+      "period": "Overall",
+      "family": "aggregates_drift",
+      "mean_abs_shap": 0.002896,
+      "mean_abs_points": 0.29
+    },
+    {
+      "rank": 36,
+      "feature": "resource_access_max",
+      "plain_name": "Peak Learning material access",
+      "indicator": "resource_access",
+      "period": "Overall",
+      "family": "aggregates_drift",
+      "mean_abs_shap": 0.002879,
+      "mean_abs_points": 0.29
+    },
+    {
+      "rank": 37,
+      "feature": "study_consistency_max",
+      "plain_name": "Peak Study schedule consistency",
+      "indicator": "study_consistency",
+      "period": "Overall",
+      "family": "aggregates_drift",
+      "mean_abs_shap": 0.002871,
+      "mean_abs_points": 0.29
+    },
+    {
+      "rank": 38,
+      "feature": "quiz_practice_std",
+      "plain_name": "Variability in Practice quiz activity",
+      "indicator": "quiz_practice",
+      "period": "Overall",
+      "family": "aggregates_drift",
+      "mean_abs_shap": 0.002867,
+      "mean_abs_points": 0.29
+    },
+    {
+      "rank": 39,
+      "feature": "quiz_practice_last_minus_first",
+      "plain_name": "Net Change in Practice quiz activity (P4 vs P1)",
+      "indicator": "quiz_practice",
+      "period": "Overall",
+      "family": "aggregates_drift",
+      "mean_abs_shap": 0.002866,
+      "mean_abs_points": 0.29
+    },
+    {
+      "rank": 40,
+      "feature": "review_time_reversals",
+      "plain_name": "Direction Changes in Review time",
+      "indicator": "review_time",
+      "period": "Overall",
+      "family": "aggregates_drift",
+      "mean_abs_shap": 0.002759,
+      "mean_abs_points": 0.28
+    },
+    {
+      "rank": 41,
+      "feature": "review_time_p4",
+      "plain_name": "Review time (Period 4)",
+      "indicator": "review_time",
+      "period": "P4",
+      "family": "raw_answers",
+      "mean_abs_shap": 0.002737,
+      "mean_abs_points": 0.27
+    },
+    {
+      "rank": 42,
+      "feature": "assignment_engagement_reversals",
+      "plain_name": "Direction Changes in Assignment preparation",
+      "indicator": "assignment_engagement",
+      "period": "Overall",
+      "family": "aggregates_drift",
+      "mean_abs_shap": 0.002735,
+      "mean_abs_points": 0.27
+    },
+    {
+      "rank": 43,
+      "feature": "study_time_std",
+      "plain_name": "Variability in Study hours",
+      "indicator": "study_time",
+      "period": "Overall",
+      "family": "aggregates_drift",
+      "mean_abs_shap": 0.00273,
+      "mean_abs_points": 0.27
+    },
+    {
+      "rank": 44,
+      "feature": "study_consistency_p2",
+      "plain_name": "Study schedule consistency (Period 2)",
+      "indicator": "study_consistency",
+      "period": "P2",
+      "family": "raw_answers",
+      "mean_abs_shap": 0.002626,
+      "mean_abs_points": 0.26
+    },
+    {
+      "rank": 45,
+      "feature": "review_time_std",
+      "plain_name": "Variability in Review time",
+      "indicator": "review_time",
+      "period": "Overall",
+      "family": "aggregates_drift",
+      "mean_abs_shap": 0.002613,
+      "mean_abs_points": 0.26
+    },
+    {
+      "rank": 46,
+      "feature": "composite_std",
+      "plain_name": "Overall Engagement Volatility",
+      "indicator": "composite",
+      "period": "Overall",
+      "family": "aggregates_drift",
+      "mean_abs_shap": 0.002605,
+      "mean_abs_points": 0.26
+    },
+    {
+      "rank": 47,
+      "feature": "participation_p3",
+      "plain_name": "Interactive participation (Period 3)",
+      "indicator": "participation",
+      "period": "P3",
+      "family": "raw_answers",
+      "mean_abs_shap": 0.002603,
+      "mean_abs_points": 0.26
+    },
+    {
+      "rank": 48,
+      "feature": "missing_review_time_p3",
+      "plain_name": "Missing Response on Review time (Period 3)",
+      "indicator": "review_time",
+      "period": "P3",
+      "family": "raw_answers",
+      "mean_abs_shap": 0.002598,
+      "mean_abs_points": 0.26
+    },
+    {
+      "rank": 49,
+      "feature": "study_time_p1",
+      "plain_name": "Study hours (Period 1)",
+      "indicator": "study_time",
+      "period": "P1",
+      "family": "raw_answers",
+      "mean_abs_shap": 0.002549,
+      "mean_abs_points": 0.25
+    },
+    {
+      "rank": 50,
+      "feature": "study_consistency_std",
+      "plain_name": "Variability in Study schedule consistency",
+      "indicator": "study_consistency",
+      "period": "Overall",
+      "family": "aggregates_drift",
+      "mean_abs_shap": 0.002534,
+      "mean_abs_points": 0.25
+    },
+    {
+      "rank": 51,
+      "feature": "participation_p1",
+      "plain_name": "Interactive participation (Period 1)",
+      "indicator": "participation",
+      "period": "P1",
+      "family": "raw_answers",
+      "mean_abs_shap": 0.002533,
+      "mean_abs_points": 0.25
+    },
+    {
+      "rank": 52,
+      "feature": "composite_p3",
+      "plain_name": "Overall Engagement Level (Period 3)",
+      "indicator": "composite",
+      "period": "P3",
+      "family": "aggregates_drift",
+      "mean_abs_shap": 0.002528,
+      "mean_abs_points": 0.25
+    },
+    {
+      "rank": 53,
+      "feature": "study_consistency_p4",
+      "plain_name": "Study schedule consistency (Period 4)",
+      "indicator": "study_consistency",
+      "period": "P4",
+      "family": "raw_answers",
+      "mean_abs_shap": 0.002527,
+      "mean_abs_points": 0.25
+    },
+    {
+      "rank": 54,
+      "feature": "participation_max",
+      "plain_name": "Peak Interactive participation",
+      "indicator": "participation",
+      "period": "Overall",
+      "family": "aggregates_drift",
+      "mean_abs_shap": 0.00251,
+      "mean_abs_points": 0.25
+    },
+    {
+      "rank": 55,
+      "feature": "review_time_max",
+      "plain_name": "Peak Review time",
+      "indicator": "review_time",
+      "period": "Overall",
+      "family": "aggregates_drift",
+      "mean_abs_shap": 0.002481,
+      "mean_abs_points": 0.25
+    },
+    {
+      "rank": 56,
+      "feature": "study_time_mean",
+      "plain_name": "Average Study hours",
+      "indicator": "study_time",
+      "period": "Overall",
+      "family": "aggregates_drift",
+      "mean_abs_shap": 0.002473,
+      "mean_abs_points": 0.25
+    },
+    {
+      "rank": 57,
+      "feature": "composite_auc",
+      "plain_name": "Cumulative Term Engagement",
+      "indicator": "composite",
+      "period": "Overall",
+      "family": "aggregates_drift",
+      "mean_abs_shap": 0.002469,
+      "mean_abs_points": 0.25
+    },
+    {
+      "rank": 58,
+      "feature": "review_time_p3",
+      "plain_name": "Review time (Period 3)",
+      "indicator": "review_time",
+      "period": "P3",
+      "family": "raw_answers",
+      "mean_abs_shap": 0.002465,
+      "mean_abs_points": 0.25
+    },
+    {
+      "rank": 59,
+      "feature": "assignment_engagement_p4",
+      "plain_name": "Assignment preparation (Period 4)",
+      "indicator": "assignment_engagement",
+      "period": "P4",
+      "family": "raw_answers",
+      "mean_abs_shap": 0.00245,
+      "mean_abs_points": 0.24
+    },
+    {
+      "rank": 60,
+      "feature": "assignment_engagement_min",
+      "plain_name": "Lowest Assignment preparation",
+      "indicator": "assignment_engagement",
+      "period": "Overall",
+      "family": "aggregates_drift",
+      "mean_abs_shap": 0.002388,
+      "mean_abs_points": 0.24
+    },
+    {
+      "rank": 61,
+      "feature": "resource_access_std",
+      "plain_name": "Variability in Learning material access",
+      "indicator": "resource_access",
+      "period": "Overall",
+      "family": "aggregates_drift",
+      "mean_abs_shap": 0.002346,
+      "mean_abs_points": 0.23
+    },
+    {
+      "rank": 62,
+      "feature": "composite_slope",
+      "plain_name": "Overall Engagement Trajectory",
+      "indicator": "composite",
+      "period": "Overall",
+      "family": "aggregates_drift",
+      "mean_abs_shap": 0.002333,
+      "mean_abs_points": 0.23
+    },
+    {
+      "rank": 63,
+      "feature": "study_time_p2",
+      "plain_name": "Study hours (Period 2)",
+      "indicator": "study_time",
+      "period": "P2",
+      "family": "raw_answers",
+      "mean_abs_shap": 0.00231,
+      "mean_abs_points": 0.23
+    },
+    {
+      "rank": 64,
+      "feature": "assignment_engagement_mean",
+      "plain_name": "Average Assignment preparation",
+      "indicator": "assignment_engagement",
+      "period": "Overall",
+      "family": "aggregates_drift",
+      "mean_abs_shap": 0.002303,
+      "mean_abs_points": 0.23
+    },
+    {
+      "rank": 65,
+      "feature": "participation_last_minus_first",
+      "plain_name": "Net Change in Interactive participation (P4 vs P1)",
+      "indicator": "participation",
+      "period": "Overall",
+      "family": "aggregates_drift",
+      "mean_abs_shap": 0.002238,
+      "mean_abs_points": 0.22
+    },
+    {
+      "rank": 66,
+      "feature": "quiz_practice_p4",
+      "plain_name": "Practice quiz activity (Period 4)",
+      "indicator": "quiz_practice",
+      "period": "P4",
+      "family": "raw_answers",
+      "mean_abs_shap": 0.002214,
+      "mean_abs_points": 0.22
+    },
+    {
+      "rank": 67,
+      "feature": "participation_reversals",
+      "plain_name": "Direction Changes in Interactive participation",
+      "indicator": "participation",
+      "period": "Overall",
+      "family": "aggregates_drift",
+      "mean_abs_shap": 0.002199,
+      "mean_abs_points": 0.22
+    },
+    {
+      "rank": 68,
+      "feature": "composite_reversals",
+      "plain_name": "Engagement Trend Fluctuations",
+      "indicator": "composite",
+      "period": "Overall",
+      "family": "aggregates_drift",
+      "mean_abs_shap": 0.002192,
+      "mean_abs_points": 0.22
+    },
+    {
+      "rank": 69,
+      "feature": "participation_mean",
+      "plain_name": "Average Interactive participation",
+      "indicator": "participation",
+      "period": "Overall",
+      "family": "aggregates_drift",
+      "mean_abs_shap": 0.002137,
+      "mean_abs_points": 0.21
+    },
+    {
+      "rank": 70,
+      "feature": "study_consistency_p1",
+      "plain_name": "Study schedule consistency (Period 1)",
+      "indicator": "study_consistency",
+      "period": "P1",
+      "family": "raw_answers",
+      "mean_abs_shap": 0.002132,
+      "mean_abs_points": 0.21
+    },
+    {
+      "rank": 71,
+      "feature": "missing_review_time_p1",
+      "plain_name": "Missing Response on Review time (Period 1)",
+      "indicator": "review_time",
+      "period": "P1",
+      "family": "raw_answers",
+      "mean_abs_shap": 0.002126,
+      "mean_abs_points": 0.21
+    },
+    {
+      "rank": 72,
+      "feature": "quiz_practice_p1",
+      "plain_name": "Practice quiz activity (Period 1)",
+      "indicator": "quiz_practice",
+      "period": "P1",
+      "family": "raw_answers",
+      "mean_abs_shap": 0.00209,
+      "mean_abs_points": 0.21
+    },
+    {
+      "rank": 73,
+      "feature": "study_time_slope",
+      "plain_name": "Trajectory Slope of Study hours",
+      "indicator": "study_time",
+      "period": "Overall",
+      "family": "aggregates_drift",
+      "mean_abs_shap": 0.002027,
+      "mean_abs_points": 0.2
+    },
+    {
+      "rank": 74,
+      "feature": "study_consistency_p3",
+      "plain_name": "Study schedule consistency (Period 3)",
+      "indicator": "study_consistency",
+      "period": "P3",
+      "family": "raw_answers",
+      "mean_abs_shap": 0.002025,
+      "mean_abs_points": 0.2
+    },
+    {
+      "rank": 75,
+      "feature": "quiz_practice_mean",
+      "plain_name": "Average Practice quiz activity",
+      "indicator": "quiz_practice",
+      "period": "Overall",
+      "family": "aggregates_drift",
+      "mean_abs_shap": 0.001977,
+      "mean_abs_points": 0.2
+    },
+    {
+      "rank": 76,
+      "feature": "review_time_p1",
+      "plain_name": "Review time (Period 1)",
+      "indicator": "review_time",
+      "period": "P1",
+      "family": "raw_answers",
+      "mean_abs_shap": 0.001933,
+      "mean_abs_points": 0.19
+    },
+    {
+      "rank": 77,
+      "feature": "missing_review_time_p4",
+      "plain_name": "Missing Response on Review time (Period 4)",
+      "indicator": "review_time",
+      "period": "P4",
+      "family": "raw_answers",
+      "mean_abs_shap": 0.001927,
+      "mean_abs_points": 0.19
+    },
+    {
+      "rank": 78,
+      "feature": "review_time_last_minus_first",
+      "plain_name": "Net Change in Review time (P4 vs P1)",
+      "indicator": "review_time",
+      "period": "Overall",
+      "family": "aggregates_drift",
+      "mean_abs_shap": 0.001821,
+      "mean_abs_points": 0.18
+    },
+    {
+      "rank": 79,
+      "feature": "quiz_practice_last_minus_mean_first_two",
+      "plain_name": "Recent vs Early Practice quiz activity",
+      "indicator": "quiz_practice",
+      "period": "Overall",
+      "family": "aggregates_drift",
+      "mean_abs_shap": 0.001801,
+      "mean_abs_points": 0.18
+    },
+    {
+      "rank": 80,
+      "feature": "study_time_max",
+      "plain_name": "Peak Study hours",
+      "indicator": "study_time",
+      "period": "Overall",
+      "family": "aggregates_drift",
+      "mean_abs_shap": 0.001758,
+      "mean_abs_points": 0.18
+    },
+    {
+      "rank": 81,
+      "feature": "assignment_engagement_last_minus_mean_first_two",
+      "plain_name": "Recent vs Early Assignment preparation",
+      "indicator": "assignment_engagement",
+      "period": "Overall",
+      "family": "aggregates_drift",
+      "mean_abs_shap": 0.001747,
+      "mean_abs_points": 0.17
+    },
+    {
+      "rank": 82,
+      "feature": "review_time_last_minus_mean_first_two",
+      "plain_name": "Recent vs Early Review time",
+      "indicator": "review_time",
+      "period": "Overall",
+      "family": "aggregates_drift",
+      "mean_abs_shap": 0.001702,
+      "mean_abs_points": 0.17
+    },
+    {
+      "rank": 83,
+      "feature": "resource_access_p1",
+      "plain_name": "Learning material access (Period 1)",
+      "indicator": "resource_access",
+      "period": "P1",
+      "family": "raw_answers",
+      "mean_abs_shap": 0.001653,
+      "mean_abs_points": 0.17
+    },
+    {
+      "rank": 84,
+      "feature": "quiz_practice_min",
+      "plain_name": "Lowest Practice quiz activity",
+      "indicator": "quiz_practice",
+      "period": "Overall",
+      "family": "aggregates_drift",
+      "mean_abs_shap": 0.00164,
+      "mean_abs_points": 0.16
+    },
+    {
+      "rank": 85,
+      "feature": "quiz_practice_p3",
+      "plain_name": "Practice quiz activity (Period 3)",
+      "indicator": "quiz_practice",
+      "period": "P3",
+      "family": "raw_answers",
+      "mean_abs_shap": 0.001604,
+      "mean_abs_points": 0.16
+    },
+    {
+      "rank": 86,
+      "feature": "participation_p4",
+      "plain_name": "Interactive participation (Period 4)",
+      "indicator": "participation",
+      "period": "P4",
+      "family": "raw_answers",
+      "mean_abs_shap": 0.001549,
+      "mean_abs_points": 0.15
+    },
+    {
+      "rank": 87,
+      "feature": "quiz_practice_slope",
+      "plain_name": "Trajectory Slope of Practice quiz activity",
+      "indicator": "quiz_practice",
+      "period": "Overall",
+      "family": "aggregates_drift",
+      "mean_abs_shap": 0.001496,
+      "mean_abs_points": 0.15
+    },
+    {
+      "rank": 88,
+      "feature": "assignment_engagement_std",
+      "plain_name": "Variability in Assignment preparation",
+      "indicator": "assignment_engagement",
+      "period": "Overall",
+      "family": "aggregates_drift",
+      "mean_abs_shap": 0.001489,
+      "mean_abs_points": 0.15
+    },
+    {
+      "rank": 89,
+      "feature": "study_time_reversals",
+      "plain_name": "Direction Changes in Study hours",
+      "indicator": "study_time",
+      "period": "Overall",
+      "family": "aggregates_drift",
+      "mean_abs_shap": 0.001483,
+      "mean_abs_points": 0.15
+    },
+    {
+      "rank": 90,
+      "feature": "participation_p2",
+      "plain_name": "Interactive participation (Period 2)",
+      "indicator": "participation",
+      "period": "P2",
+      "family": "raw_answers",
+      "mean_abs_shap": 0.001479,
+      "mean_abs_points": 0.15
+    },
+    {
+      "rank": 91,
+      "feature": "review_time_min",
+      "plain_name": "Lowest Review time",
+      "indicator": "review_time",
+      "period": "Overall",
+      "family": "aggregates_drift",
+      "mean_abs_shap": 0.00147,
+      "mean_abs_points": 0.15
+    },
+    {
+      "rank": 92,
+      "feature": "study_consistency_min",
+      "plain_name": "Lowest Study schedule consistency",
+      "indicator": "study_consistency",
+      "period": "Overall",
+      "family": "aggregates_drift",
+      "mean_abs_shap": 0.001418,
+      "mean_abs_points": 0.14
+    },
+    {
+      "rank": 93,
+      "feature": "review_time_slope",
+      "plain_name": "Trajectory Slope of Review time",
+      "indicator": "review_time",
+      "period": "Overall",
+      "family": "aggregates_drift",
+      "mean_abs_shap": 0.001409,
+      "mean_abs_points": 0.14
+    },
+    {
+      "rank": 94,
+      "feature": "assignment_engagement_p1",
+      "plain_name": "Assignment preparation (Period 1)",
+      "indicator": "assignment_engagement",
+      "period": "P1",
+      "family": "raw_answers",
+      "mean_abs_shap": 0.001354,
+      "mean_abs_points": 0.14
+    },
+    {
+      "rank": 95,
+      "feature": "assignment_engagement_p2",
+      "plain_name": "Assignment preparation (Period 2)",
+      "indicator": "assignment_engagement",
+      "period": "P2",
+      "family": "raw_answers",
+      "mean_abs_shap": 0.001303,
+      "mean_abs_points": 0.13
+    },
+    {
+      "rank": 96,
+      "feature": "review_time_mean",
+      "plain_name": "Average Review time",
+      "indicator": "review_time",
+      "period": "Overall",
+      "family": "aggregates_drift",
+      "mean_abs_shap": 0.001291,
+      "mean_abs_points": 0.13
+    },
+    {
+      "rank": 97,
+      "feature": "composite_p2",
+      "plain_name": "Overall Engagement Level (Period 2)",
+      "indicator": "composite",
+      "period": "P2",
+      "family": "aggregates_drift",
+      "mean_abs_shap": 0.001254,
+      "mean_abs_points": 0.13
+    },
+    {
+      "rank": 98,
+      "feature": "review_time_p2",
+      "plain_name": "Review time (Period 2)",
+      "indicator": "review_time",
+      "period": "P2",
+      "family": "raw_answers",
+      "mean_abs_shap": 0.001225,
+      "mean_abs_points": 0.12
+    },
+    {
+      "rank": 99,
+      "feature": "study_time_p3",
+      "plain_name": "Study hours (Period 3)",
+      "indicator": "study_time",
+      "period": "P3",
+      "family": "raw_answers",
+      "mean_abs_shap": 0.001197,
+      "mean_abs_points": 0.12
+    },
+    {
+      "rank": 100,
+      "feature": "quiz_practice_p2",
+      "plain_name": "Practice quiz activity (Period 2)",
+      "indicator": "quiz_practice",
+      "period": "P2",
+      "family": "raw_answers",
+      "mean_abs_shap": 0.001092,
+      "mean_abs_points": 0.11
+    }
+  ],
+  "test_ranking": [
+    {
+      "rank": 1,
+      "feature": "composite_drop_from_best_to_last",
+      "plain_name": "Drop from Peak Engagement",
+      "mean_abs_shap": 0.006427,
+      "mean_abs_points": 0.64
+    },
+    {
+      "rank": 2,
+      "feature": "resource_access_p4",
+      "plain_name": "Learning material access (Period 4)",
+      "mean_abs_shap": 0.005241,
+      "mean_abs_points": 0.52
+    },
+    {
+      "rank": 3,
+      "feature": "missing_review_time_p2",
+      "plain_name": "Missing Response on Review time (Period 2)",
+      "mean_abs_shap": 0.005114,
+      "mean_abs_points": 0.51
+    },
+    {
+      "rank": 4,
+      "feature": "missing_review_time_p3",
+      "plain_name": "Missing Response on Review time (Period 3)",
+      "mean_abs_shap": 0.004465,
+      "mean_abs_points": 0.45
+    },
+    {
+      "rank": 5,
+      "feature": "study_consistency_reversals",
+      "plain_name": "Direction Changes in Study schedule consistency",
+      "mean_abs_shap": 0.004446,
+      "mean_abs_points": 0.44
+    },
+    {
+      "rank": 6,
+      "feature": "composite_last_value",
+      "plain_name": "Recent Overall Engagement (Period 4)",
+      "mean_abs_shap": 0.00442,
+      "mean_abs_points": 0.44
+    },
+    {
+      "rank": 7,
+      "feature": "resource_access_max",
+      "plain_name": "Peak Learning material access",
+      "mean_abs_shap": 0.0042,
+      "mean_abs_points": 0.42
+    },
+    {
+      "rank": 8,
+      "feature": "composite_p4",
+      "plain_name": "Overall Engagement Level (Period 4)",
+      "mean_abs_shap": 0.004101,
+      "mean_abs_points": 0.41
+    },
+    {
+      "rank": 9,
+      "feature": "resource_access_p2",
+      "plain_name": "Learning material access (Period 2)",
+      "mean_abs_shap": 0.00393,
+      "mean_abs_points": 0.39
+    },
+    {
+      "rank": 10,
+      "feature": "assignment_engagement_p4",
+      "plain_name": "Assignment preparation (Period 4)",
+      "mean_abs_shap": 0.003769,
+      "mean_abs_points": 0.38
+    },
+    {
+      "rank": 11,
+      "feature": "quiz_practice_max",
+      "plain_name": "Peak Practice quiz activity",
+      "mean_abs_shap": 0.003728,
+      "mean_abs_points": 0.37
+    },
+    {
+      "rank": 12,
+      "feature": "assignment_engagement_p3",
+      "plain_name": "Assignment preparation (Period 3)",
+      "mean_abs_shap": 0.003719,
+      "mean_abs_points": 0.37
+    },
+    {
+      "rank": 13,
+      "feature": "composite_p3",
+      "plain_name": "Overall Engagement Level (Period 3)",
+      "mean_abs_shap": 0.003698,
+      "mean_abs_points": 0.37
+    },
+    {
+      "rank": 14,
+      "feature": "missing_review_time_p4",
+      "plain_name": "Missing Response on Review time (Period 4)",
+      "mean_abs_shap": 0.003643,
+      "mean_abs_points": 0.36
+    },
+    {
+      "rank": 15,
+      "feature": "participation_p3",
+      "plain_name": "Interactive participation (Period 3)",
+      "mean_abs_shap": 0.003498,
+      "mean_abs_points": 0.35
+    },
+    {
+      "rank": 16,
+      "feature": "review_time_last_minus_first",
+      "plain_name": "Net Change in Review time (P4 vs P1)",
+      "mean_abs_shap": 0.003406,
+      "mean_abs_points": 0.34
+    },
+    {
+      "rank": 17,
+      "feature": "resource_access_mean",
+      "plain_name": "Average Learning material access",
+      "mean_abs_shap": 0.003401,
+      "mean_abs_points": 0.34
+    },
+    {
+      "rank": 18,
+      "feature": "resource_access_last_minus_first",
+      "plain_name": "Net Change in Learning material access (P4 vs P1)",
+      "mean_abs_shap": 0.003282,
+      "mean_abs_points": 0.33
+    },
+    {
+      "rank": 19,
+      "feature": "resource_access_min",
+      "plain_name": "Lowest Learning material access",
+      "mean_abs_shap": 0.003265,
+      "mean_abs_points": 0.33
+    },
+    {
+      "rank": 20,
+      "feature": "participation_std",
+      "plain_name": "Variability in Interactive participation",
+      "mean_abs_shap": 0.003237,
+      "mean_abs_points": 0.32
+    },
+    {
+      "rank": 21,
+      "feature": "resource_access_p1",
+      "plain_name": "Learning material access (Period 1)",
+      "mean_abs_shap": 0.003192,
+      "mean_abs_points": 0.32
+    },
+    {
+      "rank": 22,
+      "feature": "assignment_engagement_slope",
+      "plain_name": "Trajectory Slope of Assignment preparation",
+      "mean_abs_shap": 0.003137,
+      "mean_abs_points": 0.31
+    },
+    {
+      "rank": 23,
+      "feature": "assignment_engagement_mean",
+      "plain_name": "Average Assignment preparation",
+      "mean_abs_shap": 0.00306,
+      "mean_abs_points": 0.31
+    },
+    {
+      "rank": 24,
+      "feature": "participation_mean",
+      "plain_name": "Average Interactive participation",
+      "mean_abs_shap": 0.003031,
+      "mean_abs_points": 0.3
+    },
+    {
+      "rank": 25,
+      "feature": "study_consistency_p4",
+      "plain_name": "Study schedule consistency (Period 4)",
+      "mean_abs_shap": 0.00299,
+      "mean_abs_points": 0.3
+    },
+    {
+      "rank": 26,
+      "feature": "quiz_practice_p4",
+      "plain_name": "Practice quiz activity (Period 4)",
+      "mean_abs_shap": 0.002988,
+      "mean_abs_points": 0.3
+    },
+    {
+      "rank": 27,
+      "feature": "assignment_engagement_max",
+      "plain_name": "Peak Assignment preparation",
+      "mean_abs_shap": 0.002983,
+      "mean_abs_points": 0.3
+    },
+    {
+      "rank": 28,
+      "feature": "study_time_last_minus_mean_first_two",
+      "plain_name": "Recent vs Early Study hours",
+      "mean_abs_shap": 0.002964,
+      "mean_abs_points": 0.3
+    },
+    {
+      "rank": 29,
+      "feature": "assignment_engagement_std",
+      "plain_name": "Variability in Assignment preparation",
+      "mean_abs_shap": 0.002942,
+      "mean_abs_points": 0.29
+    },
+    {
+      "rank": 30,
+      "feature": "assignment_engagement_last_minus_first",
+      "plain_name": "Net Change in Assignment preparation (P4 vs P1)",
+      "mean_abs_shap": 0.002901,
+      "mean_abs_points": 0.29
+    },
+    {
+      "rank": 31,
+      "feature": "study_time_slope",
+      "plain_name": "Trajectory Slope of Study hours",
+      "mean_abs_shap": 0.00283,
+      "mean_abs_points": 0.28
+    },
+    {
+      "rank": 32,
+      "feature": "review_time_p3",
+      "plain_name": "Review time (Period 3)",
+      "mean_abs_shap": 0.00281,
+      "mean_abs_points": 0.28
+    },
+    {
+      "rank": 33,
+      "feature": "participation_slope",
+      "plain_name": "Trajectory Slope of Interactive participation",
+      "mean_abs_shap": 0.002803,
+      "mean_abs_points": 0.28
+    },
+    {
+      "rank": 34,
+      "feature": "review_time_reversals",
+      "plain_name": "Direction Changes in Review time",
+      "mean_abs_shap": 0.002781,
+      "mean_abs_points": 0.28
+    },
+    {
+      "rank": 35,
+      "feature": "study_time_last_minus_first",
+      "plain_name": "Net Change in Study hours (P4 vs P1)",
+      "mean_abs_shap": 0.002755,
+      "mean_abs_points": 0.28
+    },
+    {
+      "rank": 36,
+      "feature": "composite_auc",
+      "plain_name": "Cumulative Term Engagement",
+      "mean_abs_shap": 0.002707,
+      "mean_abs_points": 0.27
+    },
+    {
+      "rank": 37,
+      "feature": "quiz_practice_last_minus_first",
+      "plain_name": "Net Change in Practice quiz activity (P4 vs P1)",
+      "mean_abs_shap": 0.002677,
+      "mean_abs_points": 0.27
+    },
+    {
+      "rank": 38,
+      "feature": "study_consistency_last_minus_first",
+      "plain_name": "Net Change in Study schedule consistency (P4 vs P1)",
+      "mean_abs_shap": 0.002669,
+      "mean_abs_points": 0.27
+    },
+    {
+      "rank": 39,
+      "feature": "study_time_max",
+      "plain_name": "Peak Study hours",
+      "mean_abs_shap": 0.002655,
+      "mean_abs_points": 0.27
+    },
+    {
+      "rank": 40,
+      "feature": "study_time_min",
+      "plain_name": "Lowest Study hours",
+      "mean_abs_shap": 0.002634,
+      "mean_abs_points": 0.26
+    },
+    {
+      "rank": 41,
+      "feature": "study_consistency_max",
+      "plain_name": "Peak Study schedule consistency",
+      "mean_abs_shap": 0.002621,
+      "mean_abs_points": 0.26
+    },
+    {
+      "rank": 42,
+      "feature": "composite_mean",
+      "plain_name": "Overall Term Engagement Level",
+      "mean_abs_shap": 0.002611,
+      "mean_abs_points": 0.26
+    },
+    {
+      "rank": 43,
+      "feature": "quiz_practice_reversals",
+      "plain_name": "Direction Changes in Practice quiz activity",
+      "mean_abs_shap": 0.002595,
+      "mean_abs_points": 0.26
+    },
+    {
+      "rank": 44,
+      "feature": "resource_access_slope",
+      "plain_name": "Trajectory Slope of Learning material access",
+      "mean_abs_shap": 0.002558,
+      "mean_abs_points": 0.26
+    },
+    {
+      "rank": 45,
+      "feature": "study_consistency_slope",
+      "plain_name": "Trajectory Slope of Study schedule consistency",
+      "mean_abs_shap": 0.002512,
+      "mean_abs_points": 0.25
+    },
+    {
+      "rank": 46,
+      "feature": "composite_reversals",
+      "plain_name": "Engagement Trend Fluctuations",
+      "mean_abs_shap": 0.002459,
+      "mean_abs_points": 0.25
+    },
+    {
+      "rank": 47,
+      "feature": "study_consistency_last_minus_mean_first_two",
+      "plain_name": "Recent vs Early Study schedule consistency",
+      "mean_abs_shap": 0.00244,
+      "mean_abs_points": 0.24
+    },
+    {
+      "rank": 48,
+      "feature": "review_time_std",
+      "plain_name": "Variability in Review time",
+      "mean_abs_shap": 0.002421,
+      "mean_abs_points": 0.24
+    },
+    {
+      "rank": 49,
+      "feature": "resource_access_reversals",
+      "plain_name": "Direction Changes in Learning material access",
+      "mean_abs_shap": 0.002419,
+      "mean_abs_points": 0.24
+    },
+    {
+      "rank": 50,
+      "feature": "study_time_reversals",
+      "plain_name": "Direction Changes in Study hours",
+      "mean_abs_shap": 0.002412,
+      "mean_abs_points": 0.24
+    },
+    {
+      "rank": 51,
+      "feature": "composite_max_drop",
+      "plain_name": "Maximum Term-to-Term Drop",
+      "mean_abs_shap": 0.002401,
+      "mean_abs_points": 0.24
+    },
+    {
+      "rank": 52,
+      "feature": "review_time_mean",
+      "plain_name": "Average Review time",
+      "mean_abs_shap": 0.002399,
+      "mean_abs_points": 0.24
+    },
+    {
+      "rank": 53,
+      "feature": "participation_last_minus_mean_first_two",
+      "plain_name": "Recent vs Early Interactive participation",
+      "mean_abs_shap": 0.002385,
+      "mean_abs_points": 0.24
+    },
+    {
+      "rank": 54,
+      "feature": "participation_p4",
+      "plain_name": "Interactive participation (Period 4)",
+      "mean_abs_shap": 0.002383,
+      "mean_abs_points": 0.24
+    },
+    {
+      "rank": 55,
+      "feature": "participation_reversals",
+      "plain_name": "Direction Changes in Interactive participation",
+      "mean_abs_shap": 0.002379,
+      "mean_abs_points": 0.24
+    },
+    {
+      "rank": 56,
+      "feature": "quiz_practice_slope",
+      "plain_name": "Trajectory Slope of Practice quiz activity",
+      "mean_abs_shap": 0.002371,
+      "mean_abs_points": 0.24
+    },
+    {
+      "rank": 57,
+      "feature": "quiz_practice_p2",
+      "plain_name": "Practice quiz activity (Period 2)",
+      "mean_abs_shap": 0.002369,
+      "mean_abs_points": 0.24
+    },
+    {
+      "rank": 58,
+      "feature": "participation_min",
+      "plain_name": "Lowest Interactive participation",
+      "mean_abs_shap": 0.002369,
+      "mean_abs_points": 0.24
+    },
+    {
+      "rank": 59,
+      "feature": "quiz_practice_p1",
+      "plain_name": "Practice quiz activity (Period 1)",
+      "mean_abs_shap": 0.002324,
+      "mean_abs_points": 0.23
+    },
+    {
+      "rank": 60,
+      "feature": "assignment_engagement_last_minus_mean_first_two",
+      "plain_name": "Recent vs Early Assignment preparation",
+      "mean_abs_shap": 0.002261,
+      "mean_abs_points": 0.23
+    },
+    {
+      "rank": 61,
+      "feature": "study_time_std",
+      "plain_name": "Variability in Study hours",
+      "mean_abs_shap": 0.002249,
+      "mean_abs_points": 0.22
+    },
+    {
+      "rank": 62,
+      "feature": "study_time_p4",
+      "plain_name": "Study hours (Period 4)",
+      "mean_abs_shap": 0.002211,
+      "mean_abs_points": 0.22
+    },
+    {
+      "rank": 63,
+      "feature": "composite_p2",
+      "plain_name": "Overall Engagement Level (Period 2)",
+      "mean_abs_shap": 0.002203,
+      "mean_abs_points": 0.22
+    },
+    {
+      "rank": 64,
+      "feature": "assignment_engagement_min",
+      "plain_name": "Lowest Assignment preparation",
+      "mean_abs_shap": 0.00219,
+      "mean_abs_points": 0.22
+    },
+    {
+      "rank": 65,
+      "feature": "quiz_practice_min",
+      "plain_name": "Lowest Practice quiz activity",
+      "mean_abs_shap": 0.002166,
+      "mean_abs_points": 0.22
+    },
+    {
+      "rank": 66,
+      "feature": "review_time_last_minus_mean_first_two",
+      "plain_name": "Recent vs Early Review time",
+      "mean_abs_shap": 0.002087,
+      "mean_abs_points": 0.21
+    },
+    {
+      "rank": 67,
+      "feature": "study_consistency_min",
+      "plain_name": "Lowest Study schedule consistency",
+      "mean_abs_shap": 0.002079,
+      "mean_abs_points": 0.21
+    },
+    {
+      "rank": 68,
+      "feature": "resource_access_std",
+      "plain_name": "Variability in Learning material access",
+      "mean_abs_shap": 0.002065,
+      "mean_abs_points": 0.21
+    },
+    {
+      "rank": 69,
+      "feature": "resource_access_last_minus_mean_first_two",
+      "plain_name": "Recent vs Early Learning material access",
+      "mean_abs_shap": 0.002039,
+      "mean_abs_points": 0.2
+    },
+    {
+      "rank": 70,
+      "feature": "participation_max",
+      "plain_name": "Peak Interactive participation",
+      "mean_abs_shap": 0.002028,
+      "mean_abs_points": 0.2
+    },
+    {
+      "rank": 71,
+      "feature": "participation_p2",
+      "plain_name": "Interactive participation (Period 2)",
+      "mean_abs_shap": 0.002027,
+      "mean_abs_points": 0.2
+    },
+    {
+      "rank": 72,
+      "feature": "participation_last_minus_first",
+      "plain_name": "Net Change in Interactive participation (P4 vs P1)",
+      "mean_abs_shap": 0.001982,
+      "mean_abs_points": 0.2
+    },
+    {
+      "rank": 73,
+      "feature": "study_consistency_mean",
+      "plain_name": "Average Study schedule consistency",
+      "mean_abs_shap": 0.001981,
+      "mean_abs_points": 0.2
+    },
+    {
+      "rank": 74,
+      "feature": "composite_std",
+      "plain_name": "Overall Engagement Volatility",
+      "mean_abs_shap": 0.001965,
+      "mean_abs_points": 0.2
+    },
+    {
+      "rank": 75,
+      "feature": "resource_access_p3",
+      "plain_name": "Learning material access (Period 3)",
+      "mean_abs_shap": 0.001896,
+      "mean_abs_points": 0.19
+    },
+    {
+      "rank": 76,
+      "feature": "composite_p1",
+      "plain_name": "Overall Engagement Level (Period 1)",
+      "mean_abs_shap": 0.001862,
+      "mean_abs_points": 0.19
+    },
+    {
+      "rank": 77,
+      "feature": "review_time_slope",
+      "plain_name": "Trajectory Slope of Review time",
+      "mean_abs_shap": 0.001854,
+      "mean_abs_points": 0.19
+    },
+    {
+      "rank": 78,
+      "feature": "study_time_p2",
+      "plain_name": "Study hours (Period 2)",
+      "mean_abs_shap": 0.001845,
+      "mean_abs_points": 0.18
+    },
+    {
+      "rank": 79,
+      "feature": "composite_slope",
+      "plain_name": "Overall Engagement Trajectory",
+      "mean_abs_shap": 0.0018,
+      "mean_abs_points": 0.18
+    },
+    {
+      "rank": 80,
+      "feature": "review_time_p4",
+      "plain_name": "Review time (Period 4)",
+      "mean_abs_shap": 0.001775,
+      "mean_abs_points": 0.18
+    },
+    {
+      "rank": 81,
+      "feature": "review_time_min",
+      "plain_name": "Lowest Review time",
+      "mean_abs_shap": 0.001738,
+      "mean_abs_points": 0.17
+    },
+    {
+      "rank": 82,
+      "feature": "review_time_p2",
+      "plain_name": "Review time (Period 2)",
+      "mean_abs_shap": 0.001716,
+      "mean_abs_points": 0.17
+    },
+    {
+      "rank": 83,
+      "feature": "study_consistency_p1",
+      "plain_name": "Study schedule consistency (Period 1)",
+      "mean_abs_shap": 0.001707,
+      "mean_abs_points": 0.17
+    },
+    {
+      "rank": 84,
+      "feature": "assignment_engagement_p2",
+      "plain_name": "Assignment preparation (Period 2)",
+      "mean_abs_shap": 0.001644,
+      "mean_abs_points": 0.16
+    },
+    {
+      "rank": 85,
+      "feature": "quiz_practice_p3",
+      "plain_name": "Practice quiz activity (Period 3)",
+      "mean_abs_shap": 0.00164,
+      "mean_abs_points": 0.16
+    },
+    {
+      "rank": 86,
+      "feature": "study_time_p3",
+      "plain_name": "Study hours (Period 3)",
+      "mean_abs_shap": 0.001616,
+      "mean_abs_points": 0.16
+    },
+    {
+      "rank": 87,
+      "feature": "missing_review_time_p1",
+      "plain_name": "Missing Response on Review time (Period 1)",
+      "mean_abs_shap": 0.00161,
+      "mean_abs_points": 0.16
+    },
+    {
+      "rank": 88,
+      "feature": "study_time_mean",
+      "plain_name": "Average Study hours",
+      "mean_abs_shap": 0.001522,
+      "mean_abs_points": 0.15
+    },
+    {
+      "rank": 89,
+      "feature": "study_consistency_std",
+      "plain_name": "Variability in Study schedule consistency",
+      "mean_abs_shap": 0.001502,
+      "mean_abs_points": 0.15
+    },
+    {
+      "rank": 90,
+      "feature": "quiz_practice_last_minus_mean_first_two",
+      "plain_name": "Recent vs Early Practice quiz activity",
+      "mean_abs_shap": 0.001478,
+      "mean_abs_points": 0.15
+    },
+    {
+      "rank": 91,
+      "feature": "study_time_p1",
+      "plain_name": "Study hours (Period 1)",
+      "mean_abs_shap": 0.001423,
+      "mean_abs_points": 0.14
+    },
+    {
+      "rank": 92,
+      "feature": "quiz_practice_std",
+      "plain_name": "Variability in Practice quiz activity",
+      "mean_abs_shap": 0.001321,
+      "mean_abs_points": 0.13
+    },
+    {
+      "rank": 93,
+      "feature": "study_consistency_p2",
+      "plain_name": "Study schedule consistency (Period 2)",
+      "mean_abs_shap": 0.001306,
+      "mean_abs_points": 0.13
+    },
+    {
+      "rank": 94,
+      "feature": "quiz_practice_mean",
+      "plain_name": "Average Practice quiz activity",
+      "mean_abs_shap": 0.001305,
+      "mean_abs_points": 0.13
+    },
+    {
+      "rank": 95,
+      "feature": "participation_p1",
+      "plain_name": "Interactive participation (Period 1)",
+      "mean_abs_shap": 0.001301,
+      "mean_abs_points": 0.13
+    },
+    {
+      "rank": 96,
+      "feature": "assignment_engagement_p1",
+      "plain_name": "Assignment preparation (Period 1)",
+      "mean_abs_shap": 0.001283,
+      "mean_abs_points": 0.13
+    },
+    {
+      "rank": 97,
+      "feature": "assignment_engagement_reversals",
+      "plain_name": "Direction Changes in Assignment preparation",
+      "mean_abs_shap": 0.001263,
+      "mean_abs_points": 0.13
+    },
+    {
+      "rank": 98,
+      "feature": "review_time_max",
+      "plain_name": "Peak Review time",
+      "mean_abs_shap": 0.001211,
+      "mean_abs_points": 0.12
+    },
+    {
+      "rank": 99,
+      "feature": "study_consistency_p3",
+      "plain_name": "Study schedule consistency (Period 3)",
+      "mean_abs_shap": 0.001138,
+      "mean_abs_points": 0.11
+    },
+    {
+      "rank": 100,
+      "feature": "review_time_p1",
+      "plain_name": "Review time (Period 1)",
+      "mean_abs_shap": 0.00113,
+      "mean_abs_points": 0.11
+    }
+  ],
+  "grouped_importance": {
+    "by_indicator": {
+      "resource_access": {
+        "total_shap": 0.040784,
+        "share_pct": 15.27
+      },
+      "composite": {
+        "total_shap": 0.038518,
+        "share_pct": 14.42
+      },
+      "review_time": {
+        "total_shap": 0.037623,
+        "share_pct": 14.08
+      },
+      "study_consistency": {
+        "total_shap": 0.032549,
+        "share_pct": 12.18
+      },
+      "participation": {
+        "total_shap": 0.031123,
+        "share_pct": 11.65
+      },
+      "assignment_engagement": {
+        "total_shap": 0.030478,
+        "share_pct": 11.41
+      },
+      "study_time": {
+        "total_shap": 0.028869,
+        "share_pct": 10.81
+      },
+      "quiz_practice": {
+        "total_shap": 0.027219,
+        "share_pct": 10.19
+      }
+    },
+    "by_period": {
+      "Overall": {
+        "total_shap": 0.178615,
+        "share_pct": 66.86
+      },
+      "P4": {
+        "total_shap": 0.025049,
+        "share_pct": 9.38
+      },
+      "P3": {
+        "total_shap": 0.022508,
+        "share_pct": 8.42
+      },
+      "P2": {
+        "total_shap": 0.02162,
+        "share_pct": 8.09
+      },
+      "P1": {
+        "total_shap": 0.01937,
+        "share_pct": 7.25
+      }
+    },
+    "by_family": {
+      "aggregates_drift": {
+        "total_shap": 0.189538,
+        "share_pct": 70.95
+      },
+      "raw_answers": {
+        "total_shap": 0.077624,
+        "share_pct": 29.05
+      }
+    }
+  },
+  "tree_hybrid_audit": {
+    "hybrid_model_id": "random_forest_hybrid",
+    "state_features_importance_share_pct": 0.0,
+    "aggregates_importance_share_pct": 100.0,
+    "top_interactions": [
+      {
+        "feature_1": "resource_access_p4",
+        "feature_2": "composite_p4",
+        "mean_abs_interaction": 0.001532
+      },
+      {
+        "feature_1": "composite_p4",
+        "feature_2": "posterior_p4_state_1",
+        "mean_abs_interaction": 0.001447
+      },
+      {
+        "feature_1": "composite_last_value",
+        "feature_2": "posterior_p4_state_1",
+        "mean_abs_interaction": 0.00111
+      },
+      {
+        "feature_1": "resource_access_p4",
+        "feature_2": "composite_last_value",
+        "mean_abs_interaction": 0.001081
+      },
+      {
+        "feature_1": "composite_p4",
+        "feature_2": "posterior_p4_state_3",
+        "mean_abs_interaction": 0.000694
+      },
+      {
+        "feature_1": "resource_access_p4",
+        "feature_2": "posterior_p4_state_3",
+        "mean_abs_interaction": 0.000606
+      },
+      {
+        "feature_1": "composite_p4",
+        "feature_2": "composite_last_value",
+        "mean_abs_interaction": 0.00054
+      },
+      {
+        "feature_1": "posterior_p4_state_1",
+        "feature_2": "posterior_p4_state_3",
+        "mean_abs_interaction": 0.000539
+      },
+      {
+        "feature_1": "composite_last_value",
+        "feature_2": "posterior_p4_state_3",
+        "mean_abs_interaction": 0.000492
+      },
+      {
+        "feature_1": "resource_access_p4",
+        "feature_2": "posterior_p4_state_1",
+        "mean_abs_interaction": 0.000442
+      }
+    ]
+  }
+}
