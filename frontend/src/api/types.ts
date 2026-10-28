@@ -500,3 +500,85 @@ export interface JobStatusResponse {
   result?: Record<string, any> | null;
   error?: string | null;
 }
+
+// ---------------------------------------------------------------------------
+// Retraining & Model Governance
+// ---------------------------------------------------------------------------
+
+export interface RetrainValidateResponse {
+  upload_id: string;
+  filename: string;
+  total_rows: number;
+  usable_rows: number;
+  class_balance: {
+    at_risk_count: number;
+    not_at_risk_count: number;
+    at_risk_pct: number;
+  };
+  missingness: {
+    overall_missing_pct: number;
+    mapped_questions_count: number;
+  };
+  warnings: string[];
+  estimated_time_min: number;
+  traffic_light: "GREEN" | "AMBER" | "RED" | string;
+  is_refusal: boolean;
+  refusal_reason: string | null;
+  can_proceed: boolean;
+  guards: {
+    can_retrain: boolean;
+    refusal_reason: string | null;
+    traffic_light: string;
+    is_small_cohort: boolean;
+    cv_scheme: string;
+    cv_folds_count: number;
+    is_imbalanced: boolean;
+    use_class_weights: boolean;
+    disabled_models: string[];
+    warnings: string[];
+  };
+}
+
+export interface RetrainStartResponse {
+  job_id: string;
+  status: string;
+  mode: string;
+  dataset_name: string;
+}
+
+export interface RunComparisonResponse {
+  run_a: {
+    run_id: string;
+    data_source: string;
+    n_students: number;
+    created_at: string;
+    champion: Record<string, any>;
+    leaderboard: LeaderboardRow[];
+  };
+  run_b: {
+    run_id: string;
+    data_source: string;
+    n_students: number;
+    created_at: string;
+    champion: Record<string, any>;
+    leaderboard: LeaderboardRow[];
+  };
+  comparison: {
+    champion_changed: boolean;
+    champion_a: string;
+    champion_b: string;
+    cv_score_diff: number;
+    test_f1_diff: number;
+    rank_changes: Array<{
+      model_id: string;
+      display_name: string;
+      category: string;
+      old_rank: number | null;
+      new_rank: number;
+      rank_delta: number | null;
+      score: number;
+    }>;
+    verdict_summary: string;
+    is_recommended: boolean;
+  };
+}

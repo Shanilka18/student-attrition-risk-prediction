@@ -19,6 +19,9 @@ import type {
   StudentDetailResponse,
   SingleScoreRequest,
   SingleScoreResponse,
+  RetrainValidateResponse,
+  RetrainStartResponse,
+  RunComparisonResponse,
 } from './types';
 
 export const queryKeys = {
@@ -232,4 +235,96 @@ export function getDownloadProblemsUrl(uploadId: string, format: 'xlsx' | 'csv' 
 export function getTemplateDownloadUrl(format: 'xlsx' | 'csv' = 'xlsx'): string {
   const base = import.meta.env.VITE_API_BASE || '';
   return `${base}/api/template?format=${format}`;
+}
+
+// ---------------------------------------------------------------------------
+// Retraining & Model Governance
+// ---------------------------------------------------------------------------
+
+export const retrainQueryKeys = {
+  runs: ['runs'] as const,
+  runsCompare: (a: string, b: string) => ['runs-compare', a, b] as const,
+  retrainJob: (jobId: string) => ['retrain-job', jobId] as const,
+};
+
+/** Validate an uploaded survey file before starting retraining. */
+export function useValidateRetrainFile() {
+  return useMutation<RetrainValidateResponse, Error, File>({
+    mutationFn: async (file: File) => {
+      const form = new FormData();
+      form.append('file', file);
+      return apiFetch<RetrainValidateResponse>('/api/retrain/validate', {
+        method: 'POST',
+        body: form,
+      });
+    },
+  });
+}
+
+/** Launch background retraining job. */
+export function useStartRetraining() {
+  const queryClient = useQueryClient();
+  return useMutation<
+    RetrainStartResponse,
+    Error,
+    { upload_id: string; mode: 'quick' | 'full'; seed?: number; options?: Record<string, any> }
+  >({
+    mutationFn: async (req) => {
+      return apiFetch<RetrainStartResponse>('/api/retrain/start', {
+        method: 'POST',
+        body: JSON.stringify(req),
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['runs'] });
+    },
+  });
+}
+
+/** Poll retraining job status. */
+export function useRetrainJobStatus(jobId: string | null, enabled = true) {
+  return useQuery<JobStatusResponse>({
+    queryKey: retrainQueryKeys.retrainJob(jobId ?? ''),
+    queryFn: () => apiFetch<JobStatusResponse>(`/api/retrain/${jobId}/status`),
+    enabled: enabled && Boolean(jobId),
+    refetchInterval: 3_000,
+    staleTime: 0,
+  });
+}
+
+/** Cancel a running retraining job. */
+export function useCancelRetraining() {
+  return useMutation<{ job_id: string; status: string }, Error, string>({
+    mutationFn: async (jobId: string) => {
+      return apiFetch(`/api/retrain/${jobId}/cancel`, { method: 'POST' });
+    },
+  });
+}
+
+/** Activate a retrained run as the operational champion. */
+export function useActivateRun() {
+  const queryClient = useQueryClient();
+  return useMutation<Record<string, any>, Error, { run_id: string; actor?: string }>({
+    mutationFn: async ({ run_id, actor = 'Web UI Administrator' }) => {
+      return apiFetch('/api/retrain/activate', {
+        method: 'POST',
+        body: JSON.stringify({ run_id, actor }),
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['status'] });
+      queryClient.invalidateQueries({ queryKey: ['runs'] });
+    },
+  });
+}
+
+/** Side-by-side run comparison. */
+export function useRunsCompare(runA: string | null, runB: string | null) {
+  return useQuery<RunComparisonResponse>({
+    queryKey: retrainQueryKeys.runsCompare(runA ?? '', runB ?? ''),
+    queryFn: () =>
+      apiFetch<RunComparisonResponse>(`/api/runs/compare?a=${runA}&b=${runB}`),
+    enabled: Boolean(runA && runB),
+    staleTime: 30_000,
+  });
 }
