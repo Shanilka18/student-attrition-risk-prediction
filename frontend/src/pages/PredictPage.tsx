@@ -13,6 +13,8 @@ import {
   Trash2,
   HelpCircle,
   FileText,
+  ExternalLink,
+  Code2,
 } from 'lucide-react';
 import {
   ResponsiveContainer,
@@ -629,6 +631,95 @@ export const PredictPage: React.FC = () => {
           )}
         </div>
       )}
+
+      {/* ── Integration & Data Resources ── */}
+      <section className="border-t border-slate-800/80 pt-8 mt-10">
+        <div className="mb-4">
+          <h3 className="text-sm font-bold text-slate-200 uppercase tracking-wider flex items-center gap-2">
+            <Download className="w-4 h-4 text-indigo-400" />
+            Data Templates & Integration Resources
+          </h3>
+          <p className="text-xs text-slate-400 mt-0.5">
+            Download observation templates, review model performance benchmarks, or access system API endpoints.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Card 1: Upload Template (CSV) */}
+          <div className="rounded-xl border border-slate-800 bg-slate-900/40 p-5 space-y-3">
+            <div className="w-10 h-10 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
+              <Code2 className="w-5 h-5" />
+            </div>
+            <div>
+              <h4 className="font-bold text-sm text-white">Upload Template (CSV)</h4>
+              <p className="text-xs text-slate-400 mt-1">
+                Canonical schema-compliant CSV template containing pre-formatted semester observation examples.
+              </p>
+            </div>
+            <a
+              href={api.getTemplateUrl()}
+              download="academic_observation_template.csv"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium border border-slate-700 transition-colors"
+            >
+              <Download className="w-3.5 h-3.5" />
+              Download Template CSV
+            </a>
+          </div>
+
+          {/* Card 2: Full Leaderboard (CSV) */}
+          <div className="rounded-xl border border-slate-800 bg-slate-900/40 p-5 space-y-3">
+            <div className="w-10 h-10 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center">
+              <FileSpreadsheet className="w-5 h-5" />
+            </div>
+            <div>
+              <h4 className="font-bold text-sm text-white">Full Leaderboard (CSV)</h4>
+              <p className="text-xs text-slate-400 mt-1">
+                Test set evaluation metrics, composite ranks, and inference latency for all registered models.
+              </p>
+            </div>
+            <a
+              href="/leaderboard"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium border border-slate-700 transition-colors"
+            >
+              <Download className="w-3.5 h-3.5" />
+              View Leaderboard JSON
+            </a>
+          </div>
+
+          {/* Card 3: OpenAPI Documentation */}
+          <div className="rounded-xl border border-slate-800 bg-slate-900/40 p-5 space-y-3">
+            <div className="w-10 h-10 rounded-lg bg-purple-500/10 text-purple-400 flex items-center justify-center">
+              <ExternalLink className="w-5 h-5" />
+            </div>
+            <div>
+              <h4 className="font-bold text-sm text-white">OpenAPI Documentation</h4>
+              <p className="text-xs text-slate-400 mt-1">
+                Interactive Swagger UI and ReDoc endpoints for system integration and contract validation.
+              </p>
+            </div>
+            <div className="flex gap-2">
+              <a
+                href="http://127.0.0.1:8000/docs"
+                target="_blank"
+                rel="noreferrer"
+                className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium border border-slate-700 transition-colors"
+              >
+                Swagger UI
+              </a>
+              <a
+                href="http://127.0.0.1:8000/redoc"
+                target="_blank"
+                rel="noreferrer"
+                className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium border border-slate-700 transition-colors"
+              >
+                ReDoc
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 };

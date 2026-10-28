@@ -16,7 +16,6 @@ import { LeaderboardPage } from './pages/LeaderboardPage';
 import { EarlyWarningPage } from './pages/EarlyWarningPage';
 import { ExplainabilityPage } from './pages/ExplainabilityPage';
 import { PredictPage } from './pages/PredictPage';
-import { ExportPage } from './pages/ExportPage';
 
 export function AppContent() {
   const [currentPage, setCurrentPage] = useState<PageId>('overview');
@@ -68,8 +67,6 @@ export function AppContent() {
         {currentPage === 'explainability' && <ExplainabilityPage />}
 
         {currentPage === 'predict' && <PredictPage />}
-
-        {currentPage === 'export' && <ExportPage dataSummary={dataSummary} />}
       </main>
 
       {/* 3. Footer */}

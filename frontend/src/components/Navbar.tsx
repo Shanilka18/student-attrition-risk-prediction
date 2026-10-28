@@ -11,7 +11,6 @@ import {
   Clock,
   Sparkles,
   UploadCloud,
-  Download,
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import type { HealthResponse, MetaResponse } from '../api/client';
@@ -22,8 +21,7 @@ export type PageId =
   | 'leaderboard'
   | 'early-warning'
   | 'explainability'
-  | 'predict'
-  | 'export';
+  | 'predict';
 
 interface NavbarProps {
   currentPage: PageId;
@@ -47,7 +45,6 @@ export const Navbar: React.FC<NavbarProps> = ({
     { id: 'early-warning', label: 'Early Warning', icon: <Clock className="w-4 h-4" /> },
     { id: 'explainability', label: 'Explainability', icon: <Sparkles className="w-4 h-4" /> },
     { id: 'predict', label: 'PREDICT (Upload)', icon: <UploadCloud className="w-4 h-4" /> },
-    { id: 'export', label: 'Export Center', icon: <Download className="w-4 h-4" /> },
   ];
 
   return (
