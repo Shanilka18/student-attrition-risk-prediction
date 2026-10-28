@@ -1,0 +1,73 @@
+@import '@fontsource/source-serif-4/400.css';
+@import '@fontsource/source-serif-4/600.css';
+@import '@fontsource/public-sans/400.css';
+@import '@fontsource/public-sans/500.css';
+@import '@fontsource/public-sans/600.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  *, ::before, ::after {
+    border-color: #DDD8CE;
+  }
+
+  html {
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    background-color: #F5F2EC;
+    color: #1A1D21;
+    font-family: 'Public Sans', system-ui, -apple-system, sans-serif;
+    font-size: 15px;
+    line-height: 24px;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Universal tabular numerals for metrics and statistics */
+  .tabular-nums,
+  table,
+  td,
+  th,
+  .metric-value {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Keyboard focus styles: 2px forest outline */
+  :focus-visible {
+    outline: 2px solid #1F4E46;
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  /* Subtle scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #F5F2EC;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #DDD8CE;
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #5B6168;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
