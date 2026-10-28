@@ -1,0 +1,714 @@
+assignment_engagement_last_minus_first:
+  plain_name: Net Change in Assignment preparation (P4 vs P1)
+  risk_decreasing: Engagement with assignment preparation and timely completion in
+    period 4 matched or surpassed period 1 levels
+  risk_increasing: Engagement with assignment preparation and timely completion ended
+    noticeably lower in period 4 than in period 1
+assignment_engagement_last_minus_mean_first_two:
+  plain_name: Recent vs Early Assignment preparation
+  risk_decreasing: Recent activity in assignment preparation and timely completion
+    remained strong relative to early terms
+  risk_increasing: Recent activity in assignment preparation and timely completion
+    dropped compared to the first half of the course
+assignment_engagement_max:
+  plain_name: Peak Assignment preparation
+  risk_decreasing: Demonstrated high peak capability and strong engagement with assignment
+    preparation and timely completion
+  risk_increasing: Peak engagement with assignment preparation and timely completion
+    remained modest across all terms
+assignment_engagement_mean:
+  plain_name: Average Assignment preparation
+  risk_decreasing: Consistently devoted steady time and effort to assignment preparation
+    and timely completion
+  risk_increasing: Average time and effort devoted to assignment preparation and timely
+    completion was below class average
+assignment_engagement_min:
+  plain_name: Lowest Assignment preparation
+  risk_decreasing: Maintained an acceptable baseline of engagement with assignment
+    preparation and timely completion even in low periods
+  risk_increasing: Experienced at least one period with minimal engagement in assignment
+    preparation and timely completion
+assignment_engagement_p1:
+  plain_name: Assignment preparation (Period 1)
+  risk_decreasing: Maintained healthy engagement with assignment preparation and timely
+    completion during period 1
+  risk_increasing: Engagement with assignment preparation and timely completion was
+    relatively low during period 1
+assignment_engagement_p2:
+  plain_name: Assignment preparation (Period 2)
+  risk_decreasing: Maintained healthy engagement with assignment preparation and timely
+    completion during period 2
+  risk_increasing: Engagement with assignment preparation and timely completion was
+    relatively low during period 2
+assignment_engagement_p3:
+  plain_name: Assignment preparation (Period 3)
+  risk_decreasing: Maintained healthy engagement with assignment preparation and timely
+    completion during period 3
+  risk_increasing: Engagement with assignment preparation and timely completion was
+    relatively low during period 3
+assignment_engagement_p4:
+  plain_name: Assignment preparation (Period 4)
+  risk_decreasing: Maintained healthy engagement with assignment preparation and timely
+    completion during period 4
+  risk_increasing: Engagement with assignment preparation and timely completion was
+    relatively low during period 4
+assignment_engagement_reversals:
+  plain_name: Direction Changes in Assignment preparation
+  risk_decreasing: Effort in assignment preparation and timely completion followed
+    a smooth, consistent trajectory
+  risk_increasing: Effort in assignment preparation and timely completion alternated
+    up and down frequently between periods
+assignment_engagement_slope:
+  plain_name: Trajectory Slope of Assignment preparation
+  risk_decreasing: Participation in assignment preparation and timely completion remained
+    steady or improved from period 1 to period 4
+  risk_increasing: Participation in assignment preparation and timely completion showed
+    a downward trend from period 1 to period 4
+assignment_engagement_std:
+  plain_name: Variability in Assignment preparation
+  risk_decreasing: Maintained stable and predictable participation in assignment preparation
+    and timely completion
+  risk_increasing: Activity in assignment preparation and timely completion fluctuated
+    considerably from term to term
+cluster_affinity_0:
+  plain_name: Affinity to Behavioral Profile Cluster 1
+  risk_decreasing: Low membership affinity with vulnerable historical cluster 1
+  risk_increasing: High membership affinity with historical pattern cluster 1
+cluster_affinity_1:
+  plain_name: Affinity to Behavioral Profile Cluster 2
+  risk_decreasing: Low membership affinity with vulnerable historical cluster 2
+  risk_increasing: High membership affinity with historical pattern cluster 2
+cluster_affinity_2:
+  plain_name: Affinity to Behavioral Profile Cluster 3
+  risk_decreasing: Low membership affinity with vulnerable historical cluster 3
+  risk_increasing: High membership affinity with historical pattern cluster 3
+cluster_affinity_3:
+  plain_name: Affinity to Behavioral Profile Cluster 4
+  risk_decreasing: Low membership affinity with vulnerable historical cluster 4
+  risk_increasing: High membership affinity with historical pattern cluster 4
+cluster_affinity_4:
+  plain_name: Affinity to Behavioral Profile Cluster 5
+  risk_decreasing: Low membership affinity with vulnerable historical cluster 5
+  risk_increasing: High membership affinity with historical pattern cluster 5
+cluster_affinity_5:
+  plain_name: Affinity to Behavioral Profile Cluster 6
+  risk_decreasing: Low membership affinity with vulnerable historical cluster 6
+  risk_increasing: High membership affinity with historical pattern cluster 6
+composite_auc:
+  plain_name: Cumulative Term Engagement
+  risk_decreasing: Accumulated substantial continuous engagement across all academic
+    periods
+  risk_increasing: Total cumulative engagement across all academic periods was lower
+    than peer average
+composite_drop_from_best_to_last:
+  plain_name: Drop from Peak Engagement
+  risk_decreasing: Maintained recent engagement close to peak historical levels
+  risk_increasing: Recent engagement declined substantially compared to the student's
+    highest-performing term
+composite_last_value:
+  plain_name: Recent Overall Engagement (Period 4)
+  risk_decreasing: Concluded the final term (period 4) with solid, positive overall
+    engagement
+  risk_increasing: Most recent overall engagement level (period 4) ended below average
+composite_max_drop:
+  plain_name: Maximum Term-to-Term Drop
+  risk_decreasing: Avoided sharp engagement declines between consecutive terms
+  risk_increasing: Experienced a noticeable decline in engagement between consecutive
+    terms
+composite_mean:
+  plain_name: Overall Term Engagement Level
+  risk_decreasing: Maintained a strong overall multi-term engagement level across
+    all course activities
+  risk_increasing: Overall multi-term engagement level across all course activities
+    was lower than average
+composite_p1:
+  plain_name: Overall Engagement Level (Period 1)
+  risk_decreasing: Maintained positive composite engagement across activities in period
+    1
+  risk_increasing: Composite engagement across course activities was low in period
+    1
+composite_p2:
+  plain_name: Overall Engagement Level (Period 2)
+  risk_decreasing: Maintained positive composite engagement across activities in period
+    2
+  risk_increasing: Composite engagement across course activities was low in period
+    2
+composite_p3:
+  plain_name: Overall Engagement Level (Period 3)
+  risk_decreasing: Maintained positive composite engagement across activities in period
+    3
+  risk_increasing: Composite engagement across course activities was low in period
+    3
+composite_p4:
+  plain_name: Overall Engagement Level (Period 4)
+  risk_decreasing: Maintained positive composite engagement across activities in period
+    4
+  risk_increasing: Composite engagement across course activities was low in period
+    4
+composite_reversals:
+  plain_name: Engagement Trend Fluctuations
+  risk_decreasing: Engagement pattern followed a consistent and steady progression
+    across terms
+  risk_increasing: Overall engagement pattern shifted back and forth across terms
+composite_slope:
+  plain_name: Overall Engagement Trajectory
+  risk_decreasing: Overall engagement trajectory shows stable or increasing momentum
+    over terms
+  risk_increasing: Overall engagement trajectory shows a downward trend over the course
+    terms
+composite_std:
+  plain_name: Overall Engagement Volatility
+  risk_decreasing: Maintained steady, even engagement levels across terms without
+    sudden swings
+  risk_increasing: Overall course engagement experienced substantial variability across
+    terms
+dist_cluster_0:
+  plain_name: Distance to Behavioral Profile Cluster 1
+  risk_decreasing: Longitudinal profile aligns closely with resilient historical cluster
+    1
+  risk_increasing: Longitudinal profile aligns closely with higher-risk historical
+    cluster 1
+dist_cluster_1:
+  plain_name: Distance to Behavioral Profile Cluster 2
+  risk_decreasing: Longitudinal profile aligns closely with resilient historical cluster
+    2
+  risk_increasing: Longitudinal profile aligns closely with higher-risk historical
+    cluster 2
+dist_cluster_2:
+  plain_name: Distance to Behavioral Profile Cluster 3
+  risk_decreasing: Longitudinal profile aligns closely with resilient historical cluster
+    3
+  risk_increasing: Longitudinal profile aligns closely with higher-risk historical
+    cluster 3
+dist_cluster_3:
+  plain_name: Distance to Behavioral Profile Cluster 4
+  risk_decreasing: Longitudinal profile aligns closely with resilient historical cluster
+    4
+  risk_increasing: Longitudinal profile aligns closely with higher-risk historical
+    cluster 4
+dist_cluster_4:
+  plain_name: Distance to Behavioral Profile Cluster 5
+  risk_decreasing: Longitudinal profile aligns closely with resilient historical cluster
+    5
+  risk_increasing: Longitudinal profile aligns closely with higher-risk historical
+    cluster 5
+dist_cluster_5:
+  plain_name: Distance to Behavioral Profile Cluster 6
+  risk_decreasing: Longitudinal profile aligns closely with resilient historical cluster
+    6
+  risk_increasing: Longitudinal profile aligns closely with higher-risk historical
+    cluster 6
+hmm_current_state_0:
+  plain_name: Current Low Engagement State Indicator
+  risk_decreasing: Not categorized in the low-engagement state in the most recent
+    term
+  risk_increasing: Currently categorized in the low-engagement state in the most recent
+    term
+hmm_current_state_1:
+  plain_name: Current Moderate Engagement State Indicator
+  risk_decreasing: Not categorized in the moderate-engagement state in the most recent
+    term
+  risk_increasing: Currently categorized in the moderate-engagement state in the most
+    recent term
+hmm_current_state_2:
+  plain_name: Current High Engagement State Indicator
+  risk_decreasing: Not categorized in the high-engagement state in the most recent
+    term
+  risk_increasing: Currently categorized in the high-engagement state in the most
+    recent term
+hmm_dwell_state_0:
+  plain_name: Dwell Time in Low State
+  risk_decreasing: Spent minimal or zero duration in the low-engagement behavioral
+    state
+  risk_increasing: Spent an extended duration in the low-engagement behavioral state
+hmm_dwell_state_1:
+  plain_name: Dwell Time in Moderate State
+  risk_decreasing: Spent minimal or zero duration in the moderate-engagement behavioral
+    state
+  risk_increasing: Spent an extended duration in the moderate-engagement behavioral
+    state
+hmm_dwell_state_2:
+  plain_name: Dwell Time in High State
+  risk_decreasing: Spent minimal or zero duration in the high-engagement behavioral
+    state
+  risk_increasing: Spent an extended duration in the high-engagement behavioral state
+hmm_entropy:
+  plain_name: Engagement State Uncertainty (Entropy)
+  risk_decreasing: Clear and predictable behavioral state adherence across terms
+  risk_increasing: High behavioral unpredictability across different engagement states
+hmm_n_transitions:
+  plain_name: State Transition Count
+  risk_decreasing: Stable behavioral state continuity across academic terms
+  risk_increasing: Frequent transitions between differing engagement states across
+    terms
+hmm_prob_state_0:
+  plain_name: Probability of Low Engagement State
+  risk_decreasing: Low probability of falling into the low-engagement behavioral state
+  risk_increasing: High probability of occupying the low-engagement behavioral state
+hmm_prob_state_1:
+  plain_name: Probability of Moderate Engagement State
+  risk_decreasing: Low probability of falling into the moderate-engagement behavioral
+    state
+  risk_increasing: High probability of occupying the moderate-engagement behavioral
+    state
+hmm_prob_state_2:
+  plain_name: Probability of High Engagement State
+  risk_decreasing: Low probability of falling into the high-engagement behavioral
+    state
+  risk_increasing: High probability of occupying the high-engagement behavioral state
+missing_review_time_p1:
+  plain_name: Missing Response on Review time (Period 1)
+  risk_decreasing: Provided complete survey feedback on lecture review and recap time
+    in period 1
+  risk_increasing: Did not submit response regarding lecture review and recap time
+    in period 1
+missing_review_time_p2:
+  plain_name: Missing Response on Review time (Period 2)
+  risk_decreasing: Provided complete survey feedback on lecture review and recap time
+    in period 2
+  risk_increasing: Did not submit response regarding lecture review and recap time
+    in period 2
+missing_review_time_p3:
+  plain_name: Missing Response on Review time (Period 3)
+  risk_decreasing: Provided complete survey feedback on lecture review and recap time
+    in period 3
+  risk_increasing: Did not submit response regarding lecture review and recap time
+    in period 3
+missing_review_time_p4:
+  plain_name: Missing Response on Review time (Period 4)
+  risk_decreasing: Provided complete survey feedback on lecture review and recap time
+    in period 4
+  risk_increasing: Did not submit response regarding lecture review and recap time
+    in period 4
+participation_last_minus_first:
+  plain_name: Net Change in Interactive participation (P4 vs P1)
+  risk_decreasing: Engagement with discussion, forum, and classroom interactive activities
+    in period 4 matched or surpassed period 1 levels
+  risk_increasing: Engagement with discussion, forum, and classroom interactive activities
+    ended noticeably lower in period 4 than in period 1
+participation_last_minus_mean_first_two:
+  plain_name: Recent vs Early Interactive participation
+  risk_decreasing: Recent activity in discussion, forum, and classroom interactive
+    activities remained strong relative to early terms
+  risk_increasing: Recent activity in discussion, forum, and classroom interactive
+    activities dropped compared to the first half of the course
+participation_max:
+  plain_name: Peak Interactive participation
+  risk_decreasing: Demonstrated high peak capability and strong engagement with discussion,
+    forum, and classroom interactive activities
+  risk_increasing: Peak engagement with discussion, forum, and classroom interactive
+    activities remained modest across all terms
+participation_mean:
+  plain_name: Average Interactive participation
+  risk_decreasing: Consistently devoted steady time and effort to discussion, forum,
+    and classroom interactive activities
+  risk_increasing: Average time and effort devoted to discussion, forum, and classroom
+    interactive activities was below class average
+participation_min:
+  plain_name: Lowest Interactive participation
+  risk_decreasing: Maintained an acceptable baseline of engagement with discussion,
+    forum, and classroom interactive activities even in low periods
+  risk_increasing: Experienced at least one period with minimal engagement in discussion,
+    forum, and classroom interactive activities
+participation_p1:
+  plain_name: Interactive participation (Period 1)
+  risk_decreasing: Maintained healthy engagement with discussion, forum, and classroom
+    interactive activities during period 1
+  risk_increasing: Engagement with discussion, forum, and classroom interactive activities
+    was relatively low during period 1
+participation_p2:
+  plain_name: Interactive participation (Period 2)
+  risk_decreasing: Maintained healthy engagement with discussion, forum, and classroom
+    interactive activities during period 2
+  risk_increasing: Engagement with discussion, forum, and classroom interactive activities
+    was relatively low during period 2
+participation_p3:
+  plain_name: Interactive participation (Period 3)
+  risk_decreasing: Maintained healthy engagement with discussion, forum, and classroom
+    interactive activities during period 3
+  risk_increasing: Engagement with discussion, forum, and classroom interactive activities
+    was relatively low during period 3
+participation_p4:
+  plain_name: Interactive participation (Period 4)
+  risk_decreasing: Maintained healthy engagement with discussion, forum, and classroom
+    interactive activities during period 4
+  risk_increasing: Engagement with discussion, forum, and classroom interactive activities
+    was relatively low during period 4
+participation_reversals:
+  plain_name: Direction Changes in Interactive participation
+  risk_decreasing: Effort in discussion, forum, and classroom interactive activities
+    followed a smooth, consistent trajectory
+  risk_increasing: Effort in discussion, forum, and classroom interactive activities
+    alternated up and down frequently between periods
+participation_slope:
+  plain_name: Trajectory Slope of Interactive participation
+  risk_decreasing: Participation in discussion, forum, and classroom interactive activities
+    remained steady or improved from period 1 to period 4
+  risk_increasing: Participation in discussion, forum, and classroom interactive activities
+    showed a downward trend from period 1 to period 4
+participation_std:
+  plain_name: Variability in Interactive participation
+  risk_decreasing: Maintained stable and predictable participation in discussion,
+    forum, and classroom interactive activities
+  risk_increasing: Activity in discussion, forum, and classroom interactive activities
+    fluctuated considerably from term to term
+quiz_practice_last_minus_first:
+  plain_name: Net Change in Practice quiz activity (P4 vs P1)
+  risk_decreasing: Engagement with practice quizzes and self-assessment exercises
+    in period 4 matched or surpassed period 1 levels
+  risk_increasing: Engagement with practice quizzes and self-assessment exercises
+    ended noticeably lower in period 4 than in period 1
+quiz_practice_last_minus_mean_first_two:
+  plain_name: Recent vs Early Practice quiz activity
+  risk_decreasing: Recent activity in practice quizzes and self-assessment exercises
+    remained strong relative to early terms
+  risk_increasing: Recent activity in practice quizzes and self-assessment exercises
+    dropped compared to the first half of the course
+quiz_practice_max:
+  plain_name: Peak Practice quiz activity
+  risk_decreasing: Demonstrated high peak capability and strong engagement with practice
+    quizzes and self-assessment exercises
+  risk_increasing: Peak engagement with practice quizzes and self-assessment exercises
+    remained modest across all terms
+quiz_practice_mean:
+  plain_name: Average Practice quiz activity
+  risk_decreasing: Consistently devoted steady time and effort to practice quizzes
+    and self-assessment exercises
+  risk_increasing: Average time and effort devoted to practice quizzes and self-assessment
+    exercises was below class average
+quiz_practice_min:
+  plain_name: Lowest Practice quiz activity
+  risk_decreasing: Maintained an acceptable baseline of engagement with practice quizzes
+    and self-assessment exercises even in low periods
+  risk_increasing: Experienced at least one period with minimal engagement in practice
+    quizzes and self-assessment exercises
+quiz_practice_p1:
+  plain_name: Practice quiz activity (Period 1)
+  risk_decreasing: Maintained healthy engagement with practice quizzes and self-assessment
+    exercises during period 1
+  risk_increasing: Engagement with practice quizzes and self-assessment exercises
+    was relatively low during period 1
+quiz_practice_p2:
+  plain_name: Practice quiz activity (Period 2)
+  risk_decreasing: Maintained healthy engagement with practice quizzes and self-assessment
+    exercises during period 2
+  risk_increasing: Engagement with practice quizzes and self-assessment exercises
+    was relatively low during period 2
+quiz_practice_p3:
+  plain_name: Practice quiz activity (Period 3)
+  risk_decreasing: Maintained healthy engagement with practice quizzes and self-assessment
+    exercises during period 3
+  risk_increasing: Engagement with practice quizzes and self-assessment exercises
+    was relatively low during period 3
+quiz_practice_p4:
+  plain_name: Practice quiz activity (Period 4)
+  risk_decreasing: Maintained healthy engagement with practice quizzes and self-assessment
+    exercises during period 4
+  risk_increasing: Engagement with practice quizzes and self-assessment exercises
+    was relatively low during period 4
+quiz_practice_reversals:
+  plain_name: Direction Changes in Practice quiz activity
+  risk_decreasing: Effort in practice quizzes and self-assessment exercises followed
+    a smooth, consistent trajectory
+  risk_increasing: Effort in practice quizzes and self-assessment exercises alternated
+    up and down frequently between periods
+quiz_practice_slope:
+  plain_name: Trajectory Slope of Practice quiz activity
+  risk_decreasing: Participation in practice quizzes and self-assessment exercises
+    remained steady or improved from period 1 to period 4
+  risk_increasing: Participation in practice quizzes and self-assessment exercises
+    showed a downward trend from period 1 to period 4
+quiz_practice_std:
+  plain_name: Variability in Practice quiz activity
+  risk_decreasing: Maintained stable and predictable participation in practice quizzes
+    and self-assessment exercises
+  risk_increasing: Activity in practice quizzes and self-assessment exercises fluctuated
+    considerably from term to term
+resource_access_last_minus_first:
+  plain_name: Net Change in Learning material access (P4 vs P1)
+  risk_decreasing: Engagement with course learning materials and resources in period
+    4 matched or surpassed period 1 levels
+  risk_increasing: Engagement with course learning materials and resources ended noticeably
+    lower in period 4 than in period 1
+resource_access_last_minus_mean_first_two:
+  plain_name: Recent vs Early Learning material access
+  risk_decreasing: Recent activity in course learning materials and resources remained
+    strong relative to early terms
+  risk_increasing: Recent activity in course learning materials and resources dropped
+    compared to the first half of the course
+resource_access_max:
+  plain_name: Peak Learning material access
+  risk_decreasing: Demonstrated high peak capability and strong engagement with course
+    learning materials and resources
+  risk_increasing: Peak engagement with course learning materials and resources remained
+    modest across all terms
+resource_access_mean:
+  plain_name: Average Learning material access
+  risk_decreasing: Consistently devoted steady time and effort to course learning
+    materials and resources
+  risk_increasing: Average time and effort devoted to course learning materials and
+    resources was below class average
+resource_access_min:
+  plain_name: Lowest Learning material access
+  risk_decreasing: Maintained an acceptable baseline of engagement with course learning
+    materials and resources even in low periods
+  risk_increasing: Experienced at least one period with minimal engagement in course
+    learning materials and resources
+resource_access_p1:
+  plain_name: Learning material access (Period 1)
+  risk_decreasing: Maintained healthy engagement with course learning materials and
+    resources during period 1
+  risk_increasing: Engagement with course learning materials and resources was relatively
+    low during period 1
+resource_access_p2:
+  plain_name: Learning material access (Period 2)
+  risk_decreasing: Maintained healthy engagement with course learning materials and
+    resources during period 2
+  risk_increasing: Engagement with course learning materials and resources was relatively
+    low during period 2
+resource_access_p3:
+  plain_name: Learning material access (Period 3)
+  risk_decreasing: Maintained healthy engagement with course learning materials and
+    resources during period 3
+  risk_increasing: Engagement with course learning materials and resources was relatively
+    low during period 3
+resource_access_p4:
+  plain_name: Learning material access (Period 4)
+  risk_decreasing: Maintained healthy engagement with course learning materials and
+    resources during period 4
+  risk_increasing: Engagement with course learning materials and resources was relatively
+    low during period 4
+resource_access_reversals:
+  plain_name: Direction Changes in Learning material access
+  risk_decreasing: Effort in course learning materials and resources followed a smooth,
+    consistent trajectory
+  risk_increasing: Effort in course learning materials and resources alternated up
+    and down frequently between periods
+resource_access_slope:
+  plain_name: Trajectory Slope of Learning material access
+  risk_decreasing: Participation in course learning materials and resources remained
+    steady or improved from period 1 to period 4
+  risk_increasing: Participation in course learning materials and resources showed
+    a downward trend from period 1 to period 4
+resource_access_std:
+  plain_name: Variability in Learning material access
+  risk_decreasing: Maintained stable and predictable participation in course learning
+    materials and resources
+  risk_increasing: Activity in course learning materials and resources fluctuated
+    considerably from term to term
+review_time_last_minus_first:
+  plain_name: Net Change in Review time (P4 vs P1)
+  risk_decreasing: Engagement with lecture review and recap time in period 4 matched
+    or surpassed period 1 levels
+  risk_increasing: Engagement with lecture review and recap time ended noticeably
+    lower in period 4 than in period 1
+review_time_last_minus_mean_first_two:
+  plain_name: Recent vs Early Review time
+  risk_decreasing: Recent activity in lecture review and recap time remained strong
+    relative to early terms
+  risk_increasing: Recent activity in lecture review and recap time dropped compared
+    to the first half of the course
+review_time_max:
+  plain_name: Peak Review time
+  risk_decreasing: Demonstrated high peak capability and strong engagement with lecture
+    review and recap time
+  risk_increasing: Peak engagement with lecture review and recap time remained modest
+    across all terms
+review_time_mean:
+  plain_name: Average Review time
+  risk_decreasing: Consistently devoted steady time and effort to lecture review and
+    recap time
+  risk_increasing: Average time and effort devoted to lecture review and recap time
+    was below class average
+review_time_min:
+  plain_name: Lowest Review time
+  risk_decreasing: Maintained an acceptable baseline of engagement with lecture review
+    and recap time even in low periods
+  risk_increasing: Experienced at least one period with minimal engagement in lecture
+    review and recap time
+review_time_p1:
+  plain_name: Review time (Period 1)
+  risk_decreasing: Maintained healthy engagement with lecture review and recap time
+    during period 1
+  risk_increasing: Engagement with lecture review and recap time was relatively low
+    during period 1
+review_time_p2:
+  plain_name: Review time (Period 2)
+  risk_decreasing: Maintained healthy engagement with lecture review and recap time
+    during period 2
+  risk_increasing: Engagement with lecture review and recap time was relatively low
+    during period 2
+review_time_p3:
+  plain_name: Review time (Period 3)
+  risk_decreasing: Maintained healthy engagement with lecture review and recap time
+    during period 3
+  risk_increasing: Engagement with lecture review and recap time was relatively low
+    during period 3
+review_time_p4:
+  plain_name: Review time (Period 4)
+  risk_decreasing: Maintained healthy engagement with lecture review and recap time
+    during period 4
+  risk_increasing: Engagement with lecture review and recap time was relatively low
+    during period 4
+review_time_reversals:
+  plain_name: Direction Changes in Review time
+  risk_decreasing: Effort in lecture review and recap time followed a smooth, consistent
+    trajectory
+  risk_increasing: Effort in lecture review and recap time alternated up and down
+    frequently between periods
+review_time_slope:
+  plain_name: Trajectory Slope of Review time
+  risk_decreasing: Participation in lecture review and recap time remained steady
+    or improved from period 1 to period 4
+  risk_increasing: Participation in lecture review and recap time showed a downward
+    trend from period 1 to period 4
+review_time_std:
+  plain_name: Variability in Review time
+  risk_decreasing: Maintained stable and predictable participation in lecture review
+    and recap time
+  risk_increasing: Activity in lecture review and recap time fluctuated considerably
+    from term to term
+study_consistency_last_minus_first:
+  plain_name: Net Change in Study schedule consistency (P4 vs P1)
+  risk_decreasing: Engagement with study schedule regularity and weekly pacing in
+    period 4 matched or surpassed period 1 levels
+  risk_increasing: Engagement with study schedule regularity and weekly pacing ended
+    noticeably lower in period 4 than in period 1
+study_consistency_last_minus_mean_first_two:
+  plain_name: Recent vs Early Study schedule consistency
+  risk_decreasing: Recent activity in study schedule regularity and weekly pacing
+    remained strong relative to early terms
+  risk_increasing: Recent activity in study schedule regularity and weekly pacing
+    dropped compared to the first half of the course
+study_consistency_max:
+  plain_name: Peak Study schedule consistency
+  risk_decreasing: Demonstrated high peak capability and strong engagement with study
+    schedule regularity and weekly pacing
+  risk_increasing: Peak engagement with study schedule regularity and weekly pacing
+    remained modest across all terms
+study_consistency_mean:
+  plain_name: Average Study schedule consistency
+  risk_decreasing: Consistently devoted steady time and effort to study schedule regularity
+    and weekly pacing
+  risk_increasing: Average time and effort devoted to study schedule regularity and
+    weekly pacing was below class average
+study_consistency_min:
+  plain_name: Lowest Study schedule consistency
+  risk_decreasing: Maintained an acceptable baseline of engagement with study schedule
+    regularity and weekly pacing even in low periods
+  risk_increasing: Experienced at least one period with minimal engagement in study
+    schedule regularity and weekly pacing
+study_consistency_p1:
+  plain_name: Study schedule consistency (Period 1)
+  risk_decreasing: Maintained healthy engagement with study schedule regularity and
+    weekly pacing during period 1
+  risk_increasing: Engagement with study schedule regularity and weekly pacing was
+    relatively low during period 1
+study_consistency_p2:
+  plain_name: Study schedule consistency (Period 2)
+  risk_decreasing: Maintained healthy engagement with study schedule regularity and
+    weekly pacing during period 2
+  risk_increasing: Engagement with study schedule regularity and weekly pacing was
+    relatively low during period 2
+study_consistency_p3:
+  plain_name: Study schedule consistency (Period 3)
+  risk_decreasing: Maintained healthy engagement with study schedule regularity and
+    weekly pacing during period 3
+  risk_increasing: Engagement with study schedule regularity and weekly pacing was
+    relatively low during period 3
+study_consistency_p4:
+  plain_name: Study schedule consistency (Period 4)
+  risk_decreasing: Maintained healthy engagement with study schedule regularity and
+    weekly pacing during period 4
+  risk_increasing: Engagement with study schedule regularity and weekly pacing was
+    relatively low during period 4
+study_consistency_reversals:
+  plain_name: Direction Changes in Study schedule consistency
+  risk_decreasing: Effort in study schedule regularity and weekly pacing followed
+    a smooth, consistent trajectory
+  risk_increasing: Effort in study schedule regularity and weekly pacing alternated
+    up and down frequently between periods
+study_consistency_slope:
+  plain_name: Trajectory Slope of Study schedule consistency
+  risk_decreasing: Participation in study schedule regularity and weekly pacing remained
+    steady or improved from period 1 to period 4
+  risk_increasing: Participation in study schedule regularity and weekly pacing showed
+    a downward trend from period 1 to period 4
+study_consistency_std:
+  plain_name: Variability in Study schedule consistency
+  risk_decreasing: Maintained stable and predictable participation in study schedule
+    regularity and weekly pacing
+  risk_increasing: Activity in study schedule regularity and weekly pacing fluctuated
+    considerably from term to term
+study_time_last_minus_first:
+  plain_name: Net Change in Study hours (P4 vs P1)
+  risk_decreasing: Engagement with dedicated independent study hours in period 4 matched
+    or surpassed period 1 levels
+  risk_increasing: Engagement with dedicated independent study hours ended noticeably
+    lower in period 4 than in period 1
+study_time_last_minus_mean_first_two:
+  plain_name: Recent vs Early Study hours
+  risk_decreasing: Recent activity in dedicated independent study hours remained strong
+    relative to early terms
+  risk_increasing: Recent activity in dedicated independent study hours dropped compared
+    to the first half of the course
+study_time_max:
+  plain_name: Peak Study hours
+  risk_decreasing: Demonstrated high peak capability and strong engagement with dedicated
+    independent study hours
+  risk_increasing: Peak engagement with dedicated independent study hours remained
+    modest across all terms
+study_time_mean:
+  plain_name: Average Study hours
+  risk_decreasing: Consistently devoted steady time and effort to dedicated independent
+    study hours
+  risk_increasing: Average time and effort devoted to dedicated independent study
+    hours was below class average
+study_time_min:
+  plain_name: Lowest Study hours
+  risk_decreasing: Maintained an acceptable baseline of engagement with dedicated
+    independent study hours even in low periods
+  risk_increasing: Experienced at least one period with minimal engagement in dedicated
+    independent study hours
+study_time_p1:
+  plain_name: Study hours (Period 1)
+  risk_decreasing: Maintained healthy engagement with dedicated independent study
+    hours during period 1
+  risk_increasing: Engagement with dedicated independent study hours was relatively
+    low during period 1
+study_time_p2:
+  plain_name: Study hours (Period 2)
+  risk_decreasing: Maintained healthy engagement with dedicated independent study
+    hours during period 2
+  risk_increasing: Engagement with dedicated independent study hours was relatively
+    low during period 2
+study_time_p3:
+  plain_name: Study hours (Period 3)
+  risk_decreasing: Maintained healthy engagement with dedicated independent study
+    hours during period 3
+  risk_increasing: Engagement with dedicated independent study hours was relatively
+    low during period 3
+study_time_p4:
+  plain_name: Study hours (Period 4)
+  risk_decreasing: Maintained healthy engagement with dedicated independent study
+    hours during period 4
+  risk_increasing: Engagement with dedicated independent study hours was relatively
+    low during period 4
+study_time_reversals:
+  plain_name: Direction Changes in Study hours
+  risk_decreasing: Effort in dedicated independent study hours followed a smooth,
+    consistent trajectory
+  risk_increasing: Effort in dedicated independent study hours alternated up and down
+    frequently between periods
+study_time_slope:
+  plain_name: Trajectory Slope of Study hours
+  risk_decreasing: Participation in dedicated independent study hours remained steady
+    or improved from period 1 to period 4
+  risk_increasing: Participation in dedicated independent study hours showed a downward
+    trend from period 1 to period 4
+study_time_std:
+  plain_name: Variability in Study hours
+  risk_decreasing: Maintained stable and predictable participation in dedicated independent
+    study hours
+  risk_increasing: Activity in dedicated independent study hours fluctuated considerably
+    from term to term

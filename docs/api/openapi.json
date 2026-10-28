@@ -1,0 +1,2965 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Multimodal Student Engagement Intelligence (MEI) API",
+    "description": "Research-grade analytical API serving real model artifacts, cross-validation leaderboards, longitudinal trajectory patterns, SHAP explainability insights, and student cohort scoring. Component ID: KND_CDAP_IT_05.",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/health": {
+      "get": {
+        "tags": [
+          "Status"
+        ],
+        "summary": "Get Health",
+        "description": "Service health check returning server time and active run identifier.",
+        "operationId": "get_health_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/status": {
+      "get": {
+        "tags": [
+          "Status"
+        ],
+        "summary": "Get Status",
+        "description": "Get active run status, training data origin, cohort size, and champion essentials.",
+        "operationId": "get_status_api_status_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/leaderboard": {
+      "get": {
+        "tags": [
+          "Leaderboard"
+        ],
+        "summary": "Get Leaderboard",
+        "description": "Return model leaderboard with real metrics, generalization gaps, and status flags.",
+        "operationId": "get_leaderboard_api_leaderboard_get",
+        "parameters": [
+          {
+            "name": "track",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Track: 'classification' or 'regression'",
+              "default": "classification",
+              "title": "Track"
+            },
+            "description": "Track: 'classification' or 'regression'"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LeaderboardResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/categories/best": {
+      "get": {
+        "tags": [
+          "Leaderboard"
+        ],
+        "summary": "Get Categories Best",
+        "description": "Return best performing model per architectural category.",
+        "operationId": "get_categories_best_api_categories_best_get",
+        "parameters": [
+          {
+            "name": "track",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Track: 'classification' or 'regression'",
+              "default": "classification",
+              "title": "Track"
+            },
+            "description": "Track: 'classification' or 'regression'"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "title": "Response Get Categories Best Api Categories Best Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/models/{model_id}": {
+      "get": {
+        "tags": [
+          "Leaderboard"
+        ],
+        "summary": "Get Model Detail",
+        "description": "Return comprehensive metric breakdown, hyperparameters, and split details for a model.",
+        "operationId": "get_model_detail_api_models__model_id__get",
+        "parameters": [
+          {
+            "name": "model_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Model Id"
+            }
+          },
+          {
+            "name": "track",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Track: 'classification' or 'regression'",
+              "default": "classification",
+              "title": "Track"
+            },
+            "description": "Track: 'classification' or 'regression'"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModelDetailResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/models/{model_id}/curves": {
+      "get": {
+        "tags": [
+          "Leaderboard"
+        ],
+        "summary": "Get Model Curves",
+        "description": "Return ROC/PR/calibration curves, deep learning epoch curves, or boosting iteration losses.",
+        "operationId": "get_model_curves_api_models__model_id__curves_get",
+        "parameters": [
+          {
+            "name": "model_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Model Id"
+            }
+          },
+          {
+            "name": "track",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Track: 'classification' or 'regression'",
+              "default": "classification",
+              "title": "Track"
+            },
+            "description": "Track: 'classification' or 'regression'"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModelCurvesResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/compare": {
+      "get": {
+        "tags": [
+          "Leaderboard"
+        ],
+        "summary": "Compare Models",
+        "description": "Side-by-side metric and configuration comparison for up to 4 models.",
+        "operationId": "compare_models_api_compare_get",
+        "parameters": [
+          {
+            "name": "ids",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Comma-separated list of up to 4 model IDs to compare",
+              "title": "Ids"
+            },
+            "description": "Comma-separated list of up to 4 model IDs to compare"
+          },
+          {
+            "name": "track",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Track: 'classification' or 'regression'",
+              "default": "classification",
+              "title": "Track"
+            },
+            "description": "Track: 'classification' or 'regression'"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompareModelsResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/patterns": {
+      "get": {
+        "tags": [
+          "Insights"
+        ],
+        "summary": "Get Patterns",
+        "description": "Return hidden Markov states, transition dynamics, behavioral patterns, trajectories, and risk rates.",
+        "operationId": "get_patterns_api_patterns_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EngagementPatternsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/drivers": {
+      "get": {
+        "tags": [
+          "Insights"
+        ],
+        "summary": "Get Drivers",
+        "description": "Return global feature rankings, grouped importance, fold consistency, and web point clouds.",
+        "operationId": "get_drivers_api_drivers_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RiskDriversResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/template": {
+      "get": {
+        "tags": [
+          "Scoring"
+        ],
+        "summary": "Get Survey Template",
+        "description": "Download clean, blank standardized questionnaire template.",
+        "operationId": "get_survey_template_api_template_get",
+        "parameters": [
+          {
+            "name": "format",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Template file format: 'xlsx' or 'csv'",
+              "default": "xlsx",
+              "title": "Format"
+            },
+            "description": "Template file format: 'xlsx' or 'csv'"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/dictionary": {
+      "get": {
+        "tags": [
+          "Scoring"
+        ],
+        "summary": "Get Dictionary",
+        "description": "Return comprehensive data dictionary with questions, options, and canonical keys.",
+        "operationId": "get_dictionary_api_dictionary_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DictionaryResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/score/validate": {
+      "post": {
+        "tags": [
+          "Scoring"
+        ],
+        "summary": "Validate Upload",
+        "description": "Ingest uploaded survey table, validate size and format, and perform header auto-mapping.",
+        "operationId": "validate_upload_api_score_validate_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_validate_upload_api_score_validate_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidateUploadResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/score/run": {
+      "post": {
+        "tags": [
+          "Scoring"
+        ],
+        "summary": "Run Scoring",
+        "description": "Execute batch MEI scoring with optional user mapping overrides and outcome validation.",
+        "operationId": "run_scoring_api_score_run_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RunScoringRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunScoringResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/score/{upload_id}/results": {
+      "get": {
+        "tags": [
+          "Scoring"
+        ],
+        "summary": "Get Scoring Results",
+        "description": "Return paginated, sorted, and filtered scoring results.",
+        "operationId": "get_scoring_results_api_score__upload_id__results_get",
+        "parameters": [
+          {
+            "name": "upload_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Upload Id"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Page number",
+              "default": 1,
+              "title": "Page"
+            },
+            "description": "Page number"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 500,
+              "minimum": 1,
+              "description": "Rows per page",
+              "default": 50,
+              "title": "Page Size"
+            },
+            "description": "Rows per page"
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Column to sort by: 'mei', 'student_id', 'band'",
+              "default": "mei",
+              "title": "Sort"
+            },
+            "description": "Column to sort by: 'mei', 'student_id', 'band'"
+          },
+          {
+            "name": "direction",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Sort direction: 'asc' or 'desc'",
+              "default": "desc",
+              "title": "Direction"
+            },
+            "description": "Sort direction: 'asc' or 'desc'"
+          },
+          {
+            "name": "filter_band",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by risk band: 'Low', 'Moderate', 'High'",
+              "title": "Filter Band"
+            },
+            "description": "Filter by risk band: 'Low', 'Moderate', 'High'"
+          },
+          {
+            "name": "filter_flag",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by at-risk flag: 'Yes' or 'No'",
+              "title": "Filter Flag"
+            },
+            "description": "Filter by at-risk flag: 'Yes' or 'No'"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedScoredRows"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/score/{upload_id}/download": {
+      "get": {
+        "tags": [
+          "Scoring"
+        ],
+        "summary": "Download Scoring Results",
+        "description": "Download scored cohort results table with reasons concatenated.",
+        "operationId": "download_scoring_results_api_score__upload_id__download_get",
+        "parameters": [
+          {
+            "name": "upload_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Upload Id"
+            }
+          },
+          {
+            "name": "format",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Download format: 'xlsx' or 'csv'",
+              "default": "xlsx",
+              "title": "Format"
+            },
+            "description": "Download format: 'xlsx' or 'csv'"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/score/single": {
+      "post": {
+        "tags": [
+          "Scoring"
+        ],
+        "summary": "Score Single Student",
+        "description": "Score a single student survey response and return full explanation vector for a waterfall chart.",
+        "operationId": "score_single_student_api_score_single_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SingleScoreRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SingleScoreResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/runs": {
+      "get": {
+        "tags": [
+          "Runs"
+        ],
+        "summary": "List Runs",
+        "description": "List all available pipeline runs with training origins and champion summaries.",
+        "operationId": "list_runs_api_runs_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunsListResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/runs/{id}/activate": {
+      "post": {
+        "tags": [
+          "Runs"
+        ],
+        "summary": "Activate Run",
+        "description": "Switch the globally active run. Automatically clears all in-memory caches.",
+        "operationId": "activate_run_api_runs__id__activate_post",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/jobs": {
+      "get": {
+        "tags": [
+          "Jobs"
+        ],
+        "summary": "List Jobs",
+        "description": "List all registered background jobs sorted by creation time.",
+        "operationId": "list_jobs_api_jobs_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/JobStatusResponse"
+                  },
+                  "type": "array",
+                  "title": "Response List Jobs Api Jobs Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/jobs/{job_id}": {
+      "get": {
+        "tags": [
+          "Jobs"
+        ],
+        "summary": "Get Job Status",
+        "description": "Fetch live progress, message, and execution state for a background job.",
+        "operationId": "get_job_status_api_jobs__job_id__get",
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Job Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobStatusResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/jobs/{job_id}/cancel": {
+      "post": {
+        "tags": [
+          "Jobs"
+        ],
+        "summary": "Cancel Job",
+        "description": "Request graceful cancellation of a running background job.",
+        "operationId": "cancel_job_api_jobs__job_id__cancel_post",
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Job Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "title": "Response Cancel Job Api Jobs  Job Id  Cancel Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/": {
+      "get": {
+        "summary": "Serve Spa Root",
+        "operationId": "serve_spa_root__get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/{full_path}": {
+      "get": {
+        "summary": "Serve Spa",
+        "operationId": "serve_spa__full_path__get",
+        "parameters": [
+          {
+            "name": "full_path",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Full Path"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Body_validate_upload_api_score_validate_post": {
+        "properties": {
+          "file": {
+            "type": "string",
+            "format": "binary",
+            "title": "File"
+          }
+        },
+        "type": "object",
+        "required": [
+          "file"
+        ],
+        "title": "Body_validate_upload_api_score_validate_post"
+      },
+      "ChampionSummary": {
+        "properties": {
+          "model_id": {
+            "type": "string",
+            "title": "Model Id"
+          },
+          "display_name": {
+            "type": "string",
+            "title": "Display Name"
+          },
+          "plain_name": {
+            "type": "string",
+            "title": "Plain Name"
+          },
+          "category": {
+            "type": "string",
+            "title": "Category"
+          },
+          "test_f1": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Test F1"
+          },
+          "test_auc_roc": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Test Auc Roc"
+          },
+          "test_mcc": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Test Mcc"
+          },
+          "cv_score": {
+            "type": "number",
+            "title": "Cv Score"
+          },
+          "cv_f1": {
+            "type": "number",
+            "title": "Cv F1"
+          },
+          "optimal_threshold": {
+            "type": "number",
+            "title": "Optimal Threshold"
+          },
+          "inference_time_ms": {
+            "type": "number",
+            "title": "Inference Time Ms"
+          },
+          "calibrator": {
+            "type": "string",
+            "title": "Calibrator"
+          },
+          "band_verification_monotonic": {
+            "type": "boolean",
+            "title": "Band Verification Monotonic"
+          }
+        },
+        "type": "object",
+        "required": [
+          "model_id",
+          "display_name",
+          "plain_name",
+          "category",
+          "cv_score",
+          "cv_f1",
+          "optimal_threshold",
+          "inference_time_ms",
+          "calibrator",
+          "band_verification_monotonic"
+        ],
+        "title": "ChampionSummary",
+        "description": "Essential details of the frozen champion model."
+      },
+      "CompareModelsResponse": {
+        "properties": {
+          "track": {
+            "type": "string",
+            "title": "Track"
+          },
+          "model_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Model Ids"
+          },
+          "models": {
+            "items": {
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Models"
+          },
+          "metrics_comparison": {
+            "additionalProperties": {
+              "type": "object"
+            },
+            "type": "object",
+            "title": "Metrics Comparison"
+          }
+        },
+        "type": "object",
+        "required": [
+          "track",
+          "model_ids",
+          "models",
+          "metrics_comparison"
+        ],
+        "title": "CompareModelsResponse",
+        "description": "Side-by-side comparison payload for up to 4 models."
+      },
+      "DictionaryItem": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "type": {
+            "type": "string",
+            "title": "Type"
+          },
+          "role": {
+            "type": "string",
+            "title": "Role"
+          },
+          "period": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Period"
+          },
+          "indicator": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Indicator"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "allowed_codes": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "integer"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Allowed Codes"
+          },
+          "text_labels": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Text Labels"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "type",
+          "role",
+          "description"
+        ],
+        "title": "DictionaryItem",
+        "description": "Data dictionary column entry."
+      },
+      "DictionaryResponse": {
+        "properties": {
+          "version": {
+            "type": "string",
+            "title": "Version"
+          },
+          "num_columns": {
+            "type": "integer",
+            "title": "Num Columns"
+          },
+          "num_features": {
+            "type": "integer",
+            "title": "Num Features"
+          },
+          "num_outcomes": {
+            "type": "integer",
+            "title": "Num Outcomes"
+          },
+          "columns": {
+            "items": {
+              "$ref": "#/components/schemas/DictionaryItem"
+            },
+            "type": "array",
+            "title": "Columns"
+          }
+        },
+        "type": "object",
+        "required": [
+          "version",
+          "num_columns",
+          "num_features",
+          "num_outcomes",
+          "columns"
+        ],
+        "title": "DictionaryResponse",
+        "description": "Complete data dictionary schema."
+      },
+      "EngagementPatternsResponse": {
+        "properties": {
+          "active_run_id": {
+            "type": "string",
+            "title": "Active Run Id"
+          },
+          "hmm_k": {
+            "type": "integer",
+            "title": "Hmm K"
+          },
+          "clustering_k": {
+            "type": "integer",
+            "title": "Clustering K"
+          },
+          "state_names": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "State Names"
+          },
+          "transition_matrix": {
+            "items": {
+              "items": {
+                "type": "number"
+              },
+              "type": "array"
+            },
+            "type": "array",
+            "title": "Transition Matrix"
+          },
+          "emission_means": {
+            "anyOf": [
+              {
+                "items": {
+                  "items": {
+                    "type": "number"
+                  },
+                  "type": "array"
+                },
+                "type": "array"
+              },
+              {
+                "additionalProperties": {
+                  "items": {
+                    "type": "number"
+                  },
+                  "type": "array"
+                },
+                "type": "object"
+              }
+            ],
+            "title": "Emission Means"
+          },
+          "expected_dwell_times": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "type": "object",
+            "title": "Expected Dwell Times"
+          },
+          "pattern_distribution": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object",
+            "title": "Pattern Distribution"
+          },
+          "level_distribution": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object",
+            "title": "Level Distribution"
+          },
+          "mean_trajectories_by_pattern": {
+            "additionalProperties": {
+              "additionalProperties": {
+                "type": "number"
+              },
+              "type": "object"
+            },
+            "type": "object",
+            "title": "Mean Trajectories By Pattern"
+          },
+          "risk_rates_by_pattern": {
+            "additionalProperties": {
+              "type": "object"
+            },
+            "type": "object",
+            "title": "Risk Rates By Pattern"
+          },
+          "clustering_comparison_table": {
+            "items": {
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Clustering Comparison Table"
+          },
+          "ablation_benchmark": {
+            "type": "object",
+            "title": "Ablation Benchmark"
+          }
+        },
+        "type": "object",
+        "required": [
+          "active_run_id",
+          "hmm_k",
+          "clustering_k",
+          "state_names",
+          "transition_matrix",
+          "emission_means",
+          "expected_dwell_times",
+          "pattern_distribution",
+          "level_distribution",
+          "mean_trajectories_by_pattern",
+          "risk_rates_by_pattern",
+          "clustering_comparison_table",
+          "ablation_benchmark"
+        ],
+        "title": "EngagementPatternsResponse",
+        "description": "Engagement states, transition dynamics, and cohort patterns."
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "HealthResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "description": "API health status",
+            "default": "healthy"
+          },
+          "timestamp": {
+            "type": "string",
+            "title": "Timestamp",
+            "description": "Current ISO 8601 server timestamp"
+          },
+          "version": {
+            "type": "string",
+            "title": "Version",
+            "description": "MEI API contract version",
+            "default": "1.0.0"
+          },
+          "active_run_id": {
+            "type": "string",
+            "title": "Active Run Id",
+            "description": "Active pipeline run identifier"
+          }
+        },
+        "type": "object",
+        "required": [
+          "timestamp",
+          "active_run_id"
+        ],
+        "title": "HealthResponse",
+        "description": "Health check response schema."
+      },
+      "JobStatusResponse": {
+        "properties": {
+          "job_id": {
+            "type": "string",
+            "title": "Job Id"
+          },
+          "job_type": {
+            "type": "string",
+            "title": "Job Type"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "progress": {
+            "type": "number",
+            "title": "Progress"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "created_at": {
+            "type": "string",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "title": "Updated At"
+          },
+          "result": {
+            "anyOf": [
+              {
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Result"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          }
+        },
+        "type": "object",
+        "required": [
+          "job_id",
+          "job_type",
+          "status",
+          "progress",
+          "message",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "JobStatusResponse",
+        "description": "Status payload for asynchronous background task."
+      },
+      "LeaderboardResponse": {
+        "properties": {
+          "track": {
+            "type": "string",
+            "title": "Track"
+          },
+          "active_run_id": {
+            "type": "string",
+            "title": "Active Run Id"
+          },
+          "total_models": {
+            "type": "integer",
+            "title": "Total Models"
+          },
+          "metric_name": {
+            "type": "string",
+            "title": "Metric Name"
+          },
+          "champion_id": {
+            "type": "string",
+            "title": "Champion Id"
+          },
+          "rows": {
+            "items": {
+              "$ref": "#/components/schemas/LeaderboardRow"
+            },
+            "type": "array",
+            "title": "Rows"
+          }
+        },
+        "type": "object",
+        "required": [
+          "track",
+          "active_run_id",
+          "total_models",
+          "metric_name",
+          "champion_id",
+          "rows"
+        ],
+        "title": "LeaderboardResponse",
+        "description": "Full leaderboard response for classification or regression."
+      },
+      "LeaderboardRow": {
+        "properties": {
+          "rank": {
+            "type": "integer",
+            "title": "Rank"
+          },
+          "model_id": {
+            "type": "string",
+            "title": "Model Id"
+          },
+          "display_name": {
+            "type": "string",
+            "title": "Display Name"
+          },
+          "plain_name": {
+            "type": "string",
+            "title": "Plain Name"
+          },
+          "category": {
+            "type": "string",
+            "title": "Category"
+          },
+          "feature_set": {
+            "type": "string",
+            "title": "Feature Set"
+          },
+          "leaderboard_score": {
+            "type": "number",
+            "title": "Leaderboard Score"
+          },
+          "generalization_gap": {
+            "type": "number",
+            "title": "Generalization Gap"
+          },
+          "overfit_status": {
+            "type": "string",
+            "title": "Overfit Status"
+          },
+          "val_f1_optimal": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Val F1 Optimal"
+          },
+          "val_auc_roc": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Val Auc Roc"
+          },
+          "val_balanced_accuracy": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Val Balanced Accuracy"
+          },
+          "val_mcc": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Val Mcc"
+          },
+          "val_precision": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Val Precision"
+          },
+          "val_recall": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Val Recall"
+          },
+          "val_brier_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Val Brier Score"
+          },
+          "val_ece": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Val Ece"
+          },
+          "train_f1_mean": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Train F1 Mean"
+          },
+          "optimal_threshold": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Optimal Threshold"
+          },
+          "val_r2": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Val R2"
+          },
+          "val_rmse": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Val Rmse"
+          },
+          "val_mae": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Val Mae"
+          },
+          "val_spearman_rho": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Val Spearman Rho"
+          },
+          "val_within_10_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Val Within 10 Pct"
+          },
+          "train_r2_mean": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Train R2 Mean"
+          },
+          "test_f1": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Test F1"
+          },
+          "test_auc_roc": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Test Auc Roc"
+          },
+          "test_mcc": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Test Mcc"
+          },
+          "test_r2": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Test R2"
+          },
+          "test_rmse": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Test Rmse"
+          },
+          "test_spearman_rho": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Test Spearman Rho"
+          },
+          "training_time_s": {
+            "type": "number",
+            "title": "Training Time S"
+          },
+          "inference_time_ms": {
+            "type": "number",
+            "title": "Inference Time Ms"
+          },
+          "is_champion": {
+            "type": "boolean",
+            "title": "Is Champion",
+            "default": false
+          },
+          "is_category_best": {
+            "type": "boolean",
+            "title": "Is Category Best",
+            "default": false
+          },
+          "is_remediated": {
+            "type": "boolean",
+            "title": "Is Remediated",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "rank",
+          "model_id",
+          "display_name",
+          "plain_name",
+          "category",
+          "feature_set",
+          "leaderboard_score",
+          "generalization_gap",
+          "overfit_status",
+          "training_time_s",
+          "inference_time_ms"
+        ],
+        "title": "LeaderboardRow",
+        "description": "Single model benchmark row on leaderboard."
+      },
+      "ModelCurvesResponse": {
+        "properties": {
+          "model_id": {
+            "type": "string",
+            "title": "Model Id"
+          },
+          "track": {
+            "type": "string",
+            "title": "Track"
+          },
+          "category": {
+            "type": "string",
+            "title": "Category"
+          },
+          "roc_fpr": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "number"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Roc Fpr"
+          },
+          "roc_tpr": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "number"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Roc Tpr"
+          },
+          "pr_precision": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "number"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pr Precision"
+          },
+          "pr_recall": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "number"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pr Recall"
+          },
+          "cal_prob_true": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "number"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cal Prob True"
+          },
+          "cal_prob_pred": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "number"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cal Prob Pred"
+          },
+          "epoch_curves": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "items": {
+                    "type": "number"
+                  },
+                  "type": "array"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Epoch Curves"
+          },
+          "best_epoch": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Best Epoch"
+          },
+          "stage_2_start_epoch": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stage 2 Start Epoch"
+          },
+          "stage_2_used": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stage 2 Used"
+          },
+          "overfitting_zone": {
+            "anyOf": [
+              {
+                "type": "object"
+              },
+              {
+                "items": {},
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Overfitting Zone"
+          },
+          "iteration_losses": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "items": {
+                    "type": "number"
+                  },
+                  "type": "array"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Iteration Losses"
+          },
+          "learning_curves": {
+            "anyOf": [
+              {
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Learning Curves"
+          },
+          "validation_curves": {
+            "anyOf": [
+              {
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Validation Curves"
+          },
+          "remediation_comparison": {
+            "anyOf": [
+              {
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Remediation Comparison"
+          }
+        },
+        "type": "object",
+        "required": [
+          "model_id",
+          "track",
+          "category"
+        ],
+        "title": "ModelCurvesResponse",
+        "description": "Training, epoch, and metric curves for visualizations."
+      },
+      "ModelDetailResponse": {
+        "properties": {
+          "model_id": {
+            "type": "string",
+            "title": "Model Id"
+          },
+          "display_name": {
+            "type": "string",
+            "title": "Display Name"
+          },
+          "plain_name": {
+            "type": "string",
+            "title": "Plain Name"
+          },
+          "category": {
+            "type": "string",
+            "title": "Category"
+          },
+          "track": {
+            "type": "string",
+            "title": "Track"
+          },
+          "feature_set": {
+            "type": "string",
+            "title": "Feature Set"
+          },
+          "leaderboard_score": {
+            "type": "number",
+            "title": "Leaderboard Score"
+          },
+          "generalization_gap": {
+            "type": "number",
+            "title": "Generalization Gap"
+          },
+          "overfit_status": {
+            "type": "string",
+            "title": "Overfit Status"
+          },
+          "status_explanation": {
+            "type": "string",
+            "title": "Status Explanation"
+          },
+          "hyperparameters": {
+            "type": "object",
+            "title": "Hyperparameters"
+          },
+          "training_time_s": {
+            "type": "number",
+            "title": "Training Time S"
+          },
+          "inference_time_ms": {
+            "type": "number",
+            "title": "Inference Time Ms"
+          },
+          "metrics": {
+            "type": "object",
+            "title": "Metrics"
+          },
+          "fold_metrics": {
+            "items": {
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Fold Metrics"
+          },
+          "confusion_matrix_raw": {
+            "anyOf": [
+              {
+                "items": {
+                  "items": {
+                    "type": "integer"
+                  },
+                  "type": "array"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Confusion Matrix Raw"
+          },
+          "confusion_matrix_norm": {
+            "anyOf": [
+              {
+                "items": {
+                  "items": {
+                    "type": "number"
+                  },
+                  "type": "array"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Confusion Matrix Norm"
+          },
+          "threshold_table": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Threshold Table"
+          },
+          "test_metrics": {
+            "anyOf": [
+              {
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Test Metrics"
+          }
+        },
+        "type": "object",
+        "required": [
+          "model_id",
+          "display_name",
+          "plain_name",
+          "category",
+          "track",
+          "feature_set",
+          "leaderboard_score",
+          "generalization_gap",
+          "overfit_status",
+          "status_explanation",
+          "hyperparameters",
+          "training_time_s",
+          "inference_time_ms",
+          "metrics",
+          "fold_metrics"
+        ],
+        "title": "ModelDetailResponse",
+        "description": "Comprehensive performance and configuration detail for a single model."
+      },
+      "PaginatedScoredRows": {
+        "properties": {
+          "upload_id": {
+            "type": "string",
+            "title": "Upload Id"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "page": {
+            "type": "integer",
+            "title": "Page"
+          },
+          "page_size": {
+            "type": "integer",
+            "title": "Page Size"
+          },
+          "total_pages": {
+            "type": "integer",
+            "title": "Total Pages"
+          },
+          "rows": {
+            "items": {
+              "$ref": "#/components/schemas/ScoredStudentRow"
+            },
+            "type": "array",
+            "title": "Rows"
+          }
+        },
+        "type": "object",
+        "required": [
+          "upload_id",
+          "total",
+          "page",
+          "page_size",
+          "total_pages",
+          "rows"
+        ],
+        "title": "PaginatedScoredRows",
+        "description": "Paginated view of student scoring results."
+      },
+      "RiskDriversResponse": {
+        "properties": {
+          "active_run_id": {
+            "type": "string",
+            "title": "Active Run Id"
+          },
+          "baseline_probability": {
+            "type": "number",
+            "title": "Baseline Probability"
+          },
+          "baseline_mei": {
+            "type": "number",
+            "title": "Baseline Mei"
+          },
+          "validation_ranking": {
+            "items": {
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Validation Ranking"
+          },
+          "test_ranking": {
+            "items": {
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Test Ranking"
+          },
+          "grouped_importance": {
+            "type": "object",
+            "title": "Grouped Importance"
+          },
+          "shap_consistency": {
+            "type": "object",
+            "title": "Shap Consistency"
+          },
+          "cross_method_comparison": {
+            "type": "object",
+            "title": "Cross Method Comparison"
+          },
+          "pattern_importance": {
+            "type": "object",
+            "title": "Pattern Importance"
+          },
+          "tree_hybrid_audit": {
+            "anyOf": [
+              {
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tree Hybrid Audit"
+          },
+          "beeswarm_samples": {
+            "items": {
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Beeswarm Samples"
+          },
+          "dependence_samples": {
+            "additionalProperties": {
+              "items": {
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "type": "object",
+            "title": "Dependence Samples"
+          }
+        },
+        "type": "object",
+        "required": [
+          "active_run_id",
+          "baseline_probability",
+          "baseline_mei",
+          "validation_ranking",
+          "test_ranking",
+          "grouped_importance",
+          "shap_consistency",
+          "cross_method_comparison",
+          "pattern_importance",
+          "beeswarm_samples",
+          "dependence_samples"
+        ],
+        "title": "RiskDriversResponse",
+        "description": "Global, grouped, and cohort-stratified feature attribution drivers."
+      },
+      "RunScoringRequest": {
+        "properties": {
+          "upload_id": {
+            "type": "string",
+            "title": "Upload Id"
+          },
+          "mapping_overrides": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mapping Overrides"
+          }
+        },
+        "type": "object",
+        "required": [
+          "upload_id"
+        ],
+        "title": "RunScoringRequest",
+        "description": "Request payload to trigger batch scoring on validated upload."
+      },
+      "RunScoringResponse": {
+        "properties": {
+          "upload_id": {
+            "type": "string",
+            "title": "Upload Id"
+          },
+          "total_rows": {
+            "type": "integer",
+            "title": "Total Rows"
+          },
+          "scored_count": {
+            "type": "integer",
+            "title": "Scored Count"
+          },
+          "unscored_count": {
+            "type": "integer",
+            "title": "Unscored Count"
+          },
+          "risk_distribution": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object",
+            "title": "Risk Distribution"
+          },
+          "risk_distribution_pct": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "type": "object",
+            "title": "Risk Distribution Pct"
+          },
+          "outcome_check": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ScoringOutcomeCheck"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "upload_id",
+          "total_rows",
+          "scored_count",
+          "unscored_count",
+          "risk_distribution",
+          "risk_distribution_pct"
+        ],
+        "title": "RunScoringResponse",
+        "description": "Result summary of batch scoring execution."
+      },
+      "RunSummary": {
+        "properties": {
+          "run_id": {
+            "type": "string",
+            "title": "Run Id"
+          },
+          "is_active": {
+            "type": "boolean",
+            "title": "Is Active"
+          },
+          "data_source": {
+            "type": "string",
+            "title": "Data Source"
+          },
+          "trained_at": {
+            "type": "string",
+            "title": "Trained At"
+          },
+          "n_students": {
+            "type": "integer",
+            "title": "N Students"
+          },
+          "champion_model_id": {
+            "type": "string",
+            "title": "Champion Model Id"
+          },
+          "champion_f1": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Champion F1"
+          },
+          "champion_cv_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Champion Cv Score"
+          }
+        },
+        "type": "object",
+        "required": [
+          "run_id",
+          "is_active",
+          "data_source",
+          "trained_at",
+          "n_students",
+          "champion_model_id"
+        ],
+        "title": "RunSummary",
+        "description": "Summary of an available experiment run."
+      },
+      "RunsListResponse": {
+        "properties": {
+          "active_run_id": {
+            "type": "string",
+            "title": "Active Run Id"
+          },
+          "total_runs": {
+            "type": "integer",
+            "title": "Total Runs"
+          },
+          "runs": {
+            "items": {
+              "$ref": "#/components/schemas/RunSummary"
+            },
+            "type": "array",
+            "title": "Runs"
+          }
+        },
+        "type": "object",
+        "required": [
+          "active_run_id",
+          "total_runs",
+          "runs"
+        ],
+        "title": "RunsListResponse",
+        "description": "List of all available runs in the project."
+      },
+      "ScoredStudentRow": {
+        "properties": {
+          "student_id": {
+            "type": "string",
+            "title": "Student Id"
+          },
+          "mei": {
+            "type": "integer",
+            "title": "Mei"
+          },
+          "band": {
+            "type": "string",
+            "title": "Band"
+          },
+          "flag": {
+            "type": "string",
+            "title": "Flag"
+          },
+          "pattern": {
+            "type": "string",
+            "title": "Pattern"
+          },
+          "level": {
+            "type": "string",
+            "title": "Level"
+          },
+          "state_path": {
+            "type": "string",
+            "title": "State Path"
+          },
+          "top_reasons": {
+            "type": "string",
+            "title": "Top Reasons"
+          },
+          "not_scored_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Not Scored Reason"
+          }
+        },
+        "type": "object",
+        "required": [
+          "student_id",
+          "mei",
+          "band",
+          "flag",
+          "pattern",
+          "level",
+          "state_path",
+          "top_reasons"
+        ],
+        "title": "ScoredStudentRow",
+        "description": "Scored student result row."
+      },
+      "ScoringOutcomeCheck": {
+        "properties": {
+          "label": {
+            "type": "string",
+            "title": "Label",
+            "default": "Model Evaluation on Uploaded File"
+          },
+          "total_outcome_rows": {
+            "type": "integer",
+            "title": "Total Outcome Rows"
+          },
+          "actual_at_risk_count": {
+            "type": "integer",
+            "title": "Actual At Risk Count"
+          },
+          "predicted_at_risk_count": {
+            "type": "integer",
+            "title": "Predicted At Risk Count"
+          },
+          "f1_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "F1 Score"
+          },
+          "auc_roc": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Auc Roc"
+          },
+          "balanced_accuracy": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Balanced Accuracy"
+          },
+          "confusion_matrix": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object",
+            "title": "Confusion Matrix"
+          }
+        },
+        "type": "object",
+        "required": [
+          "total_outcome_rows",
+          "actual_at_risk_count",
+          "predicted_at_risk_count",
+          "confusion_matrix"
+        ],
+        "title": "ScoringOutcomeCheck",
+        "description": "Validation block when uploaded file contains outcome questions."
+      },
+      "SingleScoreRequest": {
+        "properties": {
+          "answers": {
+            "type": "object",
+            "title": "Answers"
+          },
+          "student_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Student Id",
+            "default": "STUDENT_INLINE"
+          }
+        },
+        "type": "object",
+        "required": [
+          "answers"
+        ],
+        "title": "SingleScoreRequest",
+        "description": "Single student survey input for on-demand scoring."
+      },
+      "SingleScoreResponse": {
+        "properties": {
+          "student_id": {
+            "type": "string",
+            "title": "Student Id"
+          },
+          "mei": {
+            "type": "integer",
+            "title": "Mei"
+          },
+          "band": {
+            "type": "string",
+            "title": "Band"
+          },
+          "flag": {
+            "type": "string",
+            "title": "Flag"
+          },
+          "baseline_mei": {
+            "type": "number",
+            "title": "Baseline Mei"
+          },
+          "points_difference": {
+            "type": "integer",
+            "title": "Points Difference"
+          },
+          "pattern": {
+            "type": "string",
+            "title": "Pattern"
+          },
+          "level": {
+            "type": "string",
+            "title": "Level"
+          },
+          "state_path": {
+            "type": "string",
+            "title": "State Path"
+          },
+          "reasons": {
+            "items": {
+              "$ref": "#/components/schemas/SingleStudentReason"
+            },
+            "type": "array",
+            "title": "Reasons"
+          }
+        },
+        "type": "object",
+        "required": [
+          "student_id",
+          "mei",
+          "band",
+          "flag",
+          "baseline_mei",
+          "points_difference",
+          "pattern",
+          "level",
+          "state_path",
+          "reasons"
+        ],
+        "title": "SingleScoreResponse",
+        "description": "Comprehensive scoring and attribution result for a single student."
+      },
+      "SingleStudentReason": {
+        "properties": {
+          "text": {
+            "type": "string",
+            "title": "Text"
+          },
+          "direction": {
+            "type": "string",
+            "title": "Direction"
+          },
+          "points": {
+            "type": "integer",
+            "title": "Points"
+          },
+          "plain_name": {
+            "type": "string",
+            "title": "Plain Name"
+          },
+          "feature": {
+            "type": "string",
+            "title": "Feature"
+          },
+          "value": {
+            "type": "number",
+            "title": "Value"
+          }
+        },
+        "type": "object",
+        "required": [
+          "text",
+          "direction",
+          "points",
+          "plain_name",
+          "feature",
+          "value"
+        ],
+        "title": "SingleStudentReason",
+        "description": "Additive explanation reason for single student scoring."
+      },
+      "StatusResponse": {
+        "properties": {
+          "active_run_id": {
+            "type": "string",
+            "title": "Active Run Id"
+          },
+          "data_source": {
+            "type": "string",
+            "title": "Data Source"
+          },
+          "is_generated_sample": {
+            "type": "boolean",
+            "title": "Is Generated Sample"
+          },
+          "data_source_badge": {
+            "type": "string",
+            "title": "Data Source Badge"
+          },
+          "n_students_total": {
+            "type": "integer",
+            "title": "N Students Total"
+          },
+          "n_students_train": {
+            "type": "integer",
+            "title": "N Students Train"
+          },
+          "n_students_test": {
+            "type": "integer",
+            "title": "N Students Test"
+          },
+          "trained_at": {
+            "type": "string",
+            "title": "Trained At"
+          },
+          "champion": {
+            "$ref": "#/components/schemas/ChampionSummary"
+          },
+          "track_b_champion": {
+            "type": "object",
+            "title": "Track B Champion"
+          },
+          "model_card_essentials": {
+            "type": "object",
+            "title": "Model Card Essentials"
+          },
+          "bands": {
+            "anyOf": [
+              {
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bands"
+          }
+        },
+        "type": "object",
+        "required": [
+          "active_run_id",
+          "data_source",
+          "is_generated_sample",
+          "data_source_badge",
+          "n_students_total",
+          "n_students_train",
+          "n_students_test",
+          "trained_at",
+          "champion",
+          "track_b_champion",
+          "model_card_essentials"
+        ],
+        "title": "StatusResponse",
+        "description": "System and active run status."
+      },
+      "ValidateUploadResponse": {
+        "properties": {
+          "upload_id": {
+            "type": "string",
+            "title": "Upload Id"
+          },
+          "filename": {
+            "type": "string",
+            "title": "Filename"
+          },
+          "total_rows": {
+            "type": "integer",
+            "title": "Total Rows"
+          },
+          "detected_columns": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Detected Columns"
+          },
+          "column_mapping": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Column Mapping"
+          },
+          "mapping_confidences": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "type": "object",
+            "title": "Mapping Confidences"
+          },
+          "unmapped_required_columns": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Unmapped Required Columns"
+          },
+          "unknown_columns": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Unknown Columns"
+          },
+          "suggestions": {
+            "additionalProperties": {
+              "items": {
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "type": "object",
+            "title": "Suggestions"
+          },
+          "traffic_light": {
+            "type": "string",
+            "title": "Traffic Light"
+          },
+          "scorable_rows_count": {
+            "type": "integer",
+            "title": "Scorable Rows Count"
+          },
+          "problematic_rows_count": {
+            "type": "integer",
+            "title": "Problematic Rows Count"
+          },
+          "sample_row_problems": {
+            "items": {
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Sample Row Problems"
+          },
+          "ready_to_score": {
+            "type": "boolean",
+            "title": "Ready To Score"
+          }
+        },
+        "type": "object",
+        "required": [
+          "upload_id",
+          "filename",
+          "total_rows",
+          "detected_columns",
+          "column_mapping",
+          "mapping_confidences",
+          "unmapped_required_columns",
+          "unknown_columns",
+          "suggestions",
+          "traffic_light",
+          "scorable_rows_count",
+          "problematic_rows_count",
+          "sample_row_problems",
+          "ready_to_score"
+        ],
+        "title": "ValidateUploadResponse",
+        "description": "Result of Stage 1-2 upload validation."
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
+  }
+}

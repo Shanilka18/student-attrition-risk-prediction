@@ -1,0 +1,150 @@
+{
+  "Consistent": {
+    "pattern_name": "Consistent",
+    "n_students": 143,
+    "warning_small_sample": false,
+    "drivers": [
+      {
+        "feature": "missing_review_time_p2",
+        "plain_name": "Missing Response on Review time (Period 2)",
+        "mean_shap": 0.003587,
+        "mean_shap_points": 0.36
+      },
+      {
+        "feature": "quiz_practice_max",
+        "plain_name": "Peak Practice quiz activity",
+        "mean_shap": 0.00221,
+        "mean_shap_points": 0.22
+      },
+      {
+        "feature": "missing_review_time_p1",
+        "plain_name": "Missing Response on Review time (Period 1)",
+        "mean_shap": 0.002078,
+        "mean_shap_points": 0.21
+      },
+      {
+        "feature": "assignment_engagement_max",
+        "plain_name": "Peak Assignment preparation",
+        "mean_shap": 0.001986,
+        "mean_shap_points": 0.2
+      },
+      {
+        "feature": "review_time_p1",
+        "plain_name": "Review time (Period 1)",
+        "mean_shap": 0.001582,
+        "mean_shap_points": 0.16
+      }
+    ]
+  },
+  "Declining": {
+    "pattern_name": "Declining",
+    "n_students": 42,
+    "warning_small_sample": false,
+    "drivers": [
+      {
+        "feature": "participation_min",
+        "plain_name": "Lowest Interactive participation",
+        "mean_shap": 0.00587,
+        "mean_shap_points": 0.59
+      },
+      {
+        "feature": "review_time_p3",
+        "plain_name": "Review time (Period 3)",
+        "mean_shap": 0.005545,
+        "mean_shap_points": 0.55
+      },
+      {
+        "feature": "study_time_mean",
+        "plain_name": "Average Study hours",
+        "mean_shap": 0.005366,
+        "mean_shap_points": 0.54
+      },
+      {
+        "feature": "resource_access_slope",
+        "plain_name": "Trajectory Slope of Learning material access",
+        "mean_shap": 0.005081,
+        "mean_shap_points": 0.51
+      },
+      {
+        "feature": "assignment_engagement_mean",
+        "plain_name": "Average Assignment preparation",
+        "mean_shap": 0.004513,
+        "mean_shap_points": 0.45
+      }
+    ]
+  },
+  "Sporadic": {
+    "pattern_name": "Sporadic",
+    "n_students": 47,
+    "warning_small_sample": false,
+    "drivers": [
+      {
+        "feature": "composite_drop_from_best_to_last",
+        "plain_name": "Drop from Peak Engagement",
+        "mean_shap": 0.007166,
+        "mean_shap_points": 0.72
+      },
+      {
+        "feature": "composite_p1",
+        "plain_name": "Overall Engagement Level (Period 1)",
+        "mean_shap": 0.005407,
+        "mean_shap_points": 0.54
+      },
+      {
+        "feature": "resource_access_reversals",
+        "plain_name": "Direction Changes in Learning material access",
+        "mean_shap": 0.005359,
+        "mean_shap_points": 0.54
+      },
+      {
+        "feature": "resource_access_p3",
+        "plain_name": "Learning material access (Period 3)",
+        "mean_shap": 0.0047,
+        "mean_shap_points": 0.47
+      },
+      {
+        "feature": "study_consistency_last_minus_first",
+        "plain_name": "Net Change in Study schedule consistency (P4 vs P1)",
+        "mean_shap": 0.004,
+        "mean_shap_points": 0.4
+      }
+    ]
+  },
+  "Improving": {
+    "pattern_name": "Improving",
+    "n_students": 18,
+    "warning_small_sample": true,
+    "drivers": [
+      {
+        "feature": "resource_access_reversals",
+        "plain_name": "Direction Changes in Learning material access",
+        "mean_shap": 0.009594,
+        "mean_shap_points": 0.96
+      },
+      {
+        "feature": "participation_max",
+        "plain_name": "Peak Interactive participation",
+        "mean_shap": 0.008584,
+        "mean_shap_points": 0.86
+      },
+      {
+        "feature": "study_time_last_minus_mean_first_two",
+        "plain_name": "Recent vs Early Study hours",
+        "mean_shap": 0.006219,
+        "mean_shap_points": 0.62
+      },
+      {
+        "feature": "resource_access_mean",
+        "plain_name": "Average Learning material access",
+        "mean_shap": 0.005964,
+        "mean_shap_points": 0.6
+      },
+      {
+        "feature": "composite_max_drop",
+        "plain_name": "Maximum Term-to-Term Drop",
+        "mean_shap": 0.005691,
+        "mean_shap_points": 0.57
+      }
+    ]
+  }
+}

@@ -1,0 +1,98 @@
+[
+  {
+    "student_id": "EX_STU_0031",
+    "mei": 94,
+    "baseline_mei": 24.6,
+    "band": "High Risk",
+    "reasons": [
+      {
+        "text": "Experienced at least one period with minimal engagement in discussion, forum, and classroom interactive activities",
+        "direction": "risk_increasing",
+        "points": 13,
+        "feature": "participation_min",
+        "plain_name": "Lowest Interactive participation",
+        "value": 1.0
+      },
+      {
+        "text": "Did not submit response regarding lecture review and recap time in period 2",
+        "direction": "risk_increasing",
+        "points": 11,
+        "feature": "missing_review_time_p2",
+        "plain_name": "Missing Response on Review time (Period 2)",
+        "value": 0.0
+      },
+      {
+        "text": "Engagement with practice quizzes and self-assessment exercises was relatively low during period 3",
+        "direction": "risk_increasing",
+        "points": 11,
+        "feature": "quiz_practice_p3",
+        "plain_name": "Practice quiz activity (Period 3)",
+        "value": 2.0
+      }
+    ]
+  },
+  {
+    "student_id": "EX_STU_0003",
+    "mei": 60,
+    "baseline_mei": 24.6,
+    "band": "Moderate Risk",
+    "reasons": [
+      {
+        "text": "Effort in study schedule regularity and weekly pacing alternated up and down frequently between periods",
+        "direction": "risk_increasing",
+        "points": 14,
+        "feature": "study_consistency_reversals",
+        "plain_name": "Direction Changes in Study schedule consistency",
+        "value": 0.0
+      },
+      {
+        "text": "Recent activity in course learning materials and resources dropped compared to the first half of the course",
+        "direction": "risk_increasing",
+        "points": 3,
+        "feature": "resource_access_last_minus_mean_first_two",
+        "plain_name": "Recent vs Early Learning material access",
+        "value": -2.0
+      },
+      {
+        "text": "Engagement with discussion, forum, and classroom interactive activities was relatively low during period 1",
+        "direction": "risk_increasing",
+        "points": 3,
+        "feature": "participation_p1",
+        "plain_name": "Interactive participation (Period 1)",
+        "value": 5.0
+      }
+    ]
+  },
+  {
+    "student_id": "EX_STU_0007",
+    "mei": 3,
+    "baseline_mei": 24.6,
+    "band": "Low Risk",
+    "reasons": [
+      {
+        "text": "Activity in study schedule regularity and weekly pacing fluctuated considerably from term to term",
+        "direction": "risk_increasing",
+        "points": 1,
+        "feature": "study_consistency_std",
+        "plain_name": "Variability in Study schedule consistency",
+        "value": 0.0
+      },
+      {
+        "text": "Maintained an acceptable baseline of engagement with discussion, forum, and classroom interactive activities even in low periods",
+        "direction": "risk_decreasing",
+        "points": -4,
+        "feature": "participation_min",
+        "plain_name": "Lowest Interactive participation",
+        "value": 5.0
+      },
+      {
+        "text": "Maintained an acceptable baseline of engagement with dedicated independent study hours even in low periods",
+        "direction": "risk_decreasing",
+        "points": -4,
+        "feature": "study_time_min",
+        "plain_name": "Lowest Study hours",
+        "value": 4.0
+      }
+    ]
+  }
+]

@@ -1,0 +1,58 @@
+# Virtual Environment
+.venv/
+env/
+venv/
+
+# Python bytecode & cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyd
+
+# Temporary caches
+.pytest_cache/
+.ruff_cache/
+.matplotlib_cache/
+.black_cache/
+.coverage
+htmlcov/
+
+# Sensitive / real data files (protect participant privacy)
+data/real/*
+!data/real/.gitkeep
+
+# Interim & processed data (regenerable)
+data/interim/*
+!data/interim/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+
+# Artifact runs (preserve manifest.json files for auditability, ignore large weights)
+artifacts/runs/*
+!artifacts/runs/**/manifest.json
+!artifacts/runs/.gitkeep
+
+# Frontend & node dependencies
+node_modules/
+.next/
+dist/
+build/
+
+# Scratch and extraction files
+*.log
+taf_extracted.txt
+docx_extracted.txt
+pdf_extracted.txt
+scratch/
+catboost_info/
+
+# Operating system artifacts
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Temporary uploads & jobs
+artifacts/uploads/*
+!artifacts/uploads/.gitkeep
+artifacts/jobs/*
+!artifacts/jobs/.gitkeep

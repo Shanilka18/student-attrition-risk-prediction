@@ -1,0 +1,68 @@
+{
+  "by_indicator": {
+    "resource_access": {
+      "total_shap": 0.040784,
+      "share_pct": 15.27
+    },
+    "composite": {
+      "total_shap": 0.038518,
+      "share_pct": 14.42
+    },
+    "review_time": {
+      "total_shap": 0.037623,
+      "share_pct": 14.08
+    },
+    "study_consistency": {
+      "total_shap": 0.032549,
+      "share_pct": 12.18
+    },
+    "participation": {
+      "total_shap": 0.031123,
+      "share_pct": 11.65
+    },
+    "assignment_engagement": {
+      "total_shap": 0.030478,
+      "share_pct": 11.41
+    },
+    "study_time": {
+      "total_shap": 0.028869,
+      "share_pct": 10.81
+    },
+    "quiz_practice": {
+      "total_shap": 0.027219,
+      "share_pct": 10.19
+    }
+  },
+  "by_period": {
+    "Overall": {
+      "total_shap": 0.178615,
+      "share_pct": 66.86
+    },
+    "P4": {
+      "total_shap": 0.025049,
+      "share_pct": 9.38
+    },
+    "P3": {
+      "total_shap": 0.022508,
+      "share_pct": 8.42
+    },
+    "P2": {
+      "total_shap": 0.02162,
+      "share_pct": 8.09
+    },
+    "P1": {
+      "total_shap": 0.01937,
+      "share_pct": 7.25
+    }
+  },
+  "by_family": {
+    "aggregates_drift": {
+      "total_shap": 0.189538,
+      "share_pct": 70.95
+    },
+    "raw_answers": {
+      "total_shap": 0.077624,
+      "share_pct": 29.05
+    }
+  }
+}

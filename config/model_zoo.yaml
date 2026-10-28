@@ -1,0 +1,1012 @@
+feature_sets:
+  raw28:
+    name: "raw28"
+    description: "28 canonical ordinal survey indicators (imputed with high-missingness binary indicators)"
+    num_canonical_indicators: 28
+    scaling_required: "for_linear_models"
+    status: "active"
+
+  agg:
+    name: "agg"
+    description: "Raw 28 indicators plus 68 longitudinal dynamics and composite features (total 100 features)"
+    num_canonical_indicators: 28
+    num_engineered_dynamics: 56
+    num_composite_features: 12
+    scaling_required: "for_linear_models"
+    status: "active"
+
+  single_signal:
+    name: "single_signal"
+    description: "resource_access_p1..p4 only; Moodle/LMS login imitation baseline"
+    num_canonical_indicators: 4
+    scaling_required: "for_linear_models"
+    status: "active"
+
+  sequence:
+    name: "sequence"
+    description: "3D tensor (n_samples, 4 periods, 7 indicators) for short-sequence models"
+    tensor_shape: [4, 7]
+    scaling_required: "none"
+    status: "active"
+
+  agg_states:
+    name: "agg_states"
+    description: "Aggregated longitudinal features combined with HMM decoded states and clustering memberships (total 126 features)"
+    scaling_required: "for_linear_models"
+    status: "active"
+
+  states_only:
+    name: "states_only"
+    description: "Unsupervised latent state features only (HMM decoded states, posteriors, clustering one-hot and distance; total 26 features)"
+    scaling_required: "for_linear_models"
+    status: "active"
+
+imbalance_policy:
+  default_method: "class_weights"
+  cost_sensitive_weighting: "balanced"
+  alternative_method: "smote_inside_cv"
+  phase_evaluated: "phase_06"
+
+tuning_protocol:
+  seed: 42
+  outer_cv_folds: 15
+  inner_tuning_cv_folds: 5
+  time_budget_minutes_total: 40
+  optuna_sampler: "tpe"
+
+models:
+  # =========================================================================
+  # CATEGORY 1: BASELINE BENCHMARKS
+  # =========================================================================
+  single_signal_lr:
+    id: "single_signal_lr"
+    display_name: "Single-Signal Logistic Regression"
+    plain_name: "Login-Frequency Linear Baseline"
+    category: "baseline"
+    task: "classification"
+    feature_set: "single_signal"
+    needs_scaling: true
+    supports_class_weight: true
+    n_tuning_trials: 0
+    time_budget_seconds: 30
+    key_hyperparameter: "C"
+    key_hyperparameter_range: [0.01, 0.1, 1.0, 10.0]
+    fixed_params:
+      C: 1.0
+      solver: "lbfgs"
+      max_iter: 1000
+
+  majority_dummy:
+    id: "majority_dummy"
+    display_name: "Majority Class Dummy Classifier"
+    plain_name: "Zero-Intelligence Baseline"
+    category: "baseline"
+    task: "classification"
+    feature_set: "agg"
+    needs_scaling: false
+    supports_class_weight: false
+    n_tuning_trials: 0
+    time_budget_seconds: 15
+    fixed_params:
+      strategy: "prior"
+
+  rule_login_imitation:
+    id: "rule_login_imitation"
+    display_name: "Moodle Login Frequency Rule"
+    plain_name: "Static Cut-Off Heuristic"
+    category: "baseline"
+    task: "classification"
+    feature_set: "single_signal"
+    needs_scaling: false
+    supports_class_weight: false
+    n_tuning_trials: 0
+    time_budget_seconds: 15
+    fixed_params:
+      threshold: 2.0
+
+  # =========================================================================
+  # CATEGORY 2: LINEAR MODELS
+  # =========================================================================
+  logistic_regression_l2:
+    id: "logistic_regression_l2"
+    display_name: "Logistic Regression (L2 Ridge)"
+    plain_name: "Penalized Linear Odds Model"
+    category: "linear"
+    task: "classification"
+    feature_set: "agg"
+    needs_scaling: true
+    supports_class_weight: true
+    n_tuning_trials: 20
+    time_budget_seconds: 45
+    key_hyperparameter: "C"
+    key_hyperparameter_range: [0.001, 0.01, 0.1, 1.0, 10.0, 100.0]
+    search_space:
+      C:
+        type: "float"
+        low: 0.001
+        high: 100.0
+        log: true
+
+  logistic_regression_elasticnet:
+    id: "logistic_regression_elasticnet"
+    display_name: "Logistic Regression (Elastic-Net)"
+    plain_name: "Sparse & Shrinkage Linear Model"
+    category: "linear"
+    task: "classification"
+    feature_set: "agg"
+    needs_scaling: true
+    supports_class_weight: true
+    n_tuning_trials: 20
+    time_budget_seconds: 60
+    key_hyperparameter: "l1_ratio"
+    key_hyperparameter_range: [0.1, 0.3, 0.5, 0.7, 0.9]
+    search_space:
+      C:
+        type: "float"
+        low: 0.01
+        high: 10.0
+        log: true
+      l1_ratio:
+        type: "float"
+        low: 0.05
+        high: 0.95
+
+  linear_svm_calibrated:
+    id: "linear_svm_calibrated"
+    display_name: "Calibrated Linear SVM"
+    plain_name: "Maximum Margin Linear Classifier"
+    category: "linear"
+    task: "classification"
+    feature_set: "agg"
+    needs_scaling: true
+    supports_class_weight: true
+    n_tuning_trials: 15
+    time_budget_seconds: 45
+    key_hyperparameter: "C"
+    key_hyperparameter_range: [0.001, 0.01, 0.1, 1.0, 10.0]
+    search_space:
+      C:
+        type: "float"
+        low: 0.001
+        high: 10.0
+        log: true
+
+  ridge_calibrated:
+    id: "ridge_calibrated"
+    display_name: "Calibrated Ridge Classifier"
+    plain_name: "L2 Least-Squares Classifier"
+    category: "linear"
+    task: "classification"
+    feature_set: "agg"
+    needs_scaling: true
+    supports_class_weight: true
+    n_tuning_trials: 15
+    time_budget_seconds: 40
+    key_hyperparameter: "alpha"
+    key_hyperparameter_range: [0.1, 1.0, 10.0, 100.0, 1000.0]
+    search_space:
+      alpha:
+        type: "float"
+        low: 0.01
+        high: 1000.0
+        log: true
+
+  lda:
+    id: "lda"
+    display_name: "Linear Discriminant Analysis (LDA)"
+    plain_name: "Covariance-Based Linear Discriminant"
+    category: "linear"
+    task: "classification"
+    feature_set: "agg"
+    needs_scaling: true
+    supports_class_weight: false
+    n_tuning_trials: 10
+    time_budget_seconds: 30
+    key_hyperparameter: "shrinkage"
+    key_hyperparameter_range: [0.0, 0.2, 0.5, 0.8, 1.0]
+    search_space:
+      shrinkage:
+        type: "float"
+        low: 0.0
+        high: 1.0
+
+  # =========================================================================
+  # CATEGORY 3: CLASSICAL / SHALLOW MODELS
+  # =========================================================================
+  knn:
+    id: "knn"
+    display_name: "k-Nearest Neighbours"
+    plain_name: "Distance-Based Peer Classifier"
+    category: "classical"
+    task: "classification"
+    feature_set: "agg"
+    needs_scaling: true
+    supports_class_weight: false
+    n_tuning_trials: 15
+    time_budget_seconds: 45
+    key_hyperparameter: "n_neighbors"
+    key_hyperparameter_range: [3, 5, 9, 15, 25, 35]
+    search_space:
+      n_neighbors:
+        type: "int"
+        low: 3
+        high: 41
+        step: 2
+      weights:
+        type: "categorical"
+        choices: ["uniform", "distance"]
+
+  gaussian_nb:
+    id: "gaussian_nb"
+    display_name: "Gaussian Naive Bayes"
+    plain_name: "Independent Feature Probability Model"
+    category: "classical"
+    task: "classification"
+    feature_set: "agg"
+    needs_scaling: true
+    supports_class_weight: false
+    n_tuning_trials: 10
+    time_budget_seconds: 25
+    key_hyperparameter: "var_smoothing"
+    key_hyperparameter_range: [1e-11, 1e-9, 1e-7, 1e-5, 1e-3]
+    search_space:
+      var_smoothing:
+        type: "float"
+        low: 1e-11
+        high: 1e-3
+        log: true
+
+  decision_tree:
+    id: "decision_tree"
+    display_name: "Decision Tree"
+    plain_name: "Single Hierarchical Rule Tree"
+    category: "classical"
+    task: "classification"
+    feature_set: "agg"
+    needs_scaling: false
+    supports_class_weight: true
+    n_tuning_trials: 20
+    time_budget_seconds: 30
+    key_hyperparameter: "max_depth"
+    key_hyperparameter_range: [2, 3, 4, 6, 8, 12]
+    search_space:
+      max_depth:
+        type: "int"
+        low: 2
+        high: 12
+      min_samples_split:
+        type: "int"
+        low: 5
+        high: 50
+
+  svm_rbf:
+    id: "svm_rbf"
+    display_name: "Support Vector Machine (RBF Kernel)"
+    plain_name: "Non-Linear Radial Basis Machine"
+    category: "classical"
+    task: "classification"
+    feature_set: "agg"
+    needs_scaling: true
+    supports_class_weight: true
+    n_tuning_trials: 12
+    time_budget_seconds: 90
+    key_hyperparameter: "C"
+    key_hyperparameter_range: [0.1, 0.5, 1.0, 2.0, 5.0, 10.0]
+    search_space:
+      C:
+        type: "float"
+        low: 0.1
+        high: 20.0
+        log: true
+      gamma:
+        type: "categorical"
+        choices: ["scale", "auto"]
+
+  mlp_shallow:
+    id: "mlp_shallow"
+    display_name: "Shallow Multi-Layer Perceptron"
+    plain_name: "Single Hidden-Layer Neural Network"
+    category: "classical"
+    task: "classification"
+    feature_set: "agg"
+    needs_scaling: true
+    supports_class_weight: false
+    n_tuning_trials: 12
+    time_budget_seconds: 90
+    key_hyperparameter: "alpha"
+    key_hyperparameter_range: [1e-5, 1e-4, 1e-3, 1e-2, 0.1, 1.0]
+    search_space:
+      hidden_units:
+        type: "categorical"
+        choices: [16, 32, 64]
+      alpha:
+        type: "float"
+        low: 1e-5
+        high: 1.0
+        log: true
+
+  extra_trees:
+    id: "extra_trees"
+    display_name: "Extra-Trees (Extremely Randomized)"
+    plain_name: "Randomized Cut-Point Forest"
+    category: "classical"
+    task: "classification"
+    feature_set: "agg"
+    needs_scaling: false
+    supports_class_weight: true
+    n_tuning_trials: 20
+    time_budget_seconds: 60
+    key_hyperparameter: "n_estimators"
+    key_hyperparameter_range: [50, 100, 150, 200, 300]
+    search_space:
+      n_estimators:
+        type: "int"
+        low: 50
+        high: 300
+        step: 50
+      max_depth:
+        type: "int"
+        low: 4
+        high: 16
+
+  # =========================================================================
+  # CATEGORY 4: BOOSTING & TREE ENSEMBLES
+  # =========================================================================
+  random_forest:
+    id: "random_forest"
+    display_name: "Random Forest"
+    plain_name: "Bootstrap Aggregated Decision Trees"
+    category: "boosting"
+    task: "classification"
+    feature_set: "agg"
+    needs_scaling: false
+    supports_class_weight: true
+    n_tuning_trials: 25
+    time_budget_seconds: 75
+    key_hyperparameter: "n_estimators"
+    key_hyperparameter_range: [50, 100, 150, 200, 300]
+    search_space:
+      n_estimators:
+        type: "int"
+        low: 50
+        high: 300
+        step: 50
+      max_depth:
+        type: "int"
+        low: 4
+        high: 16
+      min_samples_leaf:
+        type: "int"
+        low: 1
+        high: 10
+
+  gradient_boosting:
+    id: "gradient_boosting"
+    display_name: "Gradient Boosting (Scikit-Learn)"
+    plain_name: "Sequential Residual Boosting"
+    category: "boosting"
+    task: "classification"
+    feature_set: "agg"
+    needs_scaling: false
+    supports_class_weight: false
+    n_tuning_trials: 20
+    time_budget_seconds: 75
+    key_hyperparameter: "n_estimators"
+    key_hyperparameter_range: [30, 60, 100, 150, 200]
+    search_space:
+      n_estimators:
+        type: "int"
+        low: 40
+        high: 200
+        step: 20
+      learning_rate:
+        type: "float"
+        low: 0.02
+        high: 0.2
+        log: true
+      max_depth:
+        type: "int"
+        low: 2
+        high: 6
+
+  hist_gradient_boosting:
+    id: "hist_gradient_boosting"
+    display_name: "Histogram Gradient Boosting"
+    plain_name: "Binned Fast Gradient Boosting"
+    category: "boosting"
+    task: "classification"
+    feature_set: "agg"
+    needs_scaling: false
+    supports_class_weight: true
+    n_tuning_trials: 20
+    time_budget_seconds: 50
+    key_hyperparameter: "max_iter"
+    key_hyperparameter_range: [40, 80, 120, 160, 200]
+    search_space:
+      max_iter:
+        type: "int"
+        low: 40
+        high: 200
+        step: 20
+      learning_rate:
+        type: "float"
+        low: 0.02
+        high: 0.2
+        log: true
+      max_leaf_nodes:
+        type: "int"
+        low: 15
+        high: 63
+
+  xgboost:
+    id: "xgboost"
+    display_name: "XGBoost"
+    plain_name: "Extreme Gradient Boosted Trees"
+    category: "boosting"
+    task: "classification"
+    feature_set: "agg"
+    needs_scaling: false
+    supports_class_weight: true
+    n_tuning_trials: 25
+    time_budget_seconds: 70
+    key_hyperparameter: "n_estimators"
+    key_hyperparameter_range: [40, 80, 120, 160, 200, 300]
+    search_space:
+      n_estimators:
+        type: "int"
+        low: 40
+        high: 240
+        step: 20
+      learning_rate:
+        type: "float"
+        low: 0.02
+        high: 0.2
+        log: true
+      max_depth:
+        type: "int"
+        low: 3
+        high: 7
+      subsample:
+        type: "float"
+        low: 0.6
+        high: 1.0
+
+  lightgbm:
+    id: "lightgbm"
+    display_name: "LightGBM"
+    plain_name: "Leaf-Wise Gradient Boosting"
+    category: "boosting"
+    task: "classification"
+    feature_set: "agg"
+    needs_scaling: false
+    supports_class_weight: true
+    n_tuning_trials: 25
+    time_budget_seconds: 50
+    key_hyperparameter: "n_estimators"
+    key_hyperparameter_range: [40, 80, 120, 160, 200, 300]
+    search_space:
+      n_estimators:
+        type: "int"
+        low: 40
+        high: 240
+        step: 20
+      learning_rate:
+        type: "float"
+        low: 0.02
+        high: 0.2
+        log: true
+      num_leaves:
+        type: "int"
+        low: 15
+        high: 63
+      subsample:
+        type: "float"
+        low: 0.6
+        high: 1.0
+
+  catboost:
+    id: "catboost"
+    display_name: "CatBoost"
+    plain_name: "Symmetric Oblivious Decision Trees"
+    category: "boosting"
+    task: "classification"
+    feature_set: "agg"
+    needs_scaling: false
+    supports_class_weight: true
+    n_tuning_trials: 20
+    time_budget_seconds: 80
+    key_hyperparameter: "iterations"
+    key_hyperparameter_range: [50, 100, 150, 200, 300]
+    search_space:
+      iterations:
+        type: "int"
+        low: 50
+        high: 250
+        step: 25
+      learning_rate:
+        type: "float"
+        low: 0.02
+        high: 0.2
+        log: true
+      depth:
+        type: "int"
+        low: 3
+        high: 7
+
+  adaboost:
+    id: "adaboost"
+    display_name: "AdaBoost"
+    plain_name: "Adaptive Sample-Reweighted Boosting"
+    category: "boosting"
+    task: "classification"
+    feature_set: "agg"
+    needs_scaling: false
+    supports_class_weight: false
+    n_tuning_trials: 15
+    time_budget_seconds: 45
+    key_hyperparameter: "n_estimators"
+    key_hyperparameter_range: [30, 50, 80, 120, 160]
+    search_space:
+      n_estimators:
+        type: "int"
+        low: 30
+        high: 180
+        step: 20
+      learning_rate:
+        type: "float"
+        low: 0.05
+        high: 1.0
+        log: true
+
+  # =========================================================================
+  # CATEGORY 5: HYBRID / PROPOSED MODELS (agg_states)
+  # =========================================================================
+  xgboost_hybrid:
+    id: "xgboost_hybrid"
+    display_name: "Hybrid XGBoost [agg_states]"
+    plain_name: "Extreme Boosting with Unsupervised State Features"
+    category: "hybrid"
+    task: "classification"
+    feature_set: "agg_states"
+    needs_scaling: false
+    supports_class_weight: true
+    twin_model_id: "xgboost"
+    n_tuning_trials: 20
+    time_budget_seconds: 70
+    key_hyperparameter: "n_estimators"
+    key_hyperparameter_range: [40, 80, 120, 160, 200, 300]
+    search_space:
+      n_estimators:
+        type: "int"
+        low: 40
+        high: 240
+        step: 20
+      learning_rate:
+        type: "float"
+        low: 0.02
+        high: 0.2
+        log: true
+      max_depth:
+        type: "int"
+        low: 3
+        high: 7
+
+  lightgbm_hybrid:
+    id: "lightgbm_hybrid"
+    display_name: "Hybrid LightGBM [agg_states]"
+    plain_name: "Leaf-Wise Boosting with Unsupervised State Features"
+    category: "hybrid"
+    task: "classification"
+    feature_set: "agg_states"
+    needs_scaling: false
+    supports_class_weight: true
+    twin_model_id: "lightgbm"
+    n_tuning_trials: 20
+    time_budget_seconds: 50
+    key_hyperparameter: "n_estimators"
+    key_hyperparameter_range: [40, 80, 120, 160, 200, 300]
+    search_space:
+      n_estimators:
+        type: "int"
+        low: 40
+        high: 240
+        step: 20
+      learning_rate:
+        type: "float"
+        low: 0.02
+        high: 0.2
+        log: true
+      num_leaves:
+        type: "int"
+        low: 15
+        high: 63
+
+  catboost_hybrid:
+    id: "catboost_hybrid"
+    display_name: "Hybrid CatBoost [agg_states]"
+    plain_name: "Oblivious Boosting with Unsupervised State Features"
+    category: "hybrid"
+    task: "classification"
+    feature_set: "agg_states"
+    needs_scaling: false
+    supports_class_weight: true
+    twin_model_id: "catboost"
+    n_tuning_trials: 18
+    time_budget_seconds: 80
+    key_hyperparameter: "iterations"
+    key_hyperparameter_range: [50, 100, 150, 200, 300]
+    search_space:
+      iterations:
+        type: "int"
+        low: 50
+        high: 250
+        step: 25
+      learning_rate:
+        type: "float"
+        low: 0.02
+        high: 0.2
+        log: true
+      depth:
+        type: "int"
+        low: 3
+        high: 7
+
+  random_forest_hybrid:
+    id: "random_forest_hybrid"
+    display_name: "Hybrid Random Forest [agg_states]"
+    plain_name: "Random Forest with Unsupervised State Features"
+    category: "hybrid"
+    task: "classification"
+    feature_set: "agg_states"
+    needs_scaling: false
+    supports_class_weight: true
+    twin_model_id: "random_forest"
+    n_tuning_trials: 20
+    time_budget_seconds: 75
+    key_hyperparameter: "n_estimators"
+    key_hyperparameter_range: [50, 100, 150, 200, 300]
+    search_space:
+      n_estimators:
+        type: "int"
+        low: 50
+        high: 250
+        step: 50
+      max_depth:
+        type: "int"
+        low: 4
+        high: 16
+
+  logistic_regression_hybrid:
+    id: "logistic_regression_hybrid"
+    display_name: "Hybrid Logistic Regression [agg_states]"
+    plain_name: "Penalized Linear Model with State Features"
+    category: "hybrid"
+    task: "classification"
+    feature_set: "agg_states"
+    needs_scaling: true
+    supports_class_weight: true
+    twin_model_id: "logistic_regression_l2"
+    n_tuning_trials: 15
+    time_budget_seconds: 45
+    key_hyperparameter: "C"
+    key_hyperparameter_range: [0.001, 0.01, 0.1, 1.0, 10.0, 100.0]
+    search_space:
+      C:
+        type: "float"
+        low: 0.001
+        high: 100.0
+        log: true
+
+  # =========================================================================
+  # CATEGORY 6: ENSEMBLE COMBINATIONS
+  # =========================================================================
+  voting_soft:
+    id: "voting_soft"
+    display_name: "Soft-Voting Ensemble (Top 3)"
+    plain_name: "Weighted Probability Average Ensemble"
+    category: "ensemble"
+    task: "classification"
+    feature_set: "agg"
+    needs_scaling: false
+    supports_class_weight: false
+    n_tuning_trials: 0
+    time_budget_seconds: 40
+
+  stacking:
+    id: "stacking"
+    display_name: "Stacking Classifier (OOF Meta-Learner)"
+    plain_name: "Meta-Learner on Out-of-Fold Predictions"
+    category: "ensemble"
+    task: "classification"
+    feature_set: "agg"
+    needs_scaling: false
+    supports_class_weight: false
+    n_tuning_trials: 0
+    time_budget_seconds: 60
+
+  # =========================================================================
+  # CATEGORY 7: DEEP LEARNING ARCHITECTURES (Track A, Part 2)
+  # =========================================================================
+  mlp_wide:
+    id: "mlp_wide"
+    display_name: "Wide Multilayer Perceptron"
+    plain_name: "Feed-Forward Network with Batch Normalization"
+    category: "deep"
+    task: "classification"
+    feature_set: "agg_states"
+    needs_scaling: true
+    supports_class_weight: true
+    n_tuning_trials: 10
+    time_budget_seconds: 120
+    key_hyperparameter: "hidden_dim"
+    key_hyperparameter_range: [64, 128, 256]
+    search_space:
+      hidden_dim:
+        type: "categorical"
+        choices: [64, 128, 256]
+      dropout:
+        type: "float"
+        low: 0.1
+        high: 0.4
+      weight_decay:
+        type: "float"
+        low: 0.00001
+        high: 0.001
+        log: true
+      lr:
+        type: "float"
+        low: 0.0005
+        high: 0.003
+        log: true
+      batch_size:
+        type: "categorical"
+        choices: [32, 64]
+
+  mlp_residual:
+    id: "mlp_residual"
+    display_name: "Residual Multilayer Perceptron"
+    plain_name: "Skip-Connection Network with Layer Normalization"
+    category: "deep"
+    task: "classification"
+    feature_set: "agg_states"
+    needs_scaling: true
+    supports_class_weight: true
+    n_tuning_trials: 10
+    time_budget_seconds: 120
+    key_hyperparameter: "hidden_dim"
+    key_hyperparameter_range: [32, 64, 128]
+    search_space:
+      hidden_dim:
+        type: "categorical"
+        choices: [32, 64, 128]
+      dropout:
+        type: "float"
+        low: 0.1
+        high: 0.4
+      weight_decay:
+        type: "float"
+        low: 0.00001
+        high: 0.001
+        log: true
+      lr:
+        type: "float"
+        low: 0.0005
+        high: 0.003
+        log: true
+      batch_size:
+        type: "categorical"
+        choices: [32, 64]
+
+  gru:
+    id: "gru"
+    display_name: "Gated Recurrent Unit (GRU)"
+    plain_name: "Gated Sequential Recurrent Network"
+    category: "deep"
+    task: "classification"
+    feature_set: "sequence"
+    needs_scaling: true
+    supports_class_weight: true
+    n_tuning_trials: 10
+    time_budget_seconds: 120
+    key_hyperparameter: "hidden_dim"
+    key_hyperparameter_range: [16, 32, 64]
+    search_space:
+      hidden_dim:
+        type: "categorical"
+        choices: [16, 32, 64]
+      dropout:
+        type: "float"
+        low: 0.1
+        high: 0.4
+      weight_decay:
+        type: "float"
+        low: 0.00001
+        high: 0.001
+        log: true
+      lr:
+        type: "float"
+        low: 0.0005
+        high: 0.003
+        log: true
+      batch_size:
+        type: "categorical"
+        choices: [32, 64]
+
+  lstm:
+    id: "lstm"
+    display_name: "Long Short-Term Memory (LSTM)"
+    plain_name: "Gated Memory Cell Sequence Network"
+    category: "deep"
+    task: "classification"
+    feature_set: "sequence"
+    needs_scaling: true
+    supports_class_weight: true
+    n_tuning_trials: 10
+    time_budget_seconds: 120
+    key_hyperparameter: "hidden_dim"
+    key_hyperparameter_range: [16, 32, 64]
+    search_space:
+      hidden_dim:
+        type: "categorical"
+        choices: [16, 32, 64]
+      dropout:
+        type: "float"
+        low: 0.1
+        high: 0.4
+      weight_decay:
+        type: "float"
+        low: 0.00001
+        high: 0.001
+        log: true
+      lr:
+        type: "float"
+        low: 0.0005
+        high: 0.003
+        log: true
+      batch_size:
+        type: "categorical"
+        choices: [32, 64]
+
+  bi_gru:
+    id: "bi_gru"
+    display_name: "Bidirectional GRU"
+    plain_name: "Bidirectional Gated Recurrent Network"
+    category: "deep"
+    task: "classification"
+    feature_set: "sequence"
+    needs_scaling: true
+    supports_class_weight: true
+    n_tuning_trials: 10
+    time_budget_seconds: 120
+    key_hyperparameter: "hidden_dim"
+    key_hyperparameter_range: [16, 24, 32]
+    search_space:
+      hidden_dim:
+        type: "categorical"
+        choices: [16, 24, 32]
+      dropout:
+        type: "float"
+        low: 0.1
+        high: 0.4
+      weight_decay:
+        type: "float"
+        low: 0.00001
+        high: 0.001
+        log: true
+      lr:
+        type: "float"
+        low: 0.0005
+        high: 0.003
+        log: true
+      batch_size:
+        type: "categorical"
+        choices: [32, 64]
+
+  cnn_1d:
+    id: "cnn_1d"
+    display_name: "1D Temporal CNN"
+    plain_name: "Convolutional Sequence Network with Max Pooling"
+    category: "deep"
+    task: "classification"
+    feature_set: "sequence"
+    needs_scaling: true
+    supports_class_weight: true
+    n_tuning_trials: 10
+    time_budget_seconds: 120
+    key_hyperparameter: "filters"
+    key_hyperparameter_range: [16, 32, 64]
+    search_space:
+      filters:
+        type: "categorical"
+        choices: [16, 32, 64]
+      dropout:
+        type: "float"
+        low: 0.1
+        high: 0.4
+      weight_decay:
+        type: "float"
+        low: 0.00001
+        high: 0.001
+        log: true
+      lr:
+        type: "float"
+        low: 0.0005
+        high: 0.003
+        log: true
+      batch_size:
+        type: "categorical"
+        choices: [32, 64]
+
+  tiny_transformer:
+    id: "tiny_transformer"
+    display_name: "Tiny Transformer Encoder"
+    plain_name: "Self-Attention Multi-Head Sequence Encoder"
+    category: "deep"
+    task: "classification"
+    feature_set: "sequence"
+    needs_scaling: true
+    supports_class_weight: true
+    n_tuning_trials: 10
+    time_budget_seconds: 130
+    key_hyperparameter: "d_model"
+    key_hyperparameter_range: [16, 32, 64]
+    search_space:
+      d_model:
+        type: "categorical"
+        choices: [16, 32, 64]
+      num_layers:
+        type: "categorical"
+        choices: [1, 2]
+      dropout:
+        type: "float"
+        low: 0.1
+        high: 0.4
+      weight_decay:
+        type: "float"
+        low: 0.00001
+        high: 0.001
+        log: true
+      lr:
+        type: "float"
+        low: 0.0005
+        high: 0.003
+        log: true
+      batch_size:
+        type: "categorical"
+        choices: [32, 64]
+
+  hybrid_multimodal:
+    id: "hybrid_multimodal"
+    display_name: "Hybrid Multimodal Deep Model"
+    plain_name: "Dual-Branch Network (Sequential GRU + Tabular MLP)"
+    category: "deep"
+    task: "classification"
+    feature_set: "hybrid_multimodal"
+    needs_scaling: true
+    supports_class_weight: true
+    n_tuning_trials: 10
+    time_budget_seconds: 140
+    key_hyperparameter: "fusion_dim"
+    key_hyperparameter_range: [16, 32, 64]
+    search_space:
+      fusion_dim:
+        type: "categorical"
+        choices: [16, 32, 64]
+      dropout:
+        type: "float"
+        low: 0.1
+        high: 0.4
+      weight_decay:
+        type: "float"
+        low: 0.00001
+        high: 0.001
+        log: true
+      lr:
+        type: "float"
+        low: 0.0005
+        high: 0.003
+        log: true
+      batch_size:
+        type: "categorical"
+        choices: [32, 64]
+
