@@ -317,7 +317,9 @@ async def validate_upload(
 
         has_problem = unscorable_mask | out_of_range_mask
         problem_indices = np.where(has_problem)[0]
-        stu_series = mapped_df["student_id"] if "student_id" in mapped_df.columns else None
+        stu_series = (
+            mapped_df["student_id"] if "student_id" in mapped_df.columns else None
+        )
 
         for idx in problem_indices[:100]:
             row_num = int(idx) + 1
@@ -686,7 +688,9 @@ def get_scoring_session(upload_id: str):
     """Retrieve saved validation and scoring summary for an active upload session."""
     session_dir = UPLOADS_DIR / upload_id
     if not session_dir.exists():
-        raise HTTPException(status_code=404, detail="Upload session not found or expired.")
+        raise HTTPException(
+            status_code=404, detail="Upload session not found or expired."
+        )
 
     val_data = None
     val_file = session_dir / "validation_response.json"

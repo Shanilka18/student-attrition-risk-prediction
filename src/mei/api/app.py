@@ -14,6 +14,7 @@ from fastapi.staticfiles import StaticFiles
 from mei.api.routes.insights import router as insights_router
 from mei.api.routes.jobs import router as jobs_router
 from mei.api.routes.leaderboard import router as leaderboard_router
+from mei.api.routes.retrain import router as retrain_router
 from mei.api.routes.runs import router as runs_router
 from mei.api.routes.scoring import router as scoring_router
 from mei.api.routes.status import router as status_router
@@ -127,6 +128,7 @@ def create_app() -> FastAPI:
     app.include_router(scoring_router)
     app.include_router(runs_router)
     app.include_router(jobs_router)
+    app.include_router(retrain_router)
 
     # 5. Serve Built Frontend in Production (Rule 10, CLI serve)
     frontend_dist = PROJECT_ROOT / "frontend" / "dist"

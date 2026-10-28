@@ -441,7 +441,9 @@ class StudentDetailResponse(BaseModel):
     state_path: str
     baseline_mei: float
     points_difference: int
-    trajectories: Dict[str, Any]  # {"composite": [p1, p2, p3, p4], "indicators": {ind: [p1, p2, p3, p4]}}
+    trajectories: Dict[
+        str, Any
+    ]  # {"composite": [p1, p2, p3, p4], "indicators": {ind: [p1, p2, p3, p4]}}
     reasons: List[SingleStudentReason]
     plain_meanings: Dict[str, str]
 
