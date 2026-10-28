@@ -2,9 +2,6 @@ import React from 'react';
 import {
   Download,
   FileSpreadsheet,
-  FileText,
-  ImageIcon,
-  FolderArchive,
   ExternalLink,
   Code2,
 } from 'lucide-react';
@@ -12,33 +9,20 @@ import { api } from '../api/client';
 import type { DataSummaryResponse } from '../api/client';
 
 interface ExportPageProps {
-  dataSummary: DataSummaryResponse | null;
+  dataSummary?: DataSummaryResponse | null;
 }
 
-export const ExportPage: React.FC<ExportPageProps> = ({ dataSummary }) => {
-  const plots = dataSummary?.plots_catalog || [];
-
-  const docs = [
-    { name: '01_PROJECT_SCAFFOLD.md', desc: 'Environment initialization and reproducibility standards' },
-    { name: '02_DATA_GENERATION.md', desc: 'Latent-variable synthetic cohort generator and Sri Lankan baselines' },
-    { name: '03_PREPROCESSING_AND_FEATURES.md', desc: 'Zero-leakage split protocol, dual-paradigm feature engineering' },
-    { name: '04_TRAINING_AND_VALIDATION.md', desc: 'Optuna tuning, Platt calibration, recall-safe thresholding' },
-    { name: '05_EVALUATION_AND_LEADERBOARD.md', desc: '28-model test evaluation, bootstrap CIs, paired hypothesis tests' },
-    { name: '06_EXPLAINABILITY_AND_RISK_INDEX.md', desc: 'TreeSHAP, Integrated Gradients, Academic Risk Index, faithfulness' },
-    { name: '07_API.md', desc: 'FastAPI serving architecture, endpoints catalog, and OpenAPI specs' },
-    { name: '08_FRONTEND_GUIDE.md', desc: 'Interactive research portal guide and viva demonstration talking points' },
-  ];
-
+export const ExportPage: React.FC<ExportPageProps> = () => {
   return (
     <div className="space-y-8 max-w-7xl mx-auto">
       {/* 1. Header */}
       <div>
         <h2 className="text-xl md:text-2xl font-bold text-white flex items-center gap-2">
           <Download className="w-6 h-6 text-indigo-400" />
-          Research Asset Export & Telemetry Repository
+          Data Templates & Export Center
         </h2>
         <p className="text-sm text-slate-400 mt-1">
-          Download evaluation matrices, publication plots, OpenAPI schemas, and complete viva defense documentation.
+          Download observation upload templates, system evaluation summaries, and API integration specifications.
         </p>
       </div>
 
@@ -51,7 +35,7 @@ export const ExportPage: React.FC<ExportPageProps> = ({ dataSummary }) => {
           <div>
             <h3 className="font-bold text-sm text-white">Full Leaderboard (CSV)</h3>
             <p className="text-xs text-slate-400 mt-1">
-              Test set evaluation metrics, composite ranks, and inference latency for all 28 registered models.
+              Test set evaluation metrics, composite ranks, and inference latency for all registered models.
             </p>
           </div>
           <a
@@ -92,7 +76,7 @@ export const ExportPage: React.FC<ExportPageProps> = ({ dataSummary }) => {
           <div>
             <h3 className="font-bold text-sm text-white">OpenAPI Documentation</h3>
             <p className="text-xs text-slate-400 mt-1">
-              Interactive Swagger UI and ReDoc endpoints for teammate integration and contract validation.
+              Interactive Swagger UI and ReDoc endpoints for system integration and contract validation.
             </p>
           </div>
           <div className="flex gap-2">
@@ -113,59 +97,6 @@ export const ExportPage: React.FC<ExportPageProps> = ({ dataSummary }) => {
               ReDoc
             </a>
           </div>
-        </div>
-      </section>
-
-      {/* 3. Publication Plots Catalog */}
-      <section className="rounded-xl border border-slate-800 bg-slate-900/40 p-5 space-y-4">
-        <h3 className="text-base font-bold text-white flex items-center gap-2">
-          <ImageIcon className="w-4 h-4 text-indigo-400" />
-          Publication-Grade Visual Assets (19 High-Resolution Figures)
-        </h3>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          {plots.map(p => (
-            <div
-              key={p.key}
-              className="p-3 rounded-lg bg-slate-950/60 border border-slate-800 flex items-center justify-between text-xs group"
-            >
-              <div className="truncate mr-2">
-                <span className="font-semibold text-slate-200 group-hover:text-indigo-300 transition-colors block truncate">
-                  {p.title}
-                </span>
-                <span className="text-[10px] text-slate-500 font-mono block">
-                  {p.category} / {p.filename}
-                </span>
-              </div>
-              <a
-                href={p.url_path}
-                download={p.filename}
-                target="_blank"
-                rel="noreferrer"
-                className="p-1.5 rounded bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white border border-slate-800"
-                title="Download PNG"
-              >
-                <Download className="w-3.5 h-3.5" />
-              </a>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* 4. Viva Documentation Directory */}
-      <section className="rounded-xl border border-slate-800 bg-slate-900/40 p-5 space-y-4">
-        <h3 className="text-base font-bold text-white flex items-center gap-2">
-          <FileText className="w-4 h-4 text-indigo-400" />
-          Research Documentation & Viva Defense Guides (/docs)
-        </h3>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {docs.map(d => (
-            <div key={d.name} className="p-3.5 rounded-lg bg-slate-950/60 border border-slate-800 text-xs space-y-1">
-              <span className="font-mono font-bold text-indigo-300 block">{d.name}</span>
-              <p className="text-slate-400 text-[11px] leading-relaxed">{d.desc}</p>
-            </div>
-          ))}
         </div>
       </section>
     </div>
