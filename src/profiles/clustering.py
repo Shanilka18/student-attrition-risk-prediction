@@ -26,20 +26,28 @@ class ClusterFit:
     n_clusters: int
     estimator: Any
     centers: np.ndarray
+    label_order: np.ndarray | None = None
 
     def predict(self, values: np.ndarray) -> np.ndarray:
-        if self.algorithm == "kmeans":
-            return self.estimator.predict(values)
-        if self.algorithm.startswith("gmm_"):
-            return self.estimator.predict(values)
-        distances = np.linalg.norm(
-            values[:, np.newaxis, :] - self.centers[np.newaxis, :, :], axis=2
-        )
-        return distances.argmin(axis=1)
+        if self.algorithm == "kmeans" or self.algorithm.startswith("gmm_"):
+            labels = self.estimator.predict(values)
+        else:
+            distances = np.linalg.norm(
+                values[:, np.newaxis, :] - self.centers[np.newaxis, :, :], axis=2
+            )
+            return distances.argmin(axis=1)
+        if self.label_order is None:
+            return labels
+        canonical_labels = np.empty_like(self.label_order)
+        canonical_labels[self.label_order] = np.arange(self.n_clusters)
+        return canonical_labels[labels]
 
     def membership_probabilities(self, values: np.ndarray) -> np.ndarray | None:
         if self.algorithm.startswith("gmm_"):
-            return self.estimator.predict_proba(values)
+            probabilities = self.estimator.predict_proba(values)
+            if self.label_order is not None:
+                return probabilities[:, self.label_order]
+            return probabilities
         return None
 
 
