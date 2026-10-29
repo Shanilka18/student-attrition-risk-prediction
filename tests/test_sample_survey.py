@@ -71,7 +71,7 @@ def test_nonbinary_item_levels_are_not_dominated(sample_generator):
 def test_response_quality_injects_configured_export_mess(sample_generator):
     settings = sample_generator.settings
     raw, _ = sample_generator.generate(settings["sizes"]["full"])
-    messy = sample_generator.add_response_quality_effects(raw, seed=42)
+    messy, achieved = sample_generator.add_response_quality_effects(raw, seed=42)
     mappings = sample_generator.mappings
 
     assert len(messy) == len(raw) + round(
@@ -90,14 +90,18 @@ def test_response_quality_injects_configured_export_mess(sample_generator):
     ).sum() >= round(len(raw) * settings["response_quality"]["prefer_not_to_say_rate"])
     assert messy.isna().sum().sum() > 0
     assert messy[mappings["student_id"]["google_forms_header"]].duplicated().any()
+    assert achieved["duplicates"] == round(
+        len(raw) * settings["response_quality"]["duplicate_rate"]
+    )
 
 
 def test_response_quality_is_reproducible(sample_generator):
     raw, _ = sample_generator.generate(300, seed=42)
-    left = sample_generator.add_response_quality_effects(raw, seed=42)
-    right = sample_generator.add_response_quality_effects(raw, seed=42)
+    left, left_metrics = sample_generator.add_response_quality_effects(raw, seed=42)
+    right, right_metrics = sample_generator.add_response_quality_effects(raw, seed=42)
 
     pd.testing.assert_frame_equal(left, right)
+    assert left_metrics == right_metrics
 
 
 def test_five_fold_calibration_meets_prevalence_and_auc_gates(sample_generator):

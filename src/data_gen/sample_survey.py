@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import os
+import zipfile
 from datetime import datetime, timedelta
+from io import BytesIO
 from pathlib import Path
 from typing import Any
 
@@ -219,7 +221,7 @@ class EnvironmentalFinancialSampleGenerator:
 
     def add_response_quality_effects(
         self, raw: pd.DataFrame, seed: int | None = None
-    ) -> pd.DataFrame:
+    ) -> tuple[pd.DataFrame, dict[str, int | float]]:
         """Inject configured survey response styles and raw-export imperfections."""
         quality = self.settings["response_quality"]
         rng = np.random.default_rng(quality["random_state"] if seed is None else seed)
@@ -381,13 +383,39 @@ class EnvironmentalFinancialSampleGenerator:
         result = pd.concat(
             [result, result.iloc[duplicate_rows].copy()], ignore_index=True
         )
-        return result
+        achieved = {
+            "base_rows": n_rows,
+            "output_rows": len(result),
+            "duplicates": duplicate_count,
+            "online_rows": int(
+                raw[item_headers["commute_time"]]
+                .astype(str)
+                .str.startswith("Not applicable")
+                .sum()
+            ),
+            "prefer_not_to_say_rows": pns_count,
+            "no_consent_rows": no_consent_count,
+            "attention_fail_rows": failed_count,
+            "random_missing_cells": missing_count,
+            "typo_cells": typo_count,
+            "straight_liner_rows": straight_count,
+        }
+        achieved.update(
+            {
+                f"style_{style}_rows": int(np.count_nonzero(style_codes == index))
+                for index, style in enumerate(style_names)
+            }
+        )
+        return result, achieved
 
 
-def sample_output_path(settings: dict[str, Any], key: str) -> Path:
+def sample_output_path(
+    settings: dict[str, Any], key: str, output_root: Path | None = None
+) -> Path:
     """Resolve a configured sample output path under the repository root."""
     relative = Path(settings["outputs"][key])
-    return get_project_root() / relative
+    root = get_project_root() if output_root is None else output_root
+    return root / relative
 
 
 def _encode_item_codes(
@@ -580,3 +608,385 @@ def calibrate_signal_strength(
         "Calibration did not meet configured at-risk prevalence and CV AUC "
         f"requirements after {len(history)} iterations: {history}"
     )
+
+
+def _write_deterministic_excel(frame: pd.DataFrame, path: Path) -> None:
+    """Write an XLSX with stable workbook properties and ZIP timestamps."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    workbook_buffer = BytesIO()
+    fixed_timestamp = datetime(2000, 1, 1)
+    with pd.ExcelWriter(workbook_buffer, engine="openpyxl") as writer:
+        frame.to_excel(writer, index=False, sheet_name="Responses")
+        writer.book.properties.created = fixed_timestamp
+        writer.book.properties.modified = fixed_timestamp
+
+    normalized_buffer = BytesIO()
+    with zipfile.ZipFile(workbook_buffer, "r") as source, zipfile.ZipFile(
+        normalized_buffer, "w", compression=zipfile.ZIP_DEFLATED
+    ) as normalized:
+        for name in sorted(source.namelist()):
+            info = zipfile.ZipInfo(name, date_time=(1980, 1, 1, 0, 0, 0))
+            info.compress_type = zipfile.ZIP_DEFLATED
+            info.external_attr = 0o600 << 16
+            normalized.writestr(info, source.read(name))
+    path.write_bytes(normalized_buffer.getvalue())
+
+
+def _write_csv(frame: pd.DataFrame, path: Path) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    frame.to_csv(path, index=False, encoding="utf-8", lineterminator="\n")
+
+
+def _pressure_coded_features(
+    generator: EnvironmentalFinancialSampleGenerator, raw: pd.DataFrame
+) -> pd.DataFrame:
+    """Map all item levels to pressure ranks for descriptive correlation plots."""
+    encoded = _encode_item_codes(generator, raw)
+    pressure = pd.DataFrame(index=encoded.index)
+    for item, item_settings in generator.item_settings.items():
+        if item == "online_rate":
+            continue
+        item_codes = encoded[item]
+        order = item_settings["pressure_order"]
+        ranks = {int(code): rank for rank, code in enumerate(order)}
+        pressure[item] = item_codes.map(ranks)
+        if item in {"commute_time", "commute_spend", "transport_mode"}:
+            pressure.loc[item_codes == -2, item] = 0
+    return pressure
+
+
+def _reality_check_rows(
+    generator: EnvironmentalFinancialSampleGenerator,
+    clean_raw: pd.DataFrame,
+    achieved: dict[str, int | float],
+    calibration: dict[str, Any],
+) -> list[tuple[str, str, str]]:
+    settings = generator.settings
+    quality = settings["response_quality"]
+    base_rows = int(achieved["base_rows"])
+    item_cells = base_rows * len(generator.schema["items"])
+    rows = [
+        (
+            "Online commute responses",
+            f"{settings['response_generation']['online_rate']:.1%}",
+            f"{int(achieved['online_rows']) / base_rows:.1%}",
+        ),
+        (
+            "Cost non-disclosure",
+            f"{quality['prefer_not_to_say_rate']:.1%}",
+            f"{int(achieved['prefer_not_to_say_rows']) / base_rows:.1%}",
+        ),
+        (
+            "Random item missingness",
+            f"{quality['random_missing_rate']:.1%} of item cells",
+            f"{int(achieved['random_missing_cells']) / item_cells:.1%} of item cells",
+        ),
+        (
+            "Typos / formatting variants",
+            f"{quality['typo_rate']:.1%} of item cells",
+            f"{int(achieved['typo_cells']) / item_cells:.1%} of item cells",
+        ),
+        (
+            "Attention-check failures",
+            f"{quality['attention_fail_rate']:.1%}",
+            f"{int(achieved['attention_fail_rows']) / base_rows:.1%}",
+        ),
+        (
+            "No consent",
+            f"{quality['no_consent_rate']:.1%}",
+            f"{int(achieved['no_consent_rows']) / base_rows:.1%}",
+        ),
+        (
+            "Duplicate submissions",
+            f"{quality['duplicate_rate']:.1%}",
+            f"{int(achieved['duplicates']) / base_rows:.1%}",
+        ),
+        (
+            "Straight-liners",
+            f"{quality['straight_liner_rate']:.1%}",
+            f"{int(achieved['straight_liner_rows']) / base_rows:.1%}",
+        ),
+    ]
+    for style, rate in quality["response_style_rates"].items():
+        rows.append(
+            (
+                f"Response style: {style.replace('_', ' ')}",
+                f"{float(rate):.1%}",
+                f"{int(achieved[f'style_{style}_rows']) / base_rows:.1%}",
+            )
+        )
+    at_risk_header = generator.mappings["at_risk"]["google_forms_header"]
+    prevalence = float(clean_raw[at_risk_header].eq("At-Risk of Withdrawal").mean())
+    rows.extend(
+        [
+            ("At-risk prevalence", "24%-32%", f"{prevalence:.1%}"),
+            (
+                "5-fold LightGBM ROC-AUC",
+                "0.78-0.88",
+                f"{calibration['metrics']['lightgbm_auc']:.3f}",
+            ),
+        ]
+    )
+    return rows
+
+
+def _write_eda_figures(
+    generator: EnvironmentalFinancialSampleGenerator,
+    clean_raw: pd.DataFrame,
+    messy_raw: pd.DataFrame,
+    hidden: pd.DataFrame,
+    achieved: dict[str, int | float],
+    calibration: dict[str, Any],
+    output_root: Path,
+) -> list[Path]:
+    import matplotlib
+
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    figure_directory = sample_output_path(
+        generator.settings, "figures_dir", output_root
+    )
+    figure_directory.mkdir(parents=True, exist_ok=True)
+    colors = list(generator.settings["brand_palette"].values())
+    dpi = int(generator.settings["figure_dpi"])
+    item_names = list(generator.schema["items"])
+    feature_frame = generator.canonical_feature_frame(clean_raw)
+    output_paths: list[Path] = []
+
+    fig, axes = plt.subplots(5, 4, figsize=(18, 19))
+    for index, (axis, item) in enumerate(zip(axes.flat, item_names, strict=False)):
+        counts = feature_frame[item].value_counts(normalize=True)
+        axis.bar(
+            range(len(counts)),
+            counts.values,
+            color=colors[index % len(colors)],
+        )
+        axis.set_title(item.replace("_", " "))
+        axis.set_ylim(0, 1)
+        axis.tick_params(axis="x", labelrotation=55, labelsize=7)
+        axis.set_xticks(range(len(counts)), counts.index.astype(str))
+        axis.set_ylabel("Share")
+    for axis in axes.flat[len(item_names) :]:
+        axis.set_visible(False)
+    fig.suptitle("Environmental & Financial Item Response Distributions")
+    fig.tight_layout()
+    path = figure_directory / "01_item_distributions.png"
+    fig.savefig(path, dpi=dpi, bbox_inches="tight")
+    plt.close(fig)
+    output_paths.append(path)
+
+    pressure = _pressure_coded_features(generator, clean_raw)
+    correlation = pressure.corr()
+    fig, axis = plt.subplots(figsize=(13, 11))
+    image = axis.imshow(correlation, cmap="PuBuGn", vmin=-1, vmax=1)
+    axis.set_xticks(range(len(item_names)), item_names, rotation=75, ha="right")
+    axis.set_yticks(range(len(item_names)), item_names)
+    for row in range(len(item_names)):
+        for column in range(len(item_names)):
+            axis.text(
+                column,
+                row,
+                f"{correlation.iloc[row, column]:.2f}",
+                ha="center",
+                va="center",
+                fontsize=6,
+            )
+    fig.colorbar(image, ax=axis, label="Pearson correlation of pressure ranks")
+    axis.set_title("Correlation of Pressure-Oriented Item Ranks")
+    fig.tight_layout()
+    path = figure_directory / "02_item_correlations.png"
+    fig.savefig(path, dpi=dpi, bbox_inches="tight")
+    plt.close(fig)
+    output_paths.append(path)
+
+    messy_features = pd.DataFrame(
+        {
+            item: messy_raw[generator.mappings[item]["google_forms_header"]]
+            for item in item_names
+        }
+    ).iloc[: int(generator.settings["sizes"]["upload"])]
+    missingness = messy_features.isna().to_numpy(dtype=int)
+    fig, axis = plt.subplots(figsize=(16, 7))
+    axis.imshow(missingness.T, aspect="auto", interpolation="nearest", cmap="Greys")
+    axis.set_yticks(range(len(item_names)), item_names)
+    axis.set_xlabel("Upload record")
+    axis.set_title("Missingness Map: Messy Survey Export")
+    fig.tight_layout()
+    path = figure_directory / "03_missingness_map.png"
+    fig.savefig(path, dpi=dpi, bbox_inches="tight")
+    plt.close(fig)
+    output_paths.append(path)
+
+    at_risk_header = generator.mappings["at_risk"]["google_forms_header"]
+    risk = clean_raw[at_risk_header].eq("At-Risk of Withdrawal").to_numpy()
+    type_rates = (
+        pd.DataFrame({"type": hidden["type"], "at_risk": risk})
+        .groupby("type", sort=False)["at_risk"]
+        .mean()
+    )
+    fig, axis = plt.subplots(figsize=(11, 6))
+    axis.bar(
+        type_rates.index,
+        type_rates.values,
+        color=[colors[index % len(colors)] for index in range(len(type_rates))],
+    )
+    axis.set_ylim(0, 1)
+    axis.set_ylabel("At-risk share")
+    axis.set_title("At-Risk Prevalence by Hidden Student Type")
+    axis.tick_params(axis="x", labelrotation=25)
+    fig.tight_layout()
+    path = figure_directory / "04_at_risk_by_type.png"
+    fig.savefig(path, dpi=dpi, bbox_inches="tight")
+    plt.close(fig)
+    output_paths.append(path)
+
+    income_header = generator.mappings["income_band"]["google_forms_header"]
+    income_rates = (
+        clean_raw.assign(_at_risk=risk).groupby(income_header)["_at_risk"].mean()
+    )
+    income_levels = [
+        str(level["label"])
+        for level in generator.schema["items"]["income_band"]["levels"]
+    ]
+    income_rates = income_rates.reindex(income_levels)
+    fig, axis = plt.subplots(figsize=(12, 6))
+    axis.bar(income_rates.index, income_rates.values, color=colors[1])
+    axis.set_ylim(0, 1)
+    axis.set_ylabel("At-risk share")
+    axis.set_title("At-Risk Prevalence by Household Income Band")
+    axis.tick_params(axis="x", labelrotation=25)
+    fig.tight_layout()
+    path = figure_directory / "05_at_risk_by_income_band.png"
+    fig.savefig(path, dpi=dpi, bbox_inches="tight")
+    plt.close(fig)
+    output_paths.append(path)
+
+    reality_rows = _reality_check_rows(generator, clean_raw, achieved, calibration)
+    fig, axis = plt.subplots(figsize=(13, 7))
+    axis.axis("off")
+    table = axis.table(
+        cellText=reality_rows,
+        colLabels=["Measure", "Configured", "Achieved"],
+        loc="center",
+        cellLoc="left",
+        colWidths=[0.48, 0.24, 0.24],
+    )
+    table.auto_set_font_size(False)
+    table.set_fontsize(9)
+    table.scale(1, 1.5)
+    for column in range(3):
+        table[(0, column)].set_facecolor(colors[0])
+        table[(0, column)].get_text().set_color("white")
+    axis.set_title("Configured Targets and Achieved Sample Rates", pad=20)
+    fig.tight_layout()
+    path = figure_directory / "06_configured_vs_achieved.png"
+    fig.savefig(path, dpi=dpi, bbox_inches="tight")
+    plt.close(fig)
+    output_paths.append(path)
+    return output_paths
+
+
+def generate_sample_data(output_root: Path | None = None) -> dict[str, Any]:
+    """Calibrate and write all requested sample datasets and six EDA figures."""
+    settings, schema, mappings = load_sample_configuration()
+    generator = EnvironmentalFinancialSampleGenerator(settings, schema, mappings)
+    root = get_project_root() if output_root is None else Path(output_root)
+    calibration = calibrate_signal_strength(generator)
+    full_raw = calibration["raw"]
+    _, hidden = generator.generate(
+        int(settings["sizes"]["full"]),
+        seed=int(settings["seed"]),
+        signal_strength=float(calibration["signal_strength"]),
+    )
+    small_raw, _ = generator.generate(
+        int(settings["sizes"]["small"]),
+        seed=int(settings["seed"]),
+        signal_strength=float(calibration["signal_strength"]),
+    )
+    full_messy, achieved = generator.add_response_quality_effects(
+        full_raw, seed=int(settings["seed"])
+    )
+    small_messy, _ = generator.add_response_quality_effects(
+        small_raw, seed=int(settings["seed"])
+    )
+
+    clean_features = generator.canonical_feature_frame(full_raw).iloc[
+        : int(settings["sizes"]["upload"])
+    ]
+    messy_upload = clean_features.copy()
+    header_offset = int(settings["messy_upload"]["header_variant_offset"])
+    messy_upload = messy_upload.rename(
+        columns={
+            item: mappings[item]["accepted_variants"][
+                min(header_offset, len(mappings[item]["accepted_variants"]) - 1)
+            ]
+            for item in clean_features
+        }
+    )
+    messy_rng = np.random.default_rng(int(settings["seed"]))
+    blank_count = round(
+        len(messy_upload)
+        * len(clean_features.columns)
+        * float(settings["messy_upload"]["blank_rate"])
+    )
+    blank_positions = messy_rng.choice(
+        len(messy_upload) * len(messy_upload.columns),
+        size=blank_count,
+        replace=False,
+    )
+    for position in blank_positions:
+        row, column = divmod(int(position), len(messy_upload.columns))
+        messy_upload.iat[row, column] = np.nan
+    invalid_count = max(
+        1,
+        round(
+            len(messy_upload) * float(settings["messy_upload"]["invalid_value_rate"])
+        ),
+    )
+    invalid_values = settings["messy_upload"]["invalid_values"]
+    invalid_items = list(invalid_values)
+    invalid_rows = messy_rng.choice(
+        len(messy_upload), size=min(invalid_count, len(messy_upload)), replace=False
+    )
+    for index, row in enumerate(invalid_rows):
+        item = invalid_items[index % len(invalid_items)]
+        header = mappings[item]["accepted_variants"][
+            min(header_offset, len(mappings[item]["accepted_variants"]) - 1)
+        ]
+        messy_upload.at[int(row), header] = invalid_values[item]
+    messy_upload[settings["messy_upload"]["unknown_column_name"]] = (
+        "unmapped synthetic field"
+    )
+
+    output_paths = {
+        "raw_full": sample_output_path(settings, "raw_full", root),
+        "raw_full_xlsx": sample_output_path(settings, "raw_full_xlsx", root),
+        "raw_small": sample_output_path(settings, "raw_small", root),
+        "hidden_truth": sample_output_path(settings, "hidden_truth", root),
+        "clean_upload": sample_output_path(settings, "clean_upload", root),
+        "messy_upload": sample_output_path(settings, "messy_upload", root),
+    }
+    _write_csv(full_messy, output_paths["raw_full"])
+    _write_deterministic_excel(full_messy, output_paths["raw_full_xlsx"])
+    _write_csv(small_messy, output_paths["raw_small"])
+    _write_csv(hidden, output_paths["hidden_truth"])
+    _write_deterministic_excel(clean_features, output_paths["clean_upload"])
+    _write_csv(messy_upload, output_paths["messy_upload"])
+
+    figures = _write_eda_figures(
+        generator,
+        full_raw,
+        full_messy,
+        hidden,
+        achieved,
+        calibration,
+        root,
+    )
+    return {
+        "settings": settings,
+        "calibration": calibration,
+        "quality": achieved,
+        "outputs": output_paths,
+        "figures": figures,
+    }

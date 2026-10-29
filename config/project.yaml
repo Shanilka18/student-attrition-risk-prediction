@@ -179,6 +179,10 @@ sample_data:
     blank_rate: 0.03
     invalid_value_rate: 0.01
     unknown_column_name: "legacy_extra_field"
+    header_variant_offset: 1
+    invalid_values:
+      commute_time: "999 minutes"
+      job_hours: "90 hours"
   calibration:
     folds: 5
     random_state: 42
@@ -196,11 +200,19 @@ sample_data:
       max_iter: 500
   outputs:
     raw_full: data/raw/survey_raw_sample.csv
+    raw_full_xlsx: data/raw/survey_raw_sample.xlsx
     raw_small: data/raw/survey_raw_sample_300.csv
     hidden_truth: data/raw/ground_truth_hidden.csv
     clean_upload: data/samples/sample_upload_clean.xlsx
     messy_upload: data/samples/sample_upload_messy.csv
     figures_dir: docs/figures
+  figure_dpi: 300
+  brand_palette:
+    emerald: "#059669"
+    teal: "#0f766e"
+    purple: "#7c3aed"
+    amber: "#d97706"
+    red: "#dc2626"
 
 # ── Cross-sectional design ─────────────────────────────────────────────────────
 design:

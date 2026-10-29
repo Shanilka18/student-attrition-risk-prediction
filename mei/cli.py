@@ -5,6 +5,7 @@ Commands
 setup    -- Validate YAML schemas, mapping configs, and codecs.
 profiles -- Show latent risk profile configuration.
 info     -- Print project identity and active config.
+make-sample-data -- Calibrate and generate synthetic survey files and EDA figures.
 """
 
 import argparse
@@ -105,6 +106,25 @@ def cmd_info(args):
     sys.exit(0)
 
 
+def cmd_make_sample_data(args):
+    """Generate configured synthetic survey files and exploratory figures."""
+    from src.data_gen.sample_survey import generate_sample_data
+
+    result = generate_sample_data()
+    metrics = result["calibration"]["metrics"]
+    print(
+        "Calibration: "
+        f"signal_strength={result['calibration']['signal_strength']:.2f}, "
+        f"at_risk={metrics['at_risk_prevalence']:.1%}, "
+        f"LightGBM 5-fold AUC={metrics['lightgbm_auc']:.3f}, "
+        f"Logistic 5-fold AUC={metrics['logistic_auc']:.3f}"
+    )
+    print("Generated sample files:")
+    for path in result["outputs"].values():
+        print(f"  {path.relative_to(PROJECT_ROOT)}")
+    print(f"Generated {len(result['figures'])} EDA figures.")
+
+
 def main():
     parser = argparse.ArgumentParser(
         prog="python -m mei.cli",
@@ -130,6 +150,10 @@ def main():
 
     # info
     subparsers.add_parser("info", help="Print project identity and active config")
+    subparsers.add_parser(
+        "make-sample-data",
+        help="Calibrate and generate synthetic survey files and EDA figures",
+    )
 
     args = parser.parse_args()
 
@@ -137,6 +161,7 @@ def main():
         "setup": cmd_setup,
         "profiles": cmd_profiles,
         "info": cmd_info,
+        "make-sample-data": cmd_make_sample_data,
     }
 
     if args.command in dispatch:
