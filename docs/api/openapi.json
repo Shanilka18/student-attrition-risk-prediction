@@ -2253,13 +2253,6 @@
             "type": "array",
             "title": "Validation Ranking"
           },
-          "test_ranking": {
-            "items": {
-              "type": "object"
-            },
-            "type": "array",
-            "title": "Test Ranking"
-          },
           "grouped_importance": {
             "type": "object",
             "title": "Grouped Importance"
@@ -2311,7 +2304,6 @@
           "baseline_probability",
           "baseline_mei",
           "validation_ranking",
-          "test_ranking",
           "grouped_importance",
           "shap_consistency",
           "cross_method_comparison",

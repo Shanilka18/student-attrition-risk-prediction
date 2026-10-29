@@ -26,12 +26,20 @@ export default defineConfig({
     outDir: 'dist',
     emptyOutDir: true,
     sourcemap: false,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          return id.includes('node_modules') ? 'vendor' : undefined;
+        },
+      },
+    },
   },
   // @ts-expect-error vitest types
   test: {
     globals: true,
     environment: 'jsdom',
     setupFiles: './src/test-setup.ts',
+    include: ['src/**/*.{test,spec}.{ts,tsx}'],
     css: false,
   },
 });

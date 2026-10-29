@@ -682,3 +682,77 @@ Every design, architectural, and methodological decision is recorded here chrono
 - **Alternatives Rejected**:
   - Treating the chart cutoffs as the active model's verified bands.
   - Changing the website as part of this documentation-only phase.
+
+---
+
+### D-073: The `all` Command Runs the Ordered Research Pipeline
+- **Date**: 2026-10-28
+- **Decision**: Implement `python -m mei.cli all` as a sequential subprocess dispatcher for setup, sample-data creation, cleaning, feature generation, states, classification, deep learning, regression, finalization, explanations, and docs. Persist stage status and elapsed time under `artifacts/pipeline_runs/`; stop at the first failed stage.
+- **Reason**: A clean clone contains no generated datasets or run outputs, so invoking later stages directly does not provide a reproducible end-to-end entry point. Separate processes also preserve CLI parsing and make each failed command visible.
+- **Alternatives Rejected**:
+  - Calling Typer command functions directly, because their declared defaults are CLI metadata objects and do not consistently behave like parsed values.
+  - Continuing after a failed stage, because later outputs could appear successful while relying on missing or stale inputs.
+
+### D-074: Bound Model Training by the Configured Hardware Budget
+- **Date**: 2026-10-28
+- **Decision**: Allocate the configured 60-minute full-pipeline training limit as 30 minutes for classic models, 15 minutes for deep models, and 15 minutes for regression. Validate that all are positive and that their sum does not exceed the configured total before starting the pipeline.
+- **Reason**: A reproducible clean-room run needs a finite and auditable budget. The values are configuration, not a guarantee that every candidate receives a complete search; the generated leaderboard must be inspected for coverage.
+- **Alternatives Rejected**:
+  - Allowing individual trainer defaults to run without an aggregate limit.
+  - Increasing the total budget beyond the project's documented hardware constraint.
+
+### D-075: Risk-Band Labels Come from the Active Model Definition
+- **Date**: 2026-10-28
+- **Decision**: Render risk-band labels and colors in overview and scoring results from the active run's saved band definitions. Do not retain client-side fallback cutoffs or cohort summaries that are not returned by the API.
+- **Reason**: The former chart used cutoffs that contradicted the saved model definitions, and the overview displayed fixed cohort counts and histogram values. Values not present in the active run cannot be presented as current model results.
+- **Alternatives Rejected**:
+  - Keeping convenient hard-coded values that appear plausible but do not match the artifacts.
+  - Silently substituting default band limits when the active run is unavailable.
+
+### D-076: Release Checks Are Repeatable and Timing-Logged
+- **Date**: 2026-10-28
+- **Decision**: Add a `release-check` Make target that invokes a Python runner for the full pipeline, Python tests and lint/format checks, generated-document checks, frontend install/tests/build/token scan, and the production dependency audit. Store the check outcomes and elapsed times in an ignored release-check artifact.
+- **Reason**: Release evidence should be reproducible and should identify which check failed rather than relying on a manually recalled command sequence.
+- **Alternatives Rejected**:
+  - Treating a successful local frontend build as proof that the full release checks passed.
+  - Running a training pipeline without preserving stage timing and status.
+
+### D-077: Use Patched Frontend Toolchain Versions
+- **Date**: 2026-10-29
+- **Decision**: Lock the frontend dependency graph and use Vite 6, Vitest 5, and patched ECharts and React Router releases. Keep the React plugin on its compatible Vite 6 line.
+- **Reason**: The prior dependency graph had known vulnerabilities and no lockfile. The first compatible Vitest 4 graph retained advisories; the patched Vitest 5 release supports Vite 6 and removes the audited development vulnerabilities.
+- **Alternatives Rejected**:
+  - Retaining vulnerable development packages because they are not shipped in the production bundle.
+  - Applying `npm audit fix --force` without confirming peer compatibility and rerunning the build and tests.
+
+### D-078: Load LightGBM After the Windows OpenMP Runtime
+- **Date**: 2026-10-29
+- **Decision**: Import LightGBM lazily from the generator, feature-diagnostics, and state-ablation functions, after their scikit-learn imports have initialized the Windows OpenMP runtime.
+- **Reason**: The installed scikit-learn Windows wheel preloads `vcomp140.dll` from its private library directory. Importing LightGBM before scikit-learn made the DLL unavailable to the Windows loader and stopped otherwise valid clean-room stages.
+- **Alternatives Rejected**:
+  - Making users install a machine-wide runtime when the required runtime is already packaged with scikit-learn.
+  - Suppressing LightGBM load errors or silently omitting it from calibration and evaluation.
+
+### D-079: Use Vitest-Specific Matcher Types and Standard Browser Globals
+- **Date**: 2026-10-29
+- **Decision**: Import `@testing-library/jest-dom/vitest` in the test setup and use `globalThis` for the ResizeObserver polyfill.
+- **Reason**: The patched Vitest version uses its own assertion types, and the project's TypeScript configuration intentionally does not expose Node globals to browser code.
+- **Alternatives Rejected**:
+  - Hiding type errors by excluding tests from the frontend type-check.
+  - Adding Node globals to browser test source solely to type a browser-provided global.
+
+### D-080: Keep Run Timing Reports as Local Evidence
+- **Date**: 2026-10-29
+- **Decision**: Ignore generated `artifacts/pipeline_runs/` and `artifacts/release_checks/` reports in Git while retaining them locally for audit evidence.
+- **Reason**: These reports contain per-machine timings and ephemeral run outcomes, not source or reproducible inputs.
+- **Alternatives Rejected**:
+  - Committing local pipeline logs as product source.
+  - Discarding stage timings instead of retaining an auditable local record.
+
+### D-081: Keep Global Explanations on Validation Data
+- **Date**: 2026-10-29
+- **Decision**: Compute global SHAP rankings from the validation sample only. Remove the test-ranking field from the explanation artifact and API response.
+- **Reason**: The explanation command previously loaded held-out test indices after final evaluation to calculate another SHAP ranking. That re-read was outside the one-time finalist evaluation and weakened the test-set quarantine.
+- **Alternatives Rejected**:
+  - Keeping test-derived rankings because they were already exposed by the API.
+  - Replacing them with validation values while still labeling them as test results.

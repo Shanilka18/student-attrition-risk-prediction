@@ -335,7 +335,7 @@ Returns unsupervised engagement discoveries: Hidden Markov Model (HMM) states, $
 ```
 
 #### `GET /api/drivers`
-Returns global SHAP feature importance rankings on both validation and quarantined test splits, cross-method ranking agreements (SHAP vs. Permutation Importance vs. Logistic Regression coefficients), grouped importance by indicator, period, and feature family, and sampled point clouds for interactive browser rendering.
+Returns global SHAP feature importance rankings from validation data only, cross-method ranking agreements (SHAP vs. Permutation Importance vs. Logistic Regression coefficients), grouped importance by indicator, period, and feature family, and sampled point clouds for interactive browser rendering. The explanation pipeline does not read held-out test indices or test rows.
 
 - **Request**: `GET /api/drivers`
 - **Response** (`200 OK`):

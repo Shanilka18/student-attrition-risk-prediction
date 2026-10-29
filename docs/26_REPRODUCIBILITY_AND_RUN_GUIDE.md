@@ -13,25 +13,36 @@ Use the repository's supported Python version from [pyproject.toml](../pyproject
 ```powershell
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip setuptools
 python -m pip install -r requirements.txt
 python -m pip install -e .
 ```
 
 The pinned requirements file includes the model, plotting, and test dependencies. The editable install makes `mei` available as a Python module. If only running the docs scripts from source, `python scripts/build_docs_numbers.py` can run without installing the project package; the CLI itself still needs its dependencies.
 
-For frontend work, install the lockfile dependencies and use the declared frontend scripts:
+For frontend work, enter the frontend folder, restore the tracked lockfile, and use the declared scripts:
 
 ```powershell
-npm --prefix frontend ci
-npm --prefix frontend run build
-npm --prefix frontend run test
+Set-Location frontend
+npm ci
+npm run build
+npm test
+Set-Location ..
 ```
 
-Run the API with `python -m mei.cli serve` in one terminal and the frontend with `npm --prefix frontend run dev` in another. The browser client requires the API and frontend proxy configuration to agree. Do not expose a development service publicly.
+After the build and pipeline complete, run `.\start.ps1` in PowerShell. On Linux/macOS, use `bash ./start.sh`. Each script starts the built application with the project's virtual environment. For frontend development, run `npm run dev` from `frontend/` and keep the API proxy pointed at the local server. Do not expose a development service publicly.
 
 ## Reproduce the analytical pipeline
 
-The commands below are the implemented phase workflow. Full model commands can take a long time. Run them only for a new, intentionally created run; do not run `finalize` on the active run in this checkout because its one-time test marker is already present.
+The `all` command now dispatches the full ordered pipeline in separate CLI processes, generates sample data, enforces configured training budgets, stops on the first failure, and writes stage timings under `artifacts/pipeline_runs/`:
+
+```powershell
+python -m mei.cli all
+```
+
+The configured classic, deep, and regression training budgets are 30, 15, and 15 minutes respectively, within the 60-minute project budget. A time cap can reduce candidate search coverage; inspect each generated leaderboard and timing report. Do not rerun final evaluation on the same run after its one-time test marker is present.
+
+The phases dispatched by `all` are:
 
 | Phase | Command or action | Main output |
 |---|---|---|
@@ -40,14 +51,14 @@ The commands below are the implemented phase workflow. Full model commands can t
 | Quality control | `python -m mei.cli clean --input data/raw/survey_raw_sample.csv --mode training` | Cleaned cohort and quality report under `data/interim/` and run artifacts. |
 | Features and splits | `python -m mei.cli features` | Leakage audit, feature sets, student partitions, and CV split artifacts. |
 | States | `python -m mei.cli states` | Cluster and HMM summaries under the run's `states/` folder. |
-| Classification | `python -m mei.cli train-classic --quick` | Quick smoke benchmark. Remove `--quick` for the full model comparison. |
-| Deep models | `python -m mei.cli train-deep --quick` | Quick smoke benchmark. Remove `--quick` for the full model comparison. |
-| Regression | `python -m mei.cli train-regression` | Track B regression leaderboard and diagnostics. |
+| Classification | `python -m mei.cli train-classic --budget-minutes 30` | Time-bounded classification candidates and leaderboard. |
+| Deep models | `python -m mei.cli train-deep --budget-minutes 15` | Time-bounded deep-model candidates and leaderboard. |
+| Regression | `python -m mei.cli train-regression --budget-minutes 15` | Time-bounded regression candidates and diagnostics. |
 | Final evaluation | `python -m mei.cli finalize` | One-time held-out evaluation, calibration, model card, and risk bands. |
 | Explanations | `python -m mei.cli explain` | SHAP summaries and consistency artifacts. |
 | Viva documentation | `python -m mei.cli docs` | `_numbers.json`, generated results, final figures, catalog, and documentation checks. |
 
-`python -m mei.cli all` is currently a stub; it is not a substitute for the commands above. Check `python -m mei.cli --help` and each command's `--help` before a new experiment. The order and results of historical phases are recorded in [phase reports](./phase_reports/).
+Run an individual phase only when its required upstream artifacts exist. The order and results of historical phases are recorded in [phase reports](./phase_reports/).
 
 ## Generate sample data
 
@@ -88,13 +99,16 @@ For a future full software test run, use:
 
 ```powershell
 python -m pytest
-ruff check src tests scripts
-black --check src tests scripts
-npm --prefix frontend run test
-npm --prefix frontend run build
+python -m ruff check src tests scripts
+python -m black --check src tests scripts
+Set-Location frontend
+npm test
+npm run build
+npm run check:tokens
+Set-Location ..
 ```
 
-This guide does not claim that the full suite was run during the documentation phase. The documentation checks do not retrain models or evaluate the held-out test.
+The repeatable release command is `make release-check`; it runs the full configured pipeline, the Python and frontend checks, documentation validation, and production dependency audit. It records timings and outcomes in `artifacts/release_checks/`. Browser, accessibility, offline, and long-running failure drills still require separate evidence and are not implied by a passing command-line check.
 
 ## Output locations
 

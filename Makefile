@@ -1,6 +1,10 @@
-.PHONY: help setup make-sample-data clean features states train-classic train-deep train-regression finalize explain serve retrain docs all test lint format
+.PHONY: help setup make-sample-data clean features states train-classic train-deep train-regression finalize explain serve retrain docs all test lint format release-check
 
-PYTHON = ./.venv/Scripts/python.exe
+ifeq ($(OS),Windows_NT)
+PYTHON ?= .venv/Scripts/python.exe
+else
+PYTHON ?= .venv/bin/python
+endif
 
 help:
 	@echo "Multimodal Student Engagement Intelligence (MEI) - Make Targets"
@@ -22,6 +26,7 @@ help:
 	@echo "  make test"
 	@echo "  make lint"
 	@echo "  make format"
+	@echo "  make release-check"
 
 setup:
 	$(PYTHON) -m mei.cli setup
@@ -75,3 +80,6 @@ lint:
 format:
 	$(PYTHON) -m ruff check --fix src tests
 	$(PYTHON) -m black src tests
+
+release-check:
+	$(PYTHON) scripts/release_check.py
