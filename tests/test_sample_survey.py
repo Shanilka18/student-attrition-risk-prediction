@@ -65,3 +65,35 @@ def test_nonbinary_item_levels_are_not_dominated(sample_generator):
             continue
         largest_level = features[item].value_counts(normalize=True).max()
         assert largest_level <= 0.50, f"{item} level share is {largest_level:.3f}"
+
+
+def test_response_quality_injects_configured_export_mess(sample_generator):
+    settings = sample_generator.settings
+    raw, _ = sample_generator.generate(settings["sizes"]["full"])
+    messy = sample_generator.add_response_quality_effects(raw, seed=42)
+    mappings = sample_generator.mappings
+
+    assert len(messy) == len(raw) + round(
+        len(raw) * settings["response_quality"]["duplicate_rate"]
+    )
+    assert messy[mappings["consent"]["google_forms_header"]].eq(
+        "No / I decline"
+    ).sum() == round(len(raw) * settings["response_quality"]["no_consent_rate"])
+    assert messy[mappings["attention_check"]["google_forms_header"]].eq(
+        settings["response_quality"]["attention_fail_response"]
+    ).sum() == round(len(raw) * settings["response_quality"]["attention_fail_rate"])
+    assert messy[mappings["cost_difficulty"]["google_forms_header"]].eq(
+        sample_generator.schema["items"]["cost_difficulty"]["prefer_not_to_say"][
+            "label"
+        ]
+    ).sum() >= round(len(raw) * settings["response_quality"]["prefer_not_to_say_rate"])
+    assert messy.isna().sum().sum() > 0
+    assert messy[mappings["student_id"]["google_forms_header"]].duplicated().any()
+
+
+def test_response_quality_is_reproducible(sample_generator):
+    raw, _ = sample_generator.generate(300, seed=42)
+    left = sample_generator.add_response_quality_effects(raw, seed=42)
+    right = sample_generator.add_response_quality_effects(raw, seed=42)
+
+    pd.testing.assert_frame_equal(left, right)

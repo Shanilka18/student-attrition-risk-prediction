@@ -165,8 +165,11 @@ sample_data:
       acquiescence_money_worry: 0.04
       midpoint: 0.04
       extreme: 0.04
+    acquiescence_codes: [3, 4]
+    straight_liner_level_fraction: 0.50
     straight_liner_rate: 0.02
     attention_fail_rate: 0.02
+    attention_fail_response: "Disagree"
     random_missing_rate: 0.02
     no_consent_rate: 0.01
     duplicate_rate: 0.005

@@ -207,6 +207,172 @@ class EnvironmentalFinancialSampleGenerator:
         }
         return pd.DataFrame(columns)
 
+    def add_response_quality_effects(
+        self, raw: pd.DataFrame, seed: int | None = None
+    ) -> pd.DataFrame:
+        """Inject configured survey response styles and raw-export imperfections."""
+        quality = self.settings["response_quality"]
+        rng = np.random.default_rng(quality["random_state"] if seed is None else seed)
+        result = raw.copy()
+        n_rows = len(result)
+        item_names = list(self.schema["items"])
+        item_headers = {
+            item: self.mappings[item]["google_forms_header"] for item in item_names
+        }
+        ordinal_items = [
+            item
+            for item, metadata in self.schema["items"].items()
+            if metadata["type"] == "ordinal"
+        ]
+        style_names = list(quality["response_style_rates"])
+        style_probabilities = [
+            float(quality["response_style_rates"][style]) for style in style_names
+        ]
+        no_style_probability = 1.0 - sum(style_probabilities)
+        if no_style_probability < 0:
+            raise ValueError("Configured response style rates must sum to at most 1")
+        style_codes = rng.choice(
+            len(style_names) + 1,
+            size=n_rows,
+            p=style_probabilities + [no_style_probability],
+        )
+        styles = {
+            style: style_codes == style_index
+            for style_index, style in enumerate(style_names)
+        }
+
+        def set_code(item: str, row: int, code: int) -> None:
+            result.at[row, item_headers[item]] = _level_label(self.schema, item, code)
+
+        def code_for(item: str, row: int) -> int | None:
+            value = result.at[row, item_headers[item]]
+            if pd.isna(value):
+                return None
+            for level in self.schema["items"][item]["levels"]:
+                if str(level["label"]) == str(value):
+                    return int(level["code"])
+            special = self.schema["items"][item].get("structural_na")
+            if special and str(special["label"]) == str(value):
+                return int(special["code"])
+            return None
+
+        for style, row_codes in styles.items():
+            rows = np.flatnonzero(row_codes)
+            for row in rows:
+                if style == "acquiescence_money_worry":
+                    codes = quality["acquiescence_codes"]
+                    set_code(
+                        "money_worry",
+                        int(row),
+                        int(rng.choice(codes)),
+                    )
+                elif style == "midpoint":
+                    for item in ordinal_items:
+                        if code_for(item, int(row)) == 0 and item == "job_hours":
+                            continue
+                        current_code = code_for(item, int(row))
+                        if current_code is None or current_code < 0:
+                            continue
+                        levels = self.schema["items"][item]["levels"]
+                        midpoint_index = round(
+                            (len(levels) - 1)
+                            * float(quality["straight_liner_level_fraction"])
+                        )
+                        set_code(
+                            item,
+                            int(row),
+                            int(levels[midpoint_index]["code"]),
+                        )
+                elif style == "extreme":
+                    high_extreme = bool(rng.integers(0, 2))
+                    for item in ordinal_items:
+                        current_code = code_for(item, int(row))
+                        if current_code is None or current_code < 0:
+                            continue
+                        levels = self.schema["items"][item]["levels"]
+                        if item == "job_hours" and current_code == 0:
+                            continue
+                        if item == "job_hours" and not high_extreme:
+                            set_code(item, int(row), int(levels[1]["code"]))
+                        else:
+                            level = levels[-1] if high_extreme else levels[0]
+                            set_code(item, int(row), int(level["code"]))
+        # Enforce the questionnaire's employment gate after style responses.
+        for row in range(n_rows):
+            status_code = code_for("part_time_job", row)
+            hours_code = code_for("job_hours", row)
+            if status_code == 0:
+                set_code("job_hours", row, 0)
+            elif status_code is not None and status_code > 0 and hours_code == 0:
+                set_code("job_hours", row, 1)
+
+        straight_count = round(n_rows * float(quality["straight_liner_rate"]))
+        no_style_rows = np.flatnonzero(style_codes == len(style_names))
+        straight_rows = rng.choice(no_style_rows, size=straight_count, replace=False)
+        for row in straight_rows:
+            for item in ordinal_items:
+                current_code = code_for(item, int(row))
+                if current_code is None or current_code < 0:
+                    continue
+                levels = self.schema["items"][item]["levels"]
+                midpoint_index = round(
+                    (len(levels) - 1) * float(quality["straight_liner_level_fraction"])
+                )
+                set_code(item, int(row), int(levels[midpoint_index]["code"]))
+            status_code = code_for("part_time_job", int(row))
+            if status_code == 0:
+                set_code("job_hours", int(row), 0)
+            elif code_for("job_hours", int(row)) == 0:
+                set_code("job_hours", int(row), 1)
+
+        consent_header = self.mappings["consent"]["google_forms_header"]
+        no_consent_count = round(n_rows * float(quality["no_consent_rate"]))
+        no_consent_rows = rng.choice(n_rows, size=no_consent_count, replace=False)
+        result.loc[no_consent_rows, consent_header] = "No / I decline"
+
+        attention_header = self.mappings["attention_check"]["google_forms_header"]
+        failed_count = round(n_rows * float(quality["attention_fail_rate"]))
+        failed_rows = rng.choice(n_rows, size=failed_count, replace=False)
+        result.loc[failed_rows, attention_header] = quality["attention_fail_response"]
+
+        missing_count = round(
+            n_rows * len(item_names) * float(quality["random_missing_rate"])
+        )
+        missing_positions = rng.choice(
+            n_rows * len(item_names), size=missing_count, replace=False
+        )
+        for position in missing_positions:
+            row, item_index = divmod(int(position), len(item_names))
+            result.at[row, item_headers[item_names[item_index]]] = np.nan
+
+        response_count = n_rows * len(item_names)
+        typo_count = max(1, round(response_count * float(quality["typo_rate"])))
+        typo_positions = rng.choice(response_count, size=typo_count, replace=False)
+        for position in typo_positions:
+            row, item_index = divmod(int(position), len(item_names))
+            header = item_headers[item_names[item_index]]
+            value = result.at[row, header]
+            if pd.isna(value):
+                continue
+            if rng.random() < 0.5:
+                result.at[row, header] = f"  {value}  "
+            else:
+                text = str(value)
+                result.at[row, header] = text[:-1] if len(text) > 1 else text
+
+        # Preserve the explicit non-disclosure response after injecting blanks.
+        pns_count = round(n_rows * float(quality["prefer_not_to_say_rate"]))
+        pns_rows = rng.choice(n_rows, size=pns_count, replace=False)
+        pns = self.schema["items"]["cost_difficulty"]["prefer_not_to_say"]
+        result.loc[pns_rows, item_headers["cost_difficulty"]] = pns["label"]
+
+        duplicate_count = round(n_rows * float(quality["duplicate_rate"]))
+        duplicate_rows = rng.choice(n_rows, size=duplicate_count, replace=False)
+        result = pd.concat(
+            [result, result.iloc[duplicate_rows].copy()], ignore_index=True
+        )
+        return result
+
 
 def sample_output_path(settings: dict[str, Any], key: str) -> Path:
     """Resolve a configured sample output path under the repository root."""
