@@ -13,21 +13,24 @@ Performs:
 
 import json
 from pathlib import Path
-from typing import Any, Dict, List, Tuple
+from typing import Any
+
 import numpy as np
 import pandas as pd
 
-from src.utils.paths import get_data_dir, get_artifacts_dir, ensure_dir
+from src.cleaning.envfin import CleaningResult, EnvironmentalFinancialCleaner
 from src.utils.logging_config import setup_logger
+from src.utils.paths import get_artifacts_dir, get_data_dir
 
 logger = setup_logger("cleaner")
+__all__ = ["CleaningResult", "EnvironmentalFinancialCleaner", "SurveyCleaner"]
 
 
 class SurveyCleaner:
     """Deterministic, logged survey data cleaner for undergraduate student records."""
 
     def __init__(self):
-        self.log_actions: List[Dict[str, Any]] = []
+        self.log_actions: list[dict[str, Any]] = []
 
     def log_action(self, action_name: str, rows_affected: int, details: str):
         """Record a cleaning action for transparent audit trails."""
@@ -39,7 +42,7 @@ class SurveyCleaner:
         self.log_actions.append(entry)
         logger.info(f"[{action_name}] Affected rows: {rows_affected} - {details}")
 
-    def clean(self, df_raw: pd.DataFrame) -> Tuple[pd.DataFrame, Dict[str, Any]]:
+    def clean(self, df_raw: pd.DataFrame) -> tuple[pd.DataFrame, dict[str, Any]]:
         """Clean raw survey dataset with full determinism and logging.
 
         Parameters
@@ -65,8 +68,6 @@ class SurveyCleaner:
             self.log_action("remove_duplicates", n_duplicates, f"Removed {n_duplicates} exact duplicate records.")
         else:
             self.log_action("remove_duplicates", 0, "No duplicate records detected.")
-
-        n_after_dedup = len(df)
 
         # 2. String Cleaning, Whitespace Trimming & Sentinel Value Normalization
         sentinel_tokens = {
@@ -276,7 +277,7 @@ class SurveyCleaner:
 
 def compute_recovery_metrics(
     df_clean: pd.DataFrame, df_truth: pd.DataFrame
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Compare cleaned dataset against pristine ground truth to quantify recovery performance.
 
     Parameters
@@ -347,7 +348,7 @@ def compute_recovery_metrics(
     return recovery_report
 
 
-def run_cleaning_pipeline() -> Tuple[Path, Path, Dict[str, Any]]:
+def run_cleaning_pipeline() -> tuple[Path, Path, dict[str, Any]]:
     """Execute complete cleaning pipeline and save cleaned interim data and logs."""
     synthetic_dir = get_data_dir("synthetic")
     interim_dir = get_data_dir("interim")
@@ -386,7 +387,7 @@ def run_cleaning_pipeline() -> Tuple[Path, Path, Dict[str, Any]]:
 
 if __name__ == "__main__":
     clean_p, log_p, summary = run_cleaning_pipeline()
-    print(f"\n[SUCCESS] Cleaning pipeline completed:")
+    print("\n[SUCCESS] Cleaning pipeline completed:")
     print(f"  Clean interim CSV: {clean_p}")
     print(f"  Audit log JSON:    {log_p}")
     print(f"  Rows before:       {summary['initial_row_count']}")

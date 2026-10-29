@@ -214,6 +214,18 @@ sample_data:
     amber: "#d97706"
     red: "#dc2626"
 
+cleaning:
+  header_scan_rows: 15
+  value_fuzzy_threshold: 90
+  consent_accepted: ["Yes / I agree", "Yes", "I agree", "true", "1"]
+  attention_accepted: ["Agree"]
+  drop_straight_liners: true
+  straight_liner_fraction: 0.80
+  max_missing_feature_fraction: 0.25
+  small_sample_rows: 300
+  low_at_risk_fraction: 0.15
+  dominant_item_level_fraction: 0.60
+
 # ── Cross-sectional design ─────────────────────────────────────────────────────
 design:
   cross_sectional: true

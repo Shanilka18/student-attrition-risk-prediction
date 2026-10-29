@@ -4,6 +4,9 @@ pandas==2.2.3
 scipy==1.13.1
 statsmodels==0.15.0
 openpyxl==3.1.5
+xlrd==2.0.2
+charset-normalizer==3.4.4
+pyarrow==18.1.0
 
 # Machine Learning & Ensembles
 scikit-learn==1.5.2
@@ -34,3 +37,4 @@ pyyaml==6.0.2
 
 # Testing & Quality
 pytest==8.3.4
+pytest-cov

@@ -6,6 +6,7 @@ setup    -- Validate YAML schemas, mapping configs, and codecs.
 profiles -- Show latent risk profile configuration.
 info     -- Print project identity and active config.
 make-sample-data -- Calibrate and generate synthetic survey files and EDA figures.
+clean -- Clean an EF CSV/XLSX/XLS file and save canonical parquet plus report.
 """
 
 import argparse
@@ -125,6 +126,44 @@ def cmd_make_sample_data(args):
     print(f"Generated {len(result['figures'])} EDA figures.")
 
 
+def cmd_clean(args):
+    """Run the reusable EF cleaning pipeline and persist its quality report."""
+    from src.cleaning.cleaner import EnvironmentalFinancialCleaner
+
+    cleaner = EnvironmentalFinancialCleaner()
+    result = cleaner.clean(args.input, mode=args.mode)
+    saved = cleaner.write_result(
+        result,
+        output_root=Path(args.output_root) if args.output_root else None,
+    )
+    for suggestion in saved.report["mapping"]["suggestions"]:
+        print(
+            "Header suggestion: "
+            f"{suggestion['source']} -> {suggestion['suggested_canonical']} "
+            f"({suggestion['confidence']:.1f}%; not auto-accepted)"
+        )
+    if args.mode == "training" and result.report["traffic_light"]["status"] == "red":
+        print(
+            "Cleaning completed with blocking data-quality errors: "
+            + "; ".join(result.report["traffic_light"]["messages"])
+        )
+        print(f"Warnings: {result.report['warnings']}")
+        sys.exit(2)
+    print(
+        f"Cleaning status: {saved.report['traffic_light']['status']} "
+        f"({saved.report['rows_in']} rows in, {saved.report['rows_out']} rows out)"
+    )
+    print(f"Clean parquet: {saved.parquet_path}")
+    print(f"Quality report: {saved.report_path}")
+    rows_with_reasons = sum(
+        bool(reasons) for reasons in saved.report["row_reasons"].values()
+    )
+    if rows_with_reasons:
+        print(f"Rows with quality reasons: {rows_with_reasons}")
+    for warning in saved.report["warnings"]:
+        print(f"Warning: {warning}")
+
+
 def main():
     parser = argparse.ArgumentParser(
         prog="python -m mei.cli",
@@ -154,6 +193,21 @@ def main():
         "make-sample-data",
         help="Calibrate and generate synthetic survey files and EDA figures",
     )
+    clean_parser = subparsers.add_parser(
+        "clean",
+        help="Clean a survey file and write canonical parquet and quality JSON",
+    )
+    clean_parser.add_argument("--input", required=True, help="CSV, XLSX, or XLS path")
+    clean_parser.add_argument(
+        "--mode",
+        choices=("training", "scoring"),
+        default="training",
+        help="Training filters low-quality rows; scoring preserves rows with reasons",
+    )
+    clean_parser.add_argument(
+        "--output-root",
+        help="Optional project root for parquet and JSON output (primarily for tests)",
+    )
 
     args = parser.parse_args()
 
@@ -162,6 +216,7 @@ def main():
         "profiles": cmd_profiles,
         "info": cmd_info,
         "make-sample-data": cmd_make_sample_data,
+        "clean": cmd_clean,
     }
 
     if args.command in dispatch:
