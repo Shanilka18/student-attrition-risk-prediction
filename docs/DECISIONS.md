@@ -45,10 +45,16 @@ data only.
 
 ## Decision 6: Cross-sectional profile discovery
 
-Latent profiles are discovered through clustering, Gaussian mixture modeling,
-or latent-class approaches. Profile fitting occurs within validation folds to
-avoid information leakage. Profiles support descriptive and group-wise
-reporting; they are not inputs to the main classifier.
+Latent profiles are discovered from the four indices and overall pressure
+using standardized KMeans, Gaussian Mixture, and Ward agglomerative
+candidates. Candidate evaluation and selection occur inside each training
+fold. The highest-stability candidate meeting the configured silhouette
+minimum is selected, with ties preferring smaller k. Profile ids, GMM
+membership probabilities when applicable, centre distance, and high-pressure
+index count are evaluated through an explicit ablation; they remain optional
+features and are not adopted without useful, externally validated gains.
+Profiles are descriptive groupings, not diagnoses. Recovery against hidden
+generated student types is reported only as valid for generated data.
 
 ## Decision 7: Model evaluation protocol
 

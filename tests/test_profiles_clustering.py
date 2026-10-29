@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import numpy as np
+from sklearn.metrics import adjusted_rand_score
 
 from src.profiles.clustering import evaluate_cluster_candidate
 
@@ -22,8 +23,11 @@ def test_candidate_metrics_detect_separated_toy_mixture():
         n_clusters=2,
         bootstrap_resamples=5,
     )
+    recovered_labels = fitted.predict(values)
+    expected_labels = np.repeat([0, 1], 60)
 
     assert fitted.n_clusters == 2
+    assert adjusted_rand_score(expected_labels, recovered_labels) > 0.95
     assert metrics["silhouette"] > 0.8
     assert metrics["stability_ari_mean"] > 0.9
     assert metrics["calinski_harabasz"] > 1000

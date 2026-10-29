@@ -255,8 +255,9 @@ feature_pipeline:
 # ── Cross-sectional design ─────────────────────────────────────────────────────
 design:
   cross_sectional: true
-  profile_method: gmm          # options: gmm | kmeans | latent_class
-  n_profiles: 4                # selected within CV folds
+  profile_method: stability_selected
+  profile_selection_config: config/profile_selection.yaml
+  profile_feature_ablation: [agg, agg_profiles, profiles_only]
 
 # ── Targets ───────────────────────────────────────────────────────────────────
 targets:

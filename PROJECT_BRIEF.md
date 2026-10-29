@@ -105,10 +105,12 @@ Defined canonically in `docs/questionnaire_envfin_v2.md` and `config/schema_envf
 - **Ratio & interaction features** — e.g., `job_hours × cost_difficulty`, `commute_spend / income_band`.
 
 ### 5.2 Cross-Sectional Risk Profiles
-- Latent risk profiles identified by **clustering / GMM / latent class analysis** fitted strictly **inside cross-validation folds** (no leakage).
+- Latent risk profiles identified from the four indices plus overall pressure using standardized **KMeans, Gaussian Mixture, and Ward agglomerative** candidates. Candidate selection and all profile fitting happen strictly inside each training fold.
+- Evaluate cluster counts 2–6 using silhouette, Calinski-Harabasz, Davies-Bouldin, GMM BIC, and 30-resample bootstrap ARI stability. Select the most stable candidate with silhouette at least 0.15; ties prefer smaller k.
 - Profiles are learned from the questionnaire's single cross-sectional response per student.
-- Profile labels: e.g., "High Financial Pressure", "Digital Barrier", "Commute-Burdened", "Low Risk".
-- Profiles used for stratified reporting and counsellor dashboards only; never as features for the main classifier.
+- Profile names are generated deterministically from the dominant original-scale index centroid; they are descriptive labels, not diagnoses.
+- Profile ids, GMM memberships when applicable, distance to the assigned centre, and high-pressure-index count are evaluated as an optional feature set against the aggregate and profile-only baselines. They are not adopted in the main classifier without evidence of useful, externally validated gains.
+- Generated-data recovery scores are labelled "valid only for generated data." Profile descriptions and group summaries use no held-out test rows.
 
 ---
 
