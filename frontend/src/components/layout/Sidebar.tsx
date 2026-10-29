@@ -8,6 +8,7 @@ import {
   UploadCloud,
   UserCheck,
   BookOpen,
+  Layers,
   SlidersHorizontal,
   ChevronRight,
 } from 'lucide-react';
@@ -38,7 +39,7 @@ const navItems: Array<{ id: PageId; label: string; icon: React.FC<{ className?: 
   { id: 'explainability', label: 'Explainability (SHAP)', icon: Network },
   { id: 'score', label: 'Score My Data', icon: UploadCloud },
   { id: 'student', label: 'Individual Student View', icon: UserCheck },
-  { id: 'methodology', label: 'Methodology & Docs', icon: BookOpen },
+  { id: 'methodology', label: 'System Architecture', icon: Layers },
 ];
 
 export const Sidebar: React.FC<SidebarProps> = ({
