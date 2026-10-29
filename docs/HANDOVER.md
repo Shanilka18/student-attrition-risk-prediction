@@ -28,6 +28,26 @@ python run.py train --models catboost gru --budget standard
 python run.py train --categories E --budget full
 ```
 
+### Interactive Retraining on Real User Data (Phase 1 & Phase 2)
+Beyond CLI commands, the system provides **Web & REST API on-demand retraining, dynamic model scoring, and rollback**:
+1. **Web UI**: Navigate to the **PREDICT** page, upload a dataset with outcomes, and click the amber **"Retrain on My Data"** button. Configure budget (quick/standard/full) and scope (champions/all), then monitor live 2-second progress.
+2. **REST API**:
+   - `POST /train/inspect`: Inspect dataset feasibility, class balance, and data leakage.
+   - `POST /retrain`: Submit background retraining job (HTTP 202).
+   - `GET /jobs/{id}`: Poll live status, current model, and metrics.
+   - `GET /train/latest`: Read latest retrained model summary.
+   - `GET /train/runs`: List all past retrained models and their active status.
+   - `POST /train/activate/{job_id}`: Hot-reload inference service to score using user-retrained champion weights.
+   - `POST /train/rollback`: Safely roll back to canonical thesis synthetic benchmark.
+   - `DELETE /train/runs/{job_id}`: Remove isolated run directory and uploads.
+3. **Model Promotion & Dynamic Scoring (Phase 2)**:
+   - On the Retrained Champion Card, click **"Use this model for scoring"**.
+   - The top navigation bar displays a persistent badge: `[Active: REAL DATA]` (emerald) vs `[Active: SYNTHETIC BENCHMARK]` (amber).
+   - Live single-student simulations and batch prediction uploads output `provenance_tag: "REAL"`.
+   - `/meta` dynamically reports real retrained test metrics and clears synthetic disclaimers.
+   - Administrators can roll back at any time via **"Rollback to Synthetic"** without restarting the server.
+4. **Filesystem Isolation Guarantee**: Retrained models, leaderboards, and explanations are saved strictly to `artifacts/user_dataset/<job_id>/`. Active run routing uses `artifacts/active_run.json`. The canonical thesis synthetic benchmarks in `artifacts/models/` and `artifacts/leaderboard/` remain 100% untouched.
+
 **What happens during retrain**:
 1. Optuna searches hyperparameters using 5-fold CV on training partition only.
 2. Best config trained on full training partition with early stopping.
