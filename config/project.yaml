@@ -34,6 +34,12 @@ hardware:
   use_gpu: false
   total_training_time_budget_minutes: 60
 
+pipeline:
+  training_budgets_minutes:
+    classic: 30
+    deep: 15
+    regression: 15
+
 sample_data:
   n_students: 2400
   random_seed: 42
@@ -150,5 +156,4 @@ engagement_states:
         low_max: 1.75
         medium_max: 3.25
     rule_names: ["Consistent", "Declining", "Improving", "Sporadic"]
-
 

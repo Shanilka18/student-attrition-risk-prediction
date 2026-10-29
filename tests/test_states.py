@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from mei.features.transformers import CANONICAL_INDICATORS
+from mei.features.transformers import CANONICAL_INDICATORS, EngagementImputer
 from mei.states.clustering import (
     evaluate_clusterings,
     extract_composite_trajectory_matrix,
@@ -346,7 +346,9 @@ class TestEvaluationAndFigures:
         assert res.archetype_cluster_ari == 1.0
         assert res.is_valid_only_for_generated_data is True
 
-    def test_ablation_cross_validation(self, sample_survey_dataframe, tmp_path):
+    def test_ablation_cross_validation(
+        self, sample_survey_dataframe, tmp_path, monkeypatch
+    ):
         import json
 
         # Mock 2-fold CV scheme on 30 students
@@ -372,6 +374,34 @@ class TestEvaluationAndFigures:
         }
         cv_file.write_text(json.dumps(cv_data), encoding="utf-8")
 
+        fit_row_counts = []
+        hmm_training_rows = []
+        fitted_transformers = []
+        original_imputer_fit = EngagementImputer.fit
+        original_transformer_fit = StateFeatureTransformer.fit
+        from mei.states import transformers as state_transformers
+
+        original_hmm_fit = state_transformers.fit_gaussian_hmm_with_restarts
+
+        def record_imputer_fit(imputer, X, y=None):
+            fit_row_counts.append(len(X))
+            return original_imputer_fit(imputer, X, y)
+
+        def record_transformer_fit(transformer, X, y=None):
+            result = original_transformer_fit(transformer, X, y)
+            fitted_transformers.append(transformer)
+            return result
+
+        def record_hmm_fit(X, lengths, *args, **kwargs):
+            hmm_training_rows.append((len(X), sum(lengths)))
+            return original_hmm_fit(X, lengths, *args, **kwargs)
+
+        monkeypatch.setattr(EngagementImputer, "fit", record_imputer_fit)
+        monkeypatch.setattr(StateFeatureTransformer, "fit", record_transformer_fit)
+        monkeypatch.setattr(
+            state_transformers, "fit_gaussian_hmm_with_restarts", record_hmm_fit
+        )
+
         summary = run_state_ablation_cv(
             clean_df=sub_df,
             agg_features_df=agg_features,
@@ -381,6 +411,15 @@ class TestEvaluationAndFigures:
             hmm_k=2,
             random_seed=42,
         )
+
+        assert fit_row_counts == [15, 15]
+        assert hmm_training_rows == [(60, 60), (60, 60)]
+        assert len(fitted_transformers) == 2
+        for transformer in fitted_transformers:
+            assert transformer.clustering_scaler_.n_samples_seen_ == 15
+            assert transformer.hmm_scaler_.n_samples_seen_ == 60
+            assert len(transformer.clustering_model_.labels_) == 15
+
         assert "logistic_regression" in summary.results
         assert "lightgbm" in summary.results
         assert "agg" in summary.results["logistic_regression"]

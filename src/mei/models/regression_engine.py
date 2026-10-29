@@ -7,7 +7,6 @@ from typing import Any, Dict, List, Optional
 import joblib
 import numpy as np
 import scipy.stats as stats
-import torch.nn as nn
 from sklearn.linear_model import Ridge
 from sklearn.model_selection import KFold
 from sklearn.pipeline import Pipeline
@@ -18,12 +17,6 @@ from mei.evaluation.regression_metrics import (
     compute_classification_at_60,
     compute_regression_metrics,
     compute_track_b_leaderboard_score,
-)
-from mei.models.deep.architectures import build_deep_model
-from mei.models.deep.regression_trainer import (
-    DeepEngagementDataset,
-    predict_deep_regressor,
-    train_two_stage_regression,
 )
 from mei.models.regression_registry import (
     RegressionModelSpec,
@@ -258,6 +251,15 @@ def evaluate_single_regression_model(
         # B. Deep Learning Models
         # ---------------------------------------------------------
         else:
+            import torch.nn as nn
+
+            from mei.models.deep.architectures import build_deep_model
+            from mei.models.deep.regression_trainer import (
+                DeepEngagementDataset,
+                predict_deep_regressor,
+                train_two_stage_regression,
+            )
+
             if spec.feature_set == "sequence":
                 raw_seq_tr = X_dict["sequence"][tr_idx]
                 raw_seq_v = X_dict["sequence"][val_idx]

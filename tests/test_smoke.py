@@ -128,17 +128,73 @@ def test_cli_serve_command() -> None:
     assert "--port" in res.stdout
 
 
-def test_cli_remaining_stub_commands() -> None:
-    """Unimplemented commands must return 0 and output 'not implemented yet'."""
-    stubs = [
-        "retrain",
+def test_cli_all_runs_complete_pipeline_in_order(tmp_path, monkeypatch) -> None:
+    """The all command dispatches every pipeline phase in the documented order."""
+    import subprocess
+
+    commands: list[list[str]] = []
+
+    def fake_run(command, **kwargs):
+        commands.append(command)
+        return subprocess.CompletedProcess(command, 0)
+
+    config = {
+        "project": {"random_seed": 13},
+        "hardware": {"total_training_time_budget_minutes": 60},
+        "pipeline": {
+            "training_budgets_minutes": {
+                "classic": 30,
+                "deep": 15,
+                "regression": 15,
+            }
+        },
+    }
+    monkeypatch.setattr("mei.cli.load_project_config", lambda: config)
+    monkeypatch.setattr("mei.cli.ARTIFACTS_DIR", tmp_path / "artifacts")
+    monkeypatch.setattr("mei.cli.subprocess.run", fake_run)
+
+    result = runner.invoke(app, ["all"])
+
+    assert result.exit_code == 0, result.stdout
+    assert [command[3] for command in commands] == [
+        "setup",
+        "make-sample-data",
+        "clean",
+        "features",
+        "states",
+        "train-classic",
+        "train-deep",
+        "train-regression",
+        "finalize",
+        "explain",
         "docs",
-        "all",
     ]
-    for cmd in stubs:
-        result = runner.invoke(app, [cmd])
-        assert result.exit_code == 0
-        assert "not implemented yet" in result.stdout
+    assert "--seed" in commands[3]
+    assert commands[5][-1] == "30"
+    assert commands[6][-1] == "15"
+    assert commands[7][-1] == "15"
+    report_files = list((tmp_path / "artifacts" / "pipeline_runs").glob("*.json"))
+    assert len(report_files) == 1
+    assert '"status": "passed"' in report_files[0].read_text(encoding="utf-8")
+
+
+def test_cli_all_rejects_budgets_over_hardware_limit(monkeypatch) -> None:
+    """Training stage budgets must not exceed the configured total budget."""
+    config = {
+        "project": {"random_seed": 42},
+        "hardware": {"total_training_time_budget_minutes": 60},
+        "pipeline": {
+            "training_budgets_minutes": {
+                "classic": 40,
+                "deep": 25,
+                "regression": 30,
+            }
+        },
+    }
+    monkeypatch.setattr("mei.cli.load_project_config", lambda: config)
+    result = runner.invoke(app, ["all"])
+    assert result.exit_code == 1
+    assert "exceed the total hardware budget" in result.output
 
 
 def test_project_config() -> None:

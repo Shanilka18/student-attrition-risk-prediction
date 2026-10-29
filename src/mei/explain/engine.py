@@ -93,9 +93,8 @@ def get_champion_explainer(
 def compute_global_shap_audit(
     run_dir: Optional[Path] = None,
     n_val_samples: int = 250,
-    n_test_samples: int = 250,
 ) -> Dict[str, Any]:
-    """Compute global SHAP explanations on validation and holdout test data."""
+    """Compute global SHAP explanations on validation data only."""
     active_dir = get_active_run_dir(run_dir)
     active_dir / "champion"
 
@@ -138,53 +137,7 @@ def compute_global_shap_audit(
         for r, idx in enumerate(np.argsort(-val_mean_abs))
     ]
 
-    # 2. Load holdout test data
-    from mei.features.splits import load_test_indices
-
-    test_idx = load_test_indices(active_dir / "splits", allow_override=True)
-    cohort_df = load_full_clean_cohort()
-    test_df = cohort_df.iloc[test_idx].reset_index(drop=True)
-    # Transform test features
-    from mei.features.pipeline import build_feature_pipeline
-
-    feat_pipe = build_feature_pipeline("agg")
-    train_val_idx = json.load(
-        open(active_dir / "splits" / "train_idx.json")
-    ) + json.load(open(active_dir / "splits" / "val_idx.json"))
-    feat_pipe.fit(cohort_df.iloc[train_val_idx].reset_index(drop=True))
-    X_test_df = feat_pipe.transform(test_df)
-
-    # Ensure column alignment
-    for col in feature_names:
-        if col not in X_test_df.columns:
-            X_test_df[col] = 0.0
-    X_test_sample = X_test_df[feature_names]
-    if len(X_test_sample) > n_test_samples:
-        X_test_sample = X_test_sample.sample(
-            n=n_test_samples, random_state=42
-        ).reset_index(drop=True)
-
-    logger.info(
-        "Computing SHAP values for test sample (%d rows)...", len(X_test_sample)
-    )
-    test_shap = explainer.shap_values(
-        X_test_sample.values, nsamples=100, l1_reg="num_features(10)"
-    )
-    test_shap = np.asarray(test_shap)
-    test_mean_abs = np.mean(np.abs(test_shap), axis=0)
-
-    test_ranking = [
-        {
-            "rank": int(r + 1),
-            "feature": feature_names[idx],
-            "plain_name": feature_mapping[feature_names[idx]]["plain_name"],
-            "mean_abs_shap": float(round(test_mean_abs[idx], 6)),
-            "mean_abs_points": float(round(test_mean_abs[idx] * 100.0, 2)),
-        }
-        for r, idx in enumerate(np.argsort(-test_mean_abs))
-    ]
-
-    # 3. Grouped importance
+    # 2. Grouped importance
     val_mean_abs_dict = {
         feature_names[i]: float(val_mean_abs[i]) for i in range(len(feature_names))
     }
@@ -275,13 +228,10 @@ def compute_global_shap_audit(
         "baseline_probability": baseline_p,
         "baseline_mei": round(baseline_p * 100.0, 1),
         "validation_ranking": val_ranking,
-        "test_ranking": test_ranking,
         "grouped_importance": grouped_importance,
         "tree_hybrid_audit": tree_interactions,
         "val_shap_matrix": val_shap,
         "val_sample_df": val_sample,
-        "test_shap_matrix": test_shap,
-        "test_sample_df": X_test_sample,
     }
 
 

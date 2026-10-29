@@ -190,6 +190,55 @@ def test_model_reproducibility() -> None:
     )
 
 
+def test_calibrator_and_scaler_fit_rows_match_each_training_fold(monkeypatch) -> None:
+    """Inspect fitted calibration and scaling inputs for each outer CV fold."""
+    from sklearn.calibration import CalibratedClassifierCV
+    from sklearn.preprocessing import StandardScaler
+
+    import mei.models.engine as engine
+
+    rng = np.random.RandomState(7)
+    X = rng.normal(size=(120, 8))
+    y = np.tile([0, 1], 60)
+    cv_folds = [
+        {"fold": 0, "train_idx": list(range(60)), "val_idx": list(range(60, 120))},
+        {"fold": 1, "train_idx": list(range(60, 120)), "val_idx": list(range(60))},
+    ]
+    fit_counts = {"calibrator": [], "scaler": []}
+
+    original_calibrator_fit = CalibratedClassifierCV.fit
+    original_scaler_fit = StandardScaler.fit
+
+    def record_calibrator_fit(estimator, X_fit, y_fit, *args, **kwargs):
+        fit_counts["calibrator"].append(len(X_fit))
+        return original_calibrator_fit(estimator, X_fit, y_fit, *args, **kwargs)
+
+    def record_scaler_fit(scaler, X_fit, y_fit=None, **kwargs):
+        fit_counts["scaler"].append(len(X_fit))
+        return original_scaler_fit(scaler, X_fit, y_fit, **kwargs)
+
+    monkeypatch.setattr(CalibratedClassifierCV, "fit", record_calibrator_fit)
+    monkeypatch.setattr(StandardScaler, "fit", record_scaler_fit)
+    monkeypatch.setattr(engine, "compute_learning_curve_data", lambda *a, **k: {})
+    monkeypatch.setattr(engine, "compute_validation_curve_data", lambda *a, **k: {})
+    monkeypatch.setattr(
+        engine, "compute_boosting_iteration_losses", lambda *a, **k: None
+    )
+
+    spec = get_all_model_specs()["ridge_calibrated"]
+    evaluate_single_model(
+        spec,
+        {"agg": X},
+        y,
+        cv_folds=cv_folds,
+        seed=7,
+        enable_tuning=False,
+    )
+
+    assert fit_counts["calibrator"] == [60, 60, 120]
+    assert fit_counts["scaler"] == [60, 60, 120]
+
+
 def test_stacking_oof_canary_leakage_audit() -> None:
     """Test that canary leakage is caught by audit and stacking uses OOF properly."""
     rng = np.random.RandomState(42)

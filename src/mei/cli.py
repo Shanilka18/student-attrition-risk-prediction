@@ -8,6 +8,7 @@ from typing import Optional
 import typer
 
 import mei.config  # noqa: F401 - Sets MPLCONFIGDIR before any matplotlib import
+from mei.config import ARTIFACTS_DIR, PROJECT_ROOT, load_project_config
 
 app = typer.Typer(
     name="mei",
@@ -259,9 +260,7 @@ def clean(
     status_color = (
         "green"
         if report.status.value == "GREEN"
-        else "yellow"
-        if report.status.value == "AMBER"
-        else "red"
+        else "yellow" if report.status.value == "AMBER" else "red"
     )
     sum_table.add_row(
         "Overall Status",
@@ -702,9 +701,11 @@ def features(
     leak_tbl.add_row(
         "Outcome items A1..A3 in features",
         f"Found: {len(audit_res['forbidden_columns_found'])}",
-        "[green]PASS[/green]"
-        if len(audit_res["forbidden_columns_found"]) == 0
-        else "[bold red]FAIL[/bold red]",
+        (
+            "[green]PASS[/green]"
+            if len(audit_res["forbidden_columns_found"]) == 0
+            else "[bold red]FAIL[/bold red]"
+        ),
     )
     max_feat = audit_res["max_correlation_feature"]
     max_val = audit_res["max_correlation_value"]
@@ -763,9 +764,11 @@ def features(
         "agg",
         f"{lr_agg_auc:.4f} ± {lr_agg_ci:.4f}",
         f"{lr_agg_f1:.4f} ± {lr_agg_f1_ci:.4f}",
-        f"[green]+{lr_agg_auc - lr_raw_auc:.4f}[/green]"
-        if lr_agg_auc >= lr_raw_auc
-        else f"[red]{lr_agg_auc - lr_raw_auc:.4f}[/red]",
+        (
+            f"[green]+{lr_agg_auc - lr_raw_auc:.4f}[/green]"
+            if lr_agg_auc >= lr_raw_auc
+            else f"[red]{lr_agg_auc - lr_raw_auc:.4f}[/red]"
+        ),
     )
     bench_tbl.add_row(
         "LightGBM",
@@ -779,9 +782,11 @@ def features(
         "agg",
         f"{lgb_agg_auc:.4f} ± {lgb_agg_ci:.4f}",
         f"{lgb_agg_f1:.4f} ± {lgb_agg_f1_ci:.4f}",
-        f"[green]+{lgb_agg_auc - lgb_raw_auc:.4f}[/green]"
-        if lgb_agg_auc >= lgb_raw_auc
-        else f"[red]{lgb_agg_auc - lgb_raw_auc:.4f}[/red]",
+        (
+            f"[green]+{lgb_agg_auc - lgb_raw_auc:.4f}[/green]"
+            if lgb_agg_auc >= lgb_raw_auc
+            else f"[red]{lgb_agg_auc - lgb_raw_auc:.4f}[/red]"
+        ),
     )
     console.print(bench_tbl)
 
@@ -1069,9 +1074,11 @@ def states(
             str(int(row["k"])),
             f"{row['train_log_likelihood']:.2f}",
             f"{row['bic']:.2f}",
-            f"{row['val_log_likelihood']:.2f}"
-            if not pd.isna(row["val_log_likelihood"])
-            else "N/A",
+            (
+                f"{row['val_log_likelihood']:.2f}"
+                if not pd.isna(row["val_log_likelihood"])
+                else "N/A"
+            ),
             "[green]YES[/green]" if row["converged"] else "[red]NO[/red]",
             "[green]YES[/green]" if is_sel else "",
         )
@@ -1658,9 +1665,9 @@ def train_classic(
                 "learning_curves": curv.get("learning_curves", {}),
                 "validation_curves": curv.get("validation_curves", {}),
                 "iteration_losses": curv.get("iteration_losses"),
-                "final_pipeline": joblib.load(pipe_path)
-                if pipe_path.exists()
-                else None,
+                "final_pipeline": (
+                    joblib.load(pipe_path) if pipe_path.exists() else None
+                ),
             }
 
             # Generate synthetic OOF predictions array if needed for downstream stacking
@@ -2291,9 +2298,7 @@ def train_deep(
         st_color = (
             "green"
             if lm["overfit_status"] == "Good fit"
-            else "yellow"
-            if lm["overfit_status"] == "Slight overfit"
-            else "red"
+            else "yellow" if lm["overfit_status"] == "Slight overfit" else "red"
         )
         deep_tbl.add_row(
             str(lm.get("rank", "-")),
@@ -3237,9 +3242,11 @@ def finalize() -> None:
         ag = tm["agreement_check"]
         test_tbl.add_row(
             mid,
-            "champion"
-            if mid == "knn"
-            else ("runner-up" if mid == "gru" else "finalist"),
+            (
+                "champion"
+                if mid == "knn"
+                else ("runner-up" if mid == "gru" else "finalist")
+            ),
             f"{tm['test_f1_optimal']:.4f}",
             f"{tm['test_auc_roc']:.4f}",
             f"{tm['test_mcc']:.4f}",
@@ -3591,9 +3598,7 @@ def explain() -> None:
         "[bold cyan]─── STEP 1: GLOBAL SHAP AUDIT (VALIDATION & HOLDOUT TEST) ───[/bold cyan]"
     )
     t0 = time.time()
-    global_res = compute_global_shap_audit(
-        active_dir, n_val_samples=250, n_test_samples=250
-    )
+    global_res = compute_global_shap_audit(active_dir, n_val_samples=250)
     console.print(f"[green]✓[/green] Global SHAP computed in {time.time() - t0:.1f} s")
 
     # Render global figures
@@ -3617,19 +3622,14 @@ def explain() -> None:
 
     # Print Top 10 Global Drivers
     top_tbl = Table(
-        title="Top 10 Global Drivers of Attrition Risk (Validation vs Test)",
+        title="Top 10 Global Drivers of Attrition Risk (Validation Sample)",
         header_style="bold cyan",
     )
     top_tbl.add_column("Rank", justify="center", style="bold")
     top_tbl.add_column("Feature Plain Name", style="bold")
     top_tbl.add_column("Indicator", justify="center")
     top_tbl.add_column("Period", justify="center")
-    top_tbl.add_column("Val Mean |SHAP| (pts)", justify="right", style="green")
-    top_tbl.add_column("Test Mean |SHAP| (pts)", justify="right", style="cyan")
-
-    test_rank_map = {
-        f["feature"]: f["mean_abs_points"] for f in global_res["test_ranking"]
-    }
+    top_tbl.add_column("Validation Mean |SHAP| (pts)", justify="right", style="green")
     for item in global_res["validation_ranking"][:10]:
         top_tbl.add_row(
             str(item["rank"]),
@@ -3637,7 +3637,6 @@ def explain() -> None:
             item["indicator"],
             item["period"],
             f"{item['mean_abs_points']:.2f}",
-            f"{test_rank_map.get(item['feature'], 0.0):.2f}",
         )
     console.print(top_tbl)
 
@@ -3820,7 +3819,6 @@ def explain() -> None:
         "baseline_probability": global_res["baseline_probability"],
         "baseline_mei": global_res["baseline_mei"],
         "validation_ranking": global_res["validation_ranking"],
-        "test_ranking": global_res["test_ranking"],
         "grouped_importance": global_res["grouped_importance"],
         "tree_hybrid_audit": global_res["tree_hybrid_audit"],
     }
@@ -3909,31 +3907,58 @@ def serve(
     )
     console.print("  [bold cyan]MEI BACKEND API SERVER (FASTAPI)[/bold cyan]")
     console.print(f"  [bold]Listening on: [green]http://{host}:{port}[/green][/bold]")
-    console.print(f"  [bold]Interactive Swagger Docs: [green]http://{host}:{port}/docs[/green][/bold]")
-    console.print(f"  [bold]ReDoc API Contract: [green]http://{host}:{port}/redoc[/green][/bold]")
+    console.print(
+        f"  [bold]Interactive Swagger Docs: [green]http://{host}:{port}/docs[/green][/bold]"
+    )
+    console.print(
+        f"  [bold]ReDoc API Contract: [green]http://{host}:{port}/redoc[/green][/bold]"
+    )
     console.print(
         "[bold green]================================================================================[/bold green]\n"
     )
-    uvicorn.run("mei.api.app:create_app", host=host, port=port, reload=reload, factory=True)
+    uvicorn.run(
+        "mei.api.app:create_app", host=host, port=port, reload=reload, factory=True
+    )
 
 
 @app.command()
 def retrain(
-    data: Path = typer.Option(..., "--data", "-d", help="Path to survey dataset (.csv, .xlsx, .xls)"),
-    mode: str = typer.Option("quick", "--mode", "-m", help="Retraining mode: 'quick' (10-15 min) or 'full' (all models)"),
-    activate: bool = typer.Option(False, "--activate", "-a", help="Automatically activate candidate run upon completion"),
-    seed: int = typer.Option(42, "--seed", "-s", help="Random seed for reproducibility"),
+    data: Path = typer.Option(
+        ..., "--data", "-d", help="Path to survey dataset (.csv, .xlsx, .xls)"
+    ),
+    mode: str = typer.Option(
+        "quick",
+        "--mode",
+        "-m",
+        help="Retraining mode: 'quick' (10-15 min) or 'full' (all models)",
+    ),
+    activate: bool = typer.Option(
+        False,
+        "--activate",
+        "-a",
+        help="Automatically activate candidate run upon completion",
+    ),
+    seed: int = typer.Option(
+        42, "--seed", "-s", help="Random seed for reproducibility"
+    ),
 ) -> None:
     """Retrain full MEI pipeline on incoming survey data and produce new candidate run."""
     from rich.console import Console
-    from mei.registry.retrain import run_full_pipeline, activate_pipeline_run, compare_pipeline_runs
+
     from mei.config import ARTIFACTS_DIR
+    from mei.registry.retrain import (
+        activate_pipeline_run,
+        compare_pipeline_runs,
+        run_full_pipeline,
+    )
 
     console = Console()
     console.print(
         "\n[bold green]================================================================================[/bold green]"
     )
-    console.print(f"  [bold cyan]MEI RETRAINING PIPELINE (MODE: {mode.upper()})[/bold cyan]")
+    console.print(
+        f"  [bold cyan]MEI RETRAINING PIPELINE (MODE: {mode.upper()})[/bold cyan]"
+    )
     console.print(f"  Dataset: [bold yellow]{data}[/bold yellow] | Seed: {seed}")
     console.print(
         "[bold green]================================================================================[/bold green]\n"
@@ -3944,7 +3969,11 @@ def retrain(
         raise typer.Exit(code=1)
 
     active_file = ARTIFACTS_DIR / "active_run.txt"
-    old_run_id = active_file.read_text(encoding="utf-8").strip() if active_file.exists() else None
+    old_run_id = (
+        active_file.read_text(encoding="utf-8").strip()
+        if active_file.exists()
+        else None
+    )
 
     def on_progress(pct: float, step: str) -> None:
         console.print(f"  [dim cyan][{pct*100:5.1f}%][/dim cyan] {step}")
@@ -3977,10 +4006,12 @@ def retrain(
             console.print("\n[bold]Side-by-Side Comparison with Active Run:[/bold]")
             console.print(f"  Active Run: {old_run_id} ({c['champion_a']})")
             console.print(f"  New Run:    {new_run_id} ({c['champion_b']})")
-            console.print(f"  Score Diff: {c['cv_score_diff']:+.4f} | Test F1 Diff: {c['test_f1_diff']:+.4f}")
+            console.print(
+                f"  Score Diff: {c['cv_score_diff']:+.4f} | Test F1 Diff: {c['test_f1_diff']:+.4f}"
+            )
             console.print(f"  Verdict:    [italic]{c['verdict_summary']}[/italic]")
         except Exception as e:
-            logger.warning("Could not compare with active run: %s", e)
+            console.print(f"[yellow]Could not compare with active run: {e}[/yellow]")
 
     if activate:
         activate_pipeline_run(new_run_id, actor="CLI User")
@@ -3995,11 +4026,16 @@ def retrain(
 
 @app.command()
 def activate(
-    run_id: str = typer.Argument(..., help="Run ID to activate as operational champion"),
-    actor: str = typer.Option("CLI Administrator", "--actor", help="User or process activating the model"),
+    run_id: str = typer.Argument(
+        ..., help="Run ID to activate as operational champion"
+    ),
+    actor: str = typer.Option(
+        "CLI Administrator", "--actor", help="User or process activating the model"
+    ),
 ) -> None:
     """Activate a retrained pipeline run and update active run pointer."""
     from rich.console import Console
+
     from mei.registry.retrain import activate_pipeline_run
 
     console = Console()
@@ -4037,13 +4073,137 @@ def docs() -> None:
                 err=True,
             )
             raise typer.Exit(code=result.returncode)
-    typer.echo("Documentation numbers, summaries, figures, and links rebuilt and checked.")
+    typer.echo(
+        "Documentation numbers, summaries, figures, and links rebuilt and checked."
+    )
 
 
 @app.command("all")
 def run_all() -> None:
-    """Execute end-to-end pipeline from data generation to reporting."""
-    typer.echo("not implemented yet")
+    """Run the complete sample-data pipeline and record stage timings."""
+    import datetime
+    import json
+    import time
+    import uuid
+
+    config = load_project_config()
+    project = config.get("project", {})
+    pipeline = config.get("pipeline", {})
+    budgets = pipeline.get("training_budgets_minutes", {})
+    try:
+        seed = int(project["random_seed"])
+        total_budget = int(config["hardware"]["total_training_time_budget_minutes"])
+        stage_budgets = {
+            stage: int(budgets[stage]) for stage in ("classic", "deep", "regression")
+        }
+    except (KeyError, TypeError, ValueError) as exc:
+        typer.echo(f"Pipeline configuration is incomplete or invalid: {exc}", err=True)
+        raise typer.Exit(code=1) from exc
+
+    if any(budget <= 0 for budget in stage_budgets.values()):
+        typer.echo(
+            "Each model-training stage must have a positive time budget.", err=True
+        )
+        raise typer.Exit(code=1)
+    if sum(stage_budgets.values()) > total_budget:
+        typer.echo(
+            "Configured model-training budgets exceed the total hardware budget.",
+            err=True,
+        )
+        raise typer.Exit(code=1)
+
+    stages = [
+        ("setup", ["setup"]),
+        ("data", ["make-sample-data"]),
+        (
+            "clean",
+            [
+                "clean",
+                "--input",
+                "data/raw/survey_raw_sample.csv",
+                "--mode",
+                "training",
+            ],
+        ),
+        ("features", ["features", "--seed", str(seed)]),
+        ("states", ["states"]),
+        (
+            "classic",
+            ["train-classic", "--budget-minutes", str(stage_budgets["classic"])],
+        ),
+        ("deep", ["train-deep", "--budget-minutes", str(stage_budgets["deep"])]),
+        (
+            "regression",
+            [
+                "train-regression",
+                "--budget-minutes",
+                str(stage_budgets["regression"]),
+            ],
+        ),
+        ("finalize", ["finalize"]),
+        ("explain", ["explain"]),
+        ("docs", ["docs"]),
+    ]
+
+    run_id = datetime.datetime.now(datetime.timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    report_path = (
+        ARTIFACTS_DIR
+        / "pipeline_runs"
+        / f"pipeline_{run_id}_{uuid.uuid4().hex[:6]}.json"
+    )
+    report_path.parent.mkdir(parents=True, exist_ok=True)
+    report = {
+        "started_at": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+        "seed": seed,
+        "training_budgets_minutes": stage_budgets,
+        "configured_training_budget_minutes": total_budget,
+        "stages": [],
+        "status": "running",
+    }
+
+    for stage_name, arguments in stages:
+        typer.echo(f"[{stage_name}] Starting: python -m mei.cli {' '.join(arguments)}")
+        started = time.perf_counter()
+        result = subprocess.run(
+            [sys.executable, "-m", "mei.cli", *arguments],
+            cwd=PROJECT_ROOT,
+            check=False,
+        )
+        duration_seconds = round(time.perf_counter() - started, 3)
+        report["stages"].append(
+            {
+                "name": stage_name,
+                "command": ["python", "-m", "mei.cli", *arguments],
+                "duration_seconds": duration_seconds,
+                "exit_code": result.returncode,
+                "status": "passed" if result.returncode == 0 else "failed",
+            }
+        )
+        report_path.write_text(json.dumps(report, indent=2), encoding="utf-8")
+        if result.returncode != 0:
+            report["status"] = "failed"
+            report["failed_stage"] = stage_name
+            report["finished_at"] = datetime.datetime.now(
+                datetime.timezone.utc
+            ).isoformat()
+            report_path.write_text(json.dumps(report, indent=2), encoding="utf-8")
+            typer.echo(
+                f"Pipeline stopped at '{stage_name}' (exit code {result.returncode}). "
+                f"Timing report: {report_path}",
+                err=True,
+            )
+            raise typer.Exit(code=result.returncode)
+
+    report["status"] = "passed"
+    report["finished_at"] = datetime.datetime.now(datetime.timezone.utc).isoformat()
+    report["total_duration_seconds"] = round(
+        sum(stage["duration_seconds"] for stage in report["stages"]), 3
+    )
+    report_path.write_text(json.dumps(report, indent=2), encoding="utf-8")
+    typer.echo(
+        f"Full pipeline completed in {report['total_duration_seconds']:.1f} seconds. "
+        f"Timing report: {report_path}"
+    )
 
 
 if __name__ == "__main__":

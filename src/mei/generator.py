@@ -9,7 +9,6 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
-import lightgbm as lgb
 import numpy as np
 import pandas as pd
 from scipy.special import expit
@@ -332,6 +331,8 @@ class SyntheticSurveyGenerator:
 
     def evaluate_cv(self, X: np.ndarray, y: np.ndarray) -> Tuple[float, float, float]:
         """Fit 5-fold CV to evaluate LogisticRegression and LightGBM AUC."""
+        import lightgbm as lgb
+
         cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=self.seed)
         lr_oof = np.zeros(len(y), dtype=float)
         lgb_oof = np.zeros(len(y), dtype=float)

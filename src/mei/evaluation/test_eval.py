@@ -42,7 +42,6 @@ from mei.evaluation.regression_metrics import (
     compute_regression_metrics,
 )
 from mei.features.splits import load_test_indices
-from mei.models.deep.architectures import build_deep_model
 
 logger = logging.getLogger(__name__)
 
@@ -290,6 +289,8 @@ def evaluate_final_on_test(
             # Deep model prediction on test set
             import torch
 
+            from mei.models.deep.architectures import build_deep_model
+
             model_pt = m_dir / "model.pt"
             device = torch.device("cpu")
             deep_m = build_deep_model(
@@ -462,6 +463,8 @@ def evaluate_final_on_test(
             pred_te = cat_m.predict(X_te)
         elif mid == "lstm_regressor":
             import torch
+
+            from mei.models.deep.architectures import build_deep_model
 
             device = torch.device("cpu")
             deep_m = build_deep_model("lstm", tab_input_dim=58, seq_input_dim=7)

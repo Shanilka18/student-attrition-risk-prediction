@@ -37,31 +37,35 @@ def test_double_test_evaluation_raises_permission_error(active_run_dir: Path):
 
 
 def test_static_code_test_indices_quarantine():
-    """Static check verifying test_idx.json is not read in feature pipelines or model training.
+    """Keep held-out indices out of pipelines, explainability, scripts, and notebooks.
 
-    Only evaluate_final_on_test() in test_eval.py and splits.py definitions are permitted.
+    Final evaluation is the only permitted reader besides split-index definitions.
     """
-    src_dir = Path("src/mei")
+    allowed_readers = {
+        Path("src/mei/evaluation/test_eval.py"),
+        Path("src/mei/features/splits.py"),
+        Path("src/mei/cli.py"),
+    }
+    scan_roots = [Path("src"), Path("scripts"), Path("notebooks")]
+    source_files = []
+    for root in scan_roots:
+        if root.exists():
+            source_files.extend(root.rglob("*.py"))
+            source_files.extend(root.rglob("*.ipynb"))
+
     violations = []
 
-    for py_file in src_dir.rglob("*.py"):
-        # Exempt test_eval.py, splits.py, and legacy CLI setup
-        if py_file.name in ["test_eval.py", "splits.py"]:
+    for py_file in source_files:
+        relative_path = py_file.as_posix()
+        if Path(relative_path) in allowed_readers:
             continue
 
         text = py_file.read_text(encoding="utf-8")
         lines = text.splitlines()
         for idx, line in enumerate(lines, 1):
-            # Check for direct test_idx loading
             if (
-                "test_idx.json" in line
-                and "load_test_indices" not in line
-                and "splits" not in py_file.name
+                "test_idx.json" in line or "load_test_indices(" in line
             ):
-                # If in cli.py, ensure it's not in training commands
-                if py_file.name == "cli.py":
-                    # CLI finalize is permitted to load test targets for reporting
-                    continue
                 violations.append(f"{py_file}:{idx}: {line.strip()}")
 
     assert len(violations) == 0, (

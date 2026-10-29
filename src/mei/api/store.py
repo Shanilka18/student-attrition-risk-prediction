@@ -549,7 +549,6 @@ class RunStore:
             "baseline_probability": glob_imp.get("baseline_probability", 0.2462),
             "baseline_mei": glob_imp.get("baseline_mei", 24.6),
             "validation_ranking": glob_imp.get("validation_ranking", []),
-            "test_ranking": glob_imp.get("test_ranking", []),
             "grouped_importance": grp_imp,
             "shap_consistency": consistency,
             "cross_method_comparison": cross_method,

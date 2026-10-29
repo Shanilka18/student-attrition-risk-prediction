@@ -8,7 +8,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
-from lightgbm import LGBMClassifier
 from sklearn.feature_selection import mutual_info_classif
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import f1_score, roc_auc_score
@@ -181,9 +180,9 @@ def compute_feature_diagnostics(
                 "cohens_d": round(float(d), 3),
                 "abs_cohens_d": round(float(abs(d)), 3),
                 "mutual_info": round(float(mi_dict.get(col, 0.0)), 4),
-                "spearman_corr": round(float(spearman_r), 3)
-                if not np.isnan(spearman_r)
-                else 0.0,
+                "spearman_corr": (
+                    round(float(spearman_r), 3) if not np.isnan(spearman_r) else 0.0
+                ),
             }
         )
 
@@ -231,6 +230,8 @@ def run_cv_benchmark(
     seed: int = 42,
 ) -> Dict[str, Any]:
     """Run 15-fold CV benchmark on raw28 vs agg features using LR and LightGBM."""
+    from lightgbm import LGBMClassifier
+
     y = train_val_df[label_col].values.astype(int)
     raw_28_cols = get_canonical_28_columns()
 

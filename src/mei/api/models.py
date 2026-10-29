@@ -240,7 +240,6 @@ class RiskDriversResponse(BaseModel):
     baseline_probability: float
     baseline_mei: float
     validation_ranking: List[Dict[str, Any]]
-    test_ranking: List[Dict[str, Any]]
     grouped_importance: Dict[str, Any]
     shap_consistency: Dict[str, Any]
     cross_method_comparison: Dict[str, Any]

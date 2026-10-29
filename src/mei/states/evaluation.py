@@ -13,7 +13,6 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List, Optional, Union
 
-import lightgbm as lgb
 import numpy as np
 import pandas as pd
 from scipy import stats
@@ -159,6 +158,8 @@ def run_state_ablation_cv(
     Evaluates Logistic Regression and LightGBM.
     Conducts paired Wilcoxon signed-rank test across folds for agg vs agg_states.
     """
+    import lightgbm as lgb
+
     with open(cv_folds_path, "r", encoding="utf-8") as f:
         cv_folds_data = json.load(f)
 

@@ -212,7 +212,7 @@ def test_drivers_endpoint(client: TestClient):
 
     assert data["baseline_mei"] > 0.0
     assert len(data["validation_ranking"]) >= 10
-    assert len(data["test_ranking"]) >= 5
+    assert len(data["validation_ranking"]) >= 5
     assert "by_indicator" in data["grouped_importance"]
     assert "by_period" in data["grouped_importance"]
     assert "by_family" in data["grouped_importance"]
