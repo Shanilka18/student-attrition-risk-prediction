@@ -165,13 +165,18 @@ export function ChartCard({
             {tableAlternative}
           </div>
         ) : (
-          <ReactECharts
-            ref={chartRef}
-            option={mergedOption}
-            style={{ height, width: '100%' }}
-            opts={{ renderer: 'canvas' }}
-            notMerge={true}
-          />
+          <div
+            role="img"
+            aria-label={`${title}. ${subtitle ?? caption ?? 'Chart visualization.'}`}
+          >
+            <ReactECharts
+              ref={chartRef}
+              option={mergedOption}
+              style={{ height, width: '100%' }}
+              opts={{ renderer: 'canvas' }}
+              notMerge={true}
+            />
+          </div>
         )}
         {/* Screen reader text alternative always present in DOM */}
         {tableAlternative && !showTable && (

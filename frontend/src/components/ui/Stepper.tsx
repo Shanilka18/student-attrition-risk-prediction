@@ -24,8 +24,8 @@ export function Stepper({ steps, activeStep, className }: StepperProps) {
             <li
               key={step.title}
               className={cn(
-                'relative flex items-center',
-                idx !== steps.length - 1 ? 'flex-1 pr-4 sm:pr-8' : ''
+                'relative flex min-w-0 items-center',
+                idx !== steps.length - 1 ? 'flex-1 pr-1 sm:pr-8' : ''
               )}
             >
               <div className="flex items-center gap-3">
@@ -61,7 +61,7 @@ export function Stepper({ steps, activeStep, className }: StepperProps) {
               {idx !== steps.length - 1 && (
                 <div
                   className={cn(
-                    'flex-1 h-[1px] ml-4 transition-colors duration-150',
+                    'flex-1 h-[1px] ml-1 sm:ml-4 transition-colors duration-150',
                     isCompleted ? 'bg-forest' : 'bg-line'
                   )}
                   aria-hidden="true"

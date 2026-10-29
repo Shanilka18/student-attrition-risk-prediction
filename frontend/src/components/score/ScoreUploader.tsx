@@ -19,6 +19,7 @@ export function ScoreUploader({
   error = null,
 }: ScoreUploaderProps) {
   const [isDragging, setIsDragging] = useState(false);
+  const [fileError, setFileError] = useState<string | null>(null);
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -48,26 +49,29 @@ export function ScoreUploader({
   const validateAndPass = (file: File) => {
     const ext = file.name.split('.').pop()?.toLowerCase();
     if (!['csv', 'xlsx', 'xls'].includes(ext || '')) {
-      alert('Only .csv, .xlsx, and .xls survey spreadsheets are supported.');
+      setFileError('Choose a CSV or Excel survey spreadsheet (.csv, .xlsx, or .xls).');
       return;
     }
     if (file.size > 20 * 1024 * 1024) {
-      alert('File exceeds the 20 MB size limit.');
+      setFileError('This file is larger than the 20 MB limit.');
       return;
     }
+    setFileError(null);
     onFileSelect(file);
   };
+
+  const errorMessage = fileError ?? error;
 
   return (
     <div className="space-y-6">
       {/* Primary Upload Dropzone Card */}
       <Card className="border-border">
-        <CardContent className="p-8">
+        <CardContent className="p-4 sm:p-8">
           <div
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
-            className={`relative flex flex-col items-center justify-center p-10 border-2 border-dashed rounded-lg transition-colors cursor-pointer text-center ${
+            className={`relative flex flex-col items-center justify-center p-4 sm:p-10 border-2 border-dashed rounded-lg transition-colors cursor-pointer text-center ${
               isDragging
                 ? 'border-forest bg-forest/5'
                 : 'border-border-strong hover:border-forest hover:bg-forest/5'
@@ -108,11 +112,18 @@ export function ScoreUploader({
             )}
           </div>
 
-          {error && (
-            <div className="mt-4 p-4 bg-crimson-subtle border border-crimson/30 rounded-md flex items-start gap-3">
+          {errorMessage && (
+            <div
+              className="mt-4 p-4 bg-crimson-subtle border border-crimson/30 rounded-md flex items-start gap-3"
+              role="alert"
+              aria-live="assertive"
+            >
               <AlertCircle className="w-5 h-5 text-crimson shrink-0 mt-0.5" />
               <div className="text-caption text-crimson">
-                <span className="font-semibold">Validation Error:</span> {error}
+                <span className="font-semibold">
+                  {fileError ? 'File Error:' : 'Validation Error:'}
+                </span>{' '}
+                {errorMessage}
               </div>
             </div>
           )}

@@ -18,10 +18,12 @@ import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import {
   useScoringResults,
+  useStatus,
   getDownloadResultsUrl,
 } from '@/api/queries';
 import type { RunScoringResponse, ScoredStudentRow } from '@/api/types';
 import { ScoreDetailDrawer } from './ScoreDetailDrawer';
+import { getRiskBandDefinitionLabel } from '@/content/riskBands';
 
 interface ScoreResultsStepProps {
   uploadId: string;
@@ -57,6 +59,8 @@ export function ScoreResultsStep({
     filterBand,
     filterFlag,
   });
+  const { data: status } = useStatus();
+  const bandDefinitions = status?.bands?.definitions;
 
   const dist = scoringResponse.risk_distribution;
   const distPct = scoringResponse.risk_distribution_pct;
@@ -73,6 +77,8 @@ export function ScoreResultsStep({
 
   // Histogram option for risk distribution
   const getDistributionChartOption = () => {
+    const bandKeys = ['low', 'moderate', 'high'];
+    const bandCounts = [dist.Low, dist.Moderate, dist.High];
     return {
       grid: {
         top: 25,
@@ -96,7 +102,12 @@ export function ScoreResultsStep({
       },
       xAxis: {
         type: 'category',
-        data: ['Low Risk (0–29)', 'Moderate Risk (30–69)', 'High Risk (70–100)'],
+        data: bandKeys.map((key) =>
+          getRiskBandDefinitionLabel(
+            bandDefinitions?.[key],
+            `${key[0].toUpperCase()}${key.slice(1)} Risk`
+          )
+        ),
         axisLine: { lineStyle: { color: '#DDD8CE' } },
         axisLabel: { color: '#6B665E', fontSize: 11 },
       },
@@ -109,11 +120,13 @@ export function ScoreResultsStep({
         {
           name: 'Students',
           type: 'bar',
-          data: [
-            { value: dist.Low, itemStyle: { color: '#1F4E46' } },
-            { value: dist.Moderate, itemStyle: { color: '#C47D2B' } },
-            { value: dist.High, itemStyle: { color: '#B33929' } },
-          ],
+          data: bandCounts.map((value, index) => {
+            const definition = bandDefinitions?.[bandKeys[index]];
+            return {
+              value,
+              itemStyle: { color: definition?.hex_color ?? '#5B6168' },
+            };
+          }),
           barWidth: '45%',
           label: {
             show: true,
@@ -197,7 +210,10 @@ export function ScoreResultsStep({
         <Card className="border-border">
           <CardContent className="p-5">
             <span className="text-[11px] text-muted uppercase font-semibold tracking-wider block">
-              Low Risk (0–29)
+              {getRiskBandDefinitionLabel(
+                bandDefinitions?.low,
+                'Low Risk'
+              )}
             </span>
             <div className="font-serif text-hero font-bold text-forest mt-1 tabular-nums">
               {dist.Low.toLocaleString()}
@@ -212,7 +228,10 @@ export function ScoreResultsStep({
         <Card className="border-border">
           <CardContent className="p-5">
             <span className="text-[11px] text-muted uppercase font-semibold tracking-wider block">
-              Moderate Risk (30–69)
+              {getRiskBandDefinitionLabel(
+                bandDefinitions?.moderate,
+                'Moderate Risk'
+              )}
             </span>
             <div className="font-serif text-hero font-bold text-amber-text mt-1 tabular-nums">
               {dist.Moderate.toLocaleString()}
@@ -227,7 +246,10 @@ export function ScoreResultsStep({
         <Card className="border-border">
           <CardContent className="p-5">
             <span className="text-[11px] text-muted uppercase font-semibold tracking-wider block">
-              High Risk (70–100)
+              {getRiskBandDefinitionLabel(
+                bandDefinitions?.high,
+                'High Risk'
+              )}
             </span>
             <div className="font-serif text-hero font-bold text-crimson mt-1 tabular-nums">
               {dist.High.toLocaleString()}
@@ -298,11 +320,15 @@ export function ScoreResultsStep({
         <CardHeader className="pb-2">
           <CardTitle className="text-section">Cohort Risk Band Distribution</CardTitle>
           <CardDescription>
-            Categorization by calibrated threshold boundaries: Low Risk (0–29), Moderate Risk (30–69), and High Risk (70–100).
+            Students are grouped using the risk-band boundaries saved with the active model.
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="h-56 w-full bg-paper rounded border border-border p-2">
+          <div
+            className="h-56 w-full bg-paper rounded border border-border p-2"
+            role="img"
+            aria-label="Cohort risk band distribution using the active model's saved band definitions."
+          >
             <ReactECharts
               option={getDistributionChartOption()}
               style={{ height: '100%', width: '100%' }}

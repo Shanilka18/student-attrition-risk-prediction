@@ -211,7 +211,11 @@ export function ScoreDetailDrawer({ uploadId, studentId, onClose }: ScoreDetailD
                   </div>
 
                   {/* Chart Container */}
-                  <div className="h-48 w-full bg-paper rounded border border-border p-2">
+                  <div
+                    className="h-48 w-full bg-paper rounded border border-border p-2"
+                    role="img"
+                    aria-label={`Four-period engagement trajectory for ${selectedIndicator}.`}
+                  >
                     <ReactECharts
                       option={getTrajectoryOption()}
                       style={{ height: '100%', width: '100%' }}

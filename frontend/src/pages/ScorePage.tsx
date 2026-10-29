@@ -77,6 +77,16 @@ export function ScorePage() {
 
   return (
     <div className="space-y-6">
+      <header>
+        <h1 className="font-serif text-page-title text-ink font-semibold">
+          Score students
+        </h1>
+        <p className="text-body text-muted mt-1">
+          Upload a survey spreadsheet to review student risk scores and their
+          explanations.
+        </p>
+      </header>
+
       {/* 3-Step Stepper Progress Bar */}
       <div className="p-4 bg-surface rounded-lg border border-border">
         <div className="flex items-center justify-between max-w-2xl mx-auto">

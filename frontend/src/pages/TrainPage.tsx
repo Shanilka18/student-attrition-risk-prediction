@@ -626,6 +626,9 @@ function PreviousRunsTable() {
 
   return (
     <Card title="Previous runs">
+      <p className="mb-2 text-xs text-muted sm:hidden">
+        Scroll the table sideways to see every column.
+      </p>
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
@@ -724,9 +727,9 @@ export function TrainPage() {
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h2 className="font-serif text-page-title text-ink font-semibold">
+        <h1 className="font-serif text-page-title text-ink font-semibold">
           Train on New Data
-        </h2>
+        </h1>
         <p className="text-body text-muted mt-1">
           Run the full retraining pipeline on your university's validated survey
           responses, compare the result to the current model, and choose whether

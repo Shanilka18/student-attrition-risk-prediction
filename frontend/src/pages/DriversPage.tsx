@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { useDrivers } from '@/api/queries';
 import { Card } from '@/components/ui/Card';
+import { ErrorState } from '@/components/ui/ErrorState';
 import { Tag } from '@/components/ui/Tag';
 import { Skeleton } from '@/components/ui/Skeleton';
 import {
@@ -18,7 +19,13 @@ import {
 type GroupingMode = 'factor' | 'indicator' | 'period' | 'family';
 
 export function DriversPage() {
-  const { data: driversData, isLoading } = useDrivers();
+  const {
+    data: driversData,
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useDrivers();
   const [grouping, setGrouping] = useState<GroupingMode>('factor');
   const [selectedFeature, setSelectedFeature] = useState<string>('composite_drop_from_best_to_last');
 
@@ -473,6 +480,17 @@ export function DriversPage() {
     );
   }
 
+  if (isError || !driversData) {
+    return (
+      <ErrorState
+        title="Risk drivers are unavailable"
+        message="The active run's explanation results could not be loaded. Check the server and try again."
+        error={error}
+        onRetry={() => void refetch()}
+      />
+    );
+  }
+
   return (
     <div className="space-y-8">
       {/* Header & Intro */}
@@ -541,7 +559,11 @@ export function DriversPage() {
           </span>
           <span className="font-mono text-caption text-ink font-medium shrink-0 ml-2">n = 328</span>
         </div>
-        <div className="h-80">
+        <div
+          className="h-80"
+          role="img"
+          aria-label={`Top survey factors associated with risk, ordered by average impact. ${top10.map((feature) => feature.plain_name).join(', ')}`}
+        >
           <ReactECharts
             option={barChartOption}
             style={{ height: '100%', width: '100%' }}
@@ -577,7 +599,11 @@ export function DriversPage() {
           </span>
           <span className="font-mono text-caption text-ink font-medium shrink-0 ml-2">250 sample points</span>
         </div>
-        <div className="h-72">
+        <div
+          className="h-72"
+          role="img"
+          aria-label={`Student-level risk shifts for the selected survey factor ${currentFeatureKey}. Positive values indicate increased risk.`}
+        >
           <ReactECharts
             option={dependenceOption}
             style={{ height: '100%', width: '100%' }}
@@ -605,7 +631,11 @@ export function DriversPage() {
           </span>
           <span className="font-mono text-caption text-ink font-medium shrink-0 ml-2">1,500 cohort attributions</span>
         </div>
-        <div className="h-80">
+        <div
+          className="h-80"
+          role="img"
+          aria-label="Distribution of survey-factor effects across students. Positive values raise risk and negative values lower risk."
+        >
           <ReactECharts
             option={beeswarmOption}
             style={{ height: '100%', width: '100%' }}

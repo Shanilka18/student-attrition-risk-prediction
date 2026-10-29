@@ -15,173 +15,88 @@ import { Button } from '@/components/ui/Button';
 import { Tag } from '@/components/ui/Tag';
 import { Term } from '@/components/ui/Term';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { ErrorState } from '@/components/ui/ErrorState';
+import { getRiskBandDefinitionLabel } from '@/content/riskBands';
 
 export function OverviewPage() {
   const navigate = useNavigate();
-  const { data: status, isLoading: isStatusLoading } = useStatus();
-  const { data: leaderboard, isLoading: isLeaderboardLoading } = useLeaderboard('classification');
+  const {
+    data: status,
+    isLoading: isStatusLoading,
+    isError: isStatusError,
+    error: statusError,
+    refetch: refetchStatus,
+  } = useStatus();
+  const { data: leaderboard, isLoading: isLeaderboardLoading } =
+    useLeaderboard('classification');
   const { data: categoriesBest, isLoading: isCategoriesLoading } = useCategoriesBest('classification');
 
-  // Score distribution histogram data across 10-point bins
+  const bands = status?.bands?.test_holdout_verification?.bands ?? [];
+  const definitions = status?.bands?.definitions;
+  const totalStudents = status?.n_students_total;
+  const trainStudents = status?.n_students_train;
+  const testStudents = status?.n_students_test;
+  const totalModels = leaderboard?.total_models;
+  const champion = status?.champion;
+
+  const highRiskShare = useMemo(() => {
+    if (!testStudents) return null;
+    const modStudents =
+      bands.find((band) => band.band_key === 'moderate')?.n_students ?? 0;
+    const highStudents =
+      bands.find((band) => band.band_key === 'high')?.n_students ?? 0;
+    const sum = modStudents + highStudents;
+    return ((sum / testStudents) * 100).toFixed(1);
+  }, [bands, testStudents]);
+
   const histogramOption = useMemo(() => {
-    // 10 bins across 0-100: [0-9, 10-19, 20-29, 30-34/39, 40-49, 50-59, 60-69, 70-79, 80-89, 90-100]
-    // Calibrated holdout counts matching bands: Low=239, Moderate=46, High=43, Total=328
-    const bins = [
-      '0–9',
-      '10–19',
-      '20–29',
-      '30–39',
-      '40–49',
-      '50–59',
-      '60–69',
-      '70–79',
-      '80–89',
-      '90–100',
-    ];
-    const counts = [142, 58, 27, 18, 14, 14, 18, 15, 12, 10];
-
-    const barColors = counts.map((_, i) => {
-      if (i < 3) return '#2E7D4F'; // Low Risk (0-29)
-      if (i === 3) return '#3D8C5E'; // Boundary (30-39)
-      if (i < 6) return '#C98A00'; // Moderate Risk (40-59)
-      if (i === 6) return '#D97706'; // Boundary (60-69)
-      return '#B3261E'; // High Risk (70-100)
-    });
-
+    const series = bands.map((band) => ({
+      value: band.n_students,
+      itemStyle: {
+        color: definitions?.[band.band_key]?.hex_color ?? '#5B6168',
+        borderRadius: [3, 3, 0, 0],
+      },
+    }));
     return {
       tooltip: {
         trigger: 'axis',
         axisPointer: { type: 'shadow' },
-        formatter: (params: any) => {
+        formatter: (params: any[]) => {
           const item = params[0];
-          const bin = item.name;
-          const count = item.value;
-          const pct = ((count / 328) * 100).toFixed(1);
-          let band = 'Low Risk';
-          if (item.dataIndex >= 3 && item.dataIndex <= 6) band = 'Moderate Risk';
-          if (item.dataIndex > 6) band = 'High Risk';
+          const band = bands[item.dataIndex];
+          const pct = testStudents
+            ? ((item.value / testStudents) * 100).toFixed(1)
+            : 'N/A';
           return `<div style="font-family: inherit; font-size: 13px; padding: 4px;">
-            <div style="font-weight: 600; color: #1A1D21;">Score Range: ${bin}</div>
-            <div style="color: #5B6168; margin-top: 2px;">Students: <strong>${count}</strong> (${pct}%)</div>
-            <div style="color: #5B6168;">Assigned Band: <strong>${band}</strong></div>
+            <div style="font-weight: 600; color: #1A1D21;">${item.name}</div>
+            <div style="color: #5B6168; margin-top: 2px;">Students: <strong>${item.value}</strong> (${pct}%)</div>
+            <div style="color: #5B6168;">Observed at-risk rate: <strong>${band.observed_at_risk_pct.toFixed(1)}%</strong></div>
           </div>`;
         },
       },
-      grid: {
-        top: 24,
-        right: 16,
-        bottom: 36,
-        left: 48,
-      },
+      grid: { top: 24, right: 16, bottom: 36, left: 48 },
       xAxis: {
         type: 'category',
-        data: bins,
+        data: bands.map((band) =>
+          getRiskBandDefinitionLabel(
+            definitions?.[band.band_key],
+            band.band_label
+          )
+        ),
         axisLine: { lineStyle: { color: '#DDD8CE' } },
         axisTick: { alignWithLabel: true },
-        axisLabel: {
-          color: '#5B6168',
-          fontSize: 11,
-          interval: 0,
-          fontFamily: 'inherit',
-        },
+        axisLabel: { color: '#5B6168', fontSize: 11, interval: 0, fontFamily: 'inherit' },
       },
       yAxis: {
         type: 'value',
         axisLine: { show: false },
         axisTick: { show: false },
         splitLine: { lineStyle: { color: '#EEEAE2', type: 'dashed' } },
-        axisLabel: {
-          color: '#5B6168',
-          fontSize: 11,
-          fontFamily: 'inherit',
-        },
+        axisLabel: { color: '#5B6168', fontSize: 11, fontFamily: 'inherit' },
       },
-      series: [
-        {
-          name: 'Students',
-          type: 'bar',
-          barWidth: '60%',
-          data: counts.map((val, idx) => ({
-            value: val,
-            itemStyle: {
-              color: barColors[idx],
-              borderRadius: [3, 3, 0, 0],
-            },
-          })),
-          markArea: {
-            silent: true,
-            data: [
-              [
-                {
-                  xAxis: '0–9',
-                  itemStyle: { color: 'rgba(46, 125, 79, 0.05)' },
-                },
-                { xAxis: '20–29' },
-              ],
-              [
-                {
-                  xAxis: '30–39',
-                  itemStyle: { color: 'rgba(201, 138, 0, 0.06)' },
-                },
-                { xAxis: '50–59' },
-              ],
-              [
-                {
-                  xAxis: '60–69',
-                  itemStyle: { color: 'rgba(179, 38, 30, 0.06)' },
-                },
-                { xAxis: '90–100' },
-              ],
-            ],
-          },
-        },
-      ],
+      series: [{ name: 'Students', type: 'bar', barWidth: '45%', data: series }],
     };
-  }, []);
-
-  const totalStudents = status?.n_students_total ?? 2184;
-  const trainStudents = status?.n_students_train ?? 1856;
-  const testStudents = status?.n_students_test ?? 328;
-  const totalModels = leaderboard?.total_models ?? 36;
-  const champion = status?.champion;
-
-  // Band verification numbers from holdout test partition
-  const bands = status?.bands?.test_holdout_verification?.bands ?? [
-    {
-      band_key: 'low',
-      band_label: 'Low Risk',
-      score_range: '0–34',
-      n_students: 239,
-      observed_at_risk_count: 22,
-      observed_at_risk_pct: 9.21,
-      mean_mei: 9.45,
-    },
-    {
-      band_key: 'moderate',
-      band_label: 'Moderate Risk',
-      score_range: '35–64',
-      n_students: 46,
-      observed_at_risk_count: 28,
-      observed_at_risk_pct: 60.87,
-      mean_mei: 51.33,
-    },
-    {
-      band_key: 'high',
-      band_label: 'High Risk',
-      score_range: '65–100',
-      n_students: 43,
-      observed_at_risk_count: 33,
-      observed_at_risk_pct: 76.74,
-      mean_mei: 79.12,
-    },
-  ];
-
-  const highRiskShare = useMemo(() => {
-    const modStudents = bands.find((b) => b.band_key === 'moderate')?.n_students ?? 46;
-    const highStudents = bands.find((b) => b.band_key === 'high')?.n_students ?? 43;
-    const sum = modStudents + highStudents;
-    return ((sum / testStudents) * 100).toFixed(1);
-  }, [bands, testStudents]);
+  }, [bands, definitions, testStudents]);
 
   if (isStatusLoading && isLeaderboardLoading) {
     return (
@@ -195,6 +110,17 @@ export function OverviewPage() {
         </div>
         <Skeleton className="h-64" />
       </div>
+    );
+  }
+
+  if (isStatusError) {
+    return (
+      <ErrorState
+        title="Project results are unavailable"
+        message="The active model records could not be loaded. Check that the server is running and try again."
+        error={statusError}
+        onRetry={() => void refetchStatus()}
+      />
     );
   }
 
@@ -215,23 +141,23 @@ export function OverviewPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <Stat
           label="Students in the data"
-          value={totalStudents.toLocaleString()}
-          note={`${trainStudents.toLocaleString()} study cohort · ${testStudents.toLocaleString()} test holdout`}
+          value={totalStudents?.toLocaleString() ?? 'Unavailable'}
+          note={`${trainStudents?.toLocaleString() ?? 'Unavailable'} development · ${testStudents?.toLocaleString() ?? 'Unavailable'} held-out test`}
         />
         <Stat
           label="Models compared"
-          value={totalModels}
-          note="Across 7 distinct algorithmic categories"
+          value={totalModels ?? 'Unavailable'}
+          note="Candidate models in the active classification leaderboard"
         />
         <Stat
           label="Model in use"
-          value={champion?.display_name ?? 'k-Nearest Neighbours'}
-          note="Classical · Distance-based peer classifier"
+          value={champion?.display_name ?? 'Unavailable'}
+          note={champion?.plain_name ?? 'Active model details are unavailable'}
         />
         <Stat
           label="Share flagged as higher risk"
-          value={`${highRiskShare}%`}
-          note="89 of 328 holdout students in Moderate or High bands"
+          value={highRiskShare === null ? 'Unavailable' : `${highRiskShare}%`}
+          note="Held-out students in the Moderate or High bands"
         />
       </div>
 
@@ -259,7 +185,7 @@ export function OverviewPage() {
             </div>
             <div className="mt-4 pt-3 border-t border-line/60">
               <span className="text-caption font-mono font-medium text-forest block">
-                2,184 submissions
+                {totalStudents?.toLocaleString() ?? 'Unavailable'} records in the active run
               </span>
               <span className="text-caption text-muted">35 survey columns recorded</span>
             </div>
@@ -283,9 +209,9 @@ export function OverviewPage() {
             </div>
             <div className="mt-4 pt-3 border-t border-line/60">
               <span className="text-caption font-mono font-medium text-forest block">
-                1,856 verified students
+                {trainStudents?.toLocaleString() ?? 'Unavailable'} development records
               </span>
-              <span className="text-caption text-muted">0 missing values after quality audit</span>
+              <span className="text-caption text-muted">Cleaning and missingness are reported in the run record</span>
             </div>
           </div>
 
@@ -331,7 +257,7 @@ export function OverviewPage() {
             </div>
             <div className="mt-4 pt-3 border-t border-line/60">
               <span className="text-caption font-mono font-medium text-forest block">
-                36 models benchmarked
+                {totalModels ?? 'Unavailable'} models in this track
               </span>
               <span className="text-caption text-muted">0–100 score + plain reasons</span>
             </div>
@@ -345,13 +271,17 @@ export function OverviewPage() {
         <div className="lg:col-span-6">
           <Card
             title="Score distribution"
-            subtitle="Frequency of calibrated risk scores across the 328-student holdout test cohort"
+            subtitle="Held-out students grouped by the active model's saved risk-band definitions"
           >
             <div className="mb-2 flex items-center justify-between text-caption text-muted">
-              <span>Reading guide: Shaded zones correspond to Low (green), Moderate (amber), and High (scarlet) risk bands.</span>
-              <span className="font-mono text-caption text-ink font-medium shrink-0 ml-2">n = 328</span>
+              <span>Bars show the number of held-out students and their observed at-risk rate.</span>
+              <span className="font-mono text-caption text-ink font-medium shrink-0 ml-2">n = {testStudents?.toLocaleString() ?? 'Unavailable'}</span>
             </div>
-            <div className="h-64">
+            <div
+              className="h-64"
+              role="img"
+              aria-label="Score distribution by risk band. Bars show held-out student counts and observed at-risk rates."
+            >
               <ReactECharts
                 option={histogramOption}
                 style={{ height: '100%', width: '100%' }}
@@ -359,18 +289,23 @@ export function OverviewPage() {
               />
             </div>
             <div className="flex items-center justify-center gap-6 mt-3 text-caption text-muted pt-2 border-t border-line/60">
-              <div className="flex items-center gap-1.5">
-                <span className="w-3 h-3 rounded-sm bg-[#2E7D4F]" />
-                <span>Low Risk (0–34)</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <span className="w-3 h-3 rounded-sm bg-[#C98A00]" />
-                <span>Moderate Risk (35–64)</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <span className="w-3 h-3 rounded-sm bg-[#B3261E]" />
-                <span>High Risk (65–100)</span>
-              </div>
+              {bands.map((band) => (
+                <div key={band.band_key} className="flex items-center gap-1.5">
+                  <span
+                    className="w-3 h-3 rounded-sm"
+                    style={{
+                      backgroundColor:
+                        definitions?.[band.band_key]?.hex_color ?? '#5B6168',
+                    }}
+                  />
+                  <span>
+                    {getRiskBandDefinitionLabel(
+                      definitions?.[band.band_key],
+                      band.band_label
+                    )}
+                  </span>
+                </div>
+              ))}
             </div>
           </Card>
         </div>
@@ -400,11 +335,7 @@ export function OverviewPage() {
                           className="w-2.5 h-2.5 rounded-full"
                           style={{
                             backgroundColor:
-                              b.band_key === 'low'
-                                ? '#2E7D4F'
-                                : b.band_key === 'moderate'
-                                ? '#C98A00'
-                                : '#B3261E',
+                              definitions?.[b.band_key]?.hex_color ?? '#5B6168',
                           }}
                         />
                         {b.band_label}
@@ -419,11 +350,7 @@ export function OverviewPage() {
                         {b.observed_at_risk_pct.toFixed(1)}%
                       </td>
                       <td className="py-3 text-caption text-muted leading-snug">
-                        {b.band_key === 'low'
-                          ? 'Routine monitoring'
-                          : b.band_key === 'moderate'
-                          ? 'Advisor outreach & study groups'
-                          : 'Urgent student affairs intervention'}
+                        {definitions?.[b.band_key]?.action ?? 'Action not recorded'}
                       </td>
                     </tr>
                   ))}
@@ -436,10 +363,22 @@ export function OverviewPage() {
               <div className="flex items-center gap-2">
                 <ShieldCheck className="w-4 h-4 text-forest stroke-1.5 shrink-0" />
                 <span className="text-ink">
-                  <strong>Strict Monotonicity:</strong> Observed attrition rate strictly increases across every band (9.2% &lt; 60.9% &lt; 76.7%).
+                  <strong>Strict Monotonicity:</strong>{' '}
+                  {status?.bands?.test_holdout_verification?.observed_rates
+                    ?.map((rate) => `${rate.toFixed(1)}%`)
+                    .join(' < ')}
                 </span>
               </div>
-              <Tag variant="good-fit">AUDIT PASS</Tag>
+              <Tag
+                variant={
+                  status?.bands?.test_holdout_verification?.is_strictly_monotonic
+                    ? 'good-fit'
+                    : 'overfit'
+                }
+              >
+                {status?.bands?.test_holdout_verification?.monotonicity_status ??
+                  'NOT RECORDED'}
+              </Tag>
             </div>
           </Card>
         </div>

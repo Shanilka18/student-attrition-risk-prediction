@@ -56,3 +56,6 @@ artifacts/uploads/*
 !artifacts/uploads/.gitkeep
 artifacts/jobs/*
 !artifacts/jobs/.gitkeep
+artifacts/pipeline_runs/
+artifacts/release_checks/
+frontend/test-results/

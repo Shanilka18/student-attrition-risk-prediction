@@ -238,7 +238,6 @@ export interface RiskDriversResponse {
   baseline_probability: number;
   baseline_mei: number;
   validation_ranking: DriverItem[];
-  test_ranking: DriverItem[];
   grouped_importance: {
     by_indicator: Record<string, { total_shap: number; share_pct: number }>;
     by_period: Record<string, { total_shap: number; share_pct: number }>;

@@ -1,733 +1,525 @@
-import { useState, useMemo } from 'react';
+import { useMemo } from 'react';
 import ReactECharts from 'echarts-for-react';
-import {
-  TrendingDown,
-  TrendingUp,
-  Minus,
-  Shuffle,
-  ShieldCheck,
-} from 'lucide-react';
 import { usePatterns } from '@/api/queries';
 import { Card } from '@/components/ui/Card';
+import { ErrorState } from '@/components/ui/ErrorState';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { Tag } from '@/components/ui/Tag';
 import { Tooltip } from '@/components/ui/Tooltip';
-import { Skeleton } from '@/components/ui/Skeleton';
+
+const periods = [
+  { key: 'composite_p1', label: 'Period 1' },
+  { key: 'composite_p2', label: 'Period 2' },
+  { key: 'composite_p3', label: 'Period 3' },
+  { key: 'composite_p4', label: 'Period 4' },
+];
+
+const indicators = [
+  'Attendance',
+  'Study hours',
+  'LMS logins',
+  'Submissions',
+  'Forum posts',
+  'Downloads',
+  'Quiz attempts',
+];
+
+const patternDetails = [
+  {
+    name: 'Consistent',
+    color: '#2E7D4F',
+    meaning: 'Engagement remains relatively steady across the four survey periods.',
+  },
+  {
+    name: 'Declining',
+    color: '#B3261E',
+    meaning: 'Engagement falls across the four survey periods.',
+  },
+  {
+    name: 'Improving',
+    color: '#1F4E46',
+    meaning: 'Engagement rises across the four survey periods.',
+  },
+  {
+    name: 'Sporadic',
+    color: '#C98A00',
+    meaning: 'Engagement varies across the four survey periods.',
+  },
+];
+
+function formatMetric(value: unknown, digits = 3): string {
+  return typeof value === 'number' && Number.isFinite(value)
+    ? value.toFixed(digits)
+    : 'Not available';
+}
 
 export function PatternsPage() {
-  const { isLoading } = usePatterns();
-  const [showSdBands, setShowSdBands] = useState(true);
-
-  // 1. Trajectory chart option
-  const trajectoryOption = useMemo(() => {
-    const periods = ['P1 (Weeks 1–3)', 'P2 (Weeks 4–7)', 'P3 (Weeks 8–11)', 'P4 (Weeks 12–15)'];
-
-    // Empirical trajectories
-    const seriesData = [
+  const { data, isLoading, isError, error, refetch } = usePatterns();
+  const stateEntries = useMemo(
+    () =>
+      Object.entries(data?.state_names ?? {}).sort(
+        ([left], [right]) => Number(left) - Number(right)
+      ),
+    [data?.state_names]
+  );
+  const stateLabels = stateEntries.map(([, label]) => label);
+  const riskRates = data?.risk_rates_by_pattern ?? {};
+  const totalStudents = Object.values(riskRates).reduce(
+    (total, pattern) => total + pattern.n_students,
+    0
+  );
+  const patternRows = patternDetails.flatMap((details) => {
+    const risk = riskRates[details.name];
+    if (!risk) return [];
+    return [
       {
-        name: 'Consistent',
-        color: '#2E7D4F', // Forest / Sage
-        values: [71.4, 72.1, 70.8, 71.9],
-        sd: [5.2, 5.0, 5.4, 5.1],
-      },
-      {
-        name: 'Declining',
-        color: '#B3261E', // Scarlet
-        values: [68.2, 58.4, 44.1, 31.8],
-        sd: [6.1, 7.3, 8.5, 7.9],
-      },
-      {
-        name: 'Sporadic',
-        color: '#C98A00', // Amber
-        values: [52.1, 66.4, 41.2, 57.8],
-        sd: [8.4, 9.1, 8.8, 9.5],
-      },
-      {
-        name: 'Improving',
-        color: '#1F4E46', // Deep Forest
-        values: [34.2, 45.1, 59.3, 69.8],
-        sd: [6.8, 7.0, 6.4, 5.8],
+        ...details,
+        ...risk,
+        sharePct: totalStudents ? (risk.n_students / totalStudents) * 100 : 0,
       },
     ];
+  });
 
-    const chartSeries: any[] = [];
+  const emissionMeans = data?.emission_means;
+  const emissionMatrix = useMemo(() => {
+    if (Array.isArray(emissionMeans)) return emissionMeans;
+    return stateEntries.map(([stateId]) => emissionMeans?.[stateId] ?? []);
+  }, [emissionMeans, stateEntries]);
 
-    seriesData.forEach((s) => {
-      // Main trajectory line
-      chartSeries.push({
-        name: s.name,
-        type: 'line',
-        data: s.values,
-        smooth: true,
-        lineStyle: { width: 3, color: s.color },
-        itemStyle: { color: s.color },
-        symbol: 'circle',
-        symbolSize: 7,
-      });
-
-      // Upper and lower SD confidence bounds if toggled
-      if (showSdBands) {
-        const upper = s.values.map((v, i) => Math.min(100, Math.round((v + s.sd[i]) * 10) / 10));
-        const lower = s.values.map((v, i) => Math.max(0, Math.round((v - s.sd[i]) * 10) / 10));
-
-        chartSeries.push({
-          name: `${s.name} Upper`,
+  const trajectoryOption = useMemo(() => {
+    const series = patternRows.flatMap((pattern) => {
+      const trajectory = data?.mean_trajectories_by_pattern[pattern.name];
+      if (!trajectory) return [];
+      return [
+        {
+          name: pattern.name,
           type: 'line',
-          data: upper,
-          lineStyle: { opacity: 0 },
-          stack: `confidence-${s.name}`,
-          symbol: 'none',
-        });
-        chartSeries.push({
-          name: `${s.name} ±1 SD`,
-          type: 'line',
-          data: upper.map((u, i) => Math.round((u - lower[i]) * 10) / 10),
-          lineStyle: { opacity: 0 },
-          areaStyle: {
-            color: s.color,
-            opacity: 0.1,
-          },
-          stack: `confidence-${s.name}`,
-          symbol: 'none',
-        });
-      }
+          smooth: true,
+          data: periods.map(({ key }) => trajectory[key] ?? null),
+          lineStyle: { width: 3, color: pattern.color },
+          itemStyle: { color: pattern.color },
+          symbol: 'circle',
+          symbolSize: 7,
+        },
+      ];
     });
 
     return {
-      tooltip: {
-        trigger: 'axis',
-        axisPointer: { type: 'cross' },
-        formatter: (params: any[]) => {
-          const lines = params.filter((p) => !p.seriesName.includes('Upper') && !p.seriesName.includes('±1 SD'));
-          let html = `<div style="font-family: inherit; font-size: 13px; padding: 4px;">
-            <div style="font-weight: 600; color: #1A1D21; margin-bottom: 4px;">${params[0].axisValue}</div>`;
-          lines.forEach((l) => {
-            html += `<div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; margin: 3px 0;">
-              <span style="display: flex; align-items: center; gap: 6px;">
-                <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: ${l.color};"></span>
-                <span style="color: #5B6168;">${l.seriesName}</span>
-              </span>
-              <strong style="color: #1A1D21; font-family: monospace;">${Number(l.value).toFixed(1)} / 100</strong>
-            </div>`;
-          });
-          html += '</div>';
-          return html;
-        },
-      },
-      legend: {
-        data: ['Consistent', 'Declining', 'Sporadic', 'Improving'],
-        bottom: 0,
-        textStyle: { color: '#5B6168', fontFamily: 'inherit' },
-      },
-      grid: {
-        top: 24,
-        right: 24,
-        bottom: 44,
-        left: 48,
-      },
+      tooltip: { trigger: 'axis' },
+      legend: { bottom: 0, textStyle: { color: '#5B6168' } },
+      grid: { top: 24, right: 24, bottom: 48, left: 52 },
       xAxis: {
         type: 'category',
-        data: periods,
+        data: periods.map(({ label }) => label),
         axisLine: { lineStyle: { color: '#DDD8CE' } },
-        axisLabel: { color: '#5B6168', fontSize: 11, fontFamily: 'inherit' },
+        axisLabel: { color: '#5B6168' },
       },
       yAxis: {
         type: 'value',
         min: 0,
         max: 100,
+        name: 'Mean engagement (0–100)',
         splitLine: { lineStyle: { color: '#EEEAE2', type: 'dashed' } },
-        axisLabel: { color: '#5B6168', fontSize: 11, fontFamily: 'inherit' },
+        axisLabel: { color: '#5B6168' },
       },
-      series: chartSeries,
+      series,
     };
-  }, [showSdBands]);
+  }, [data?.mean_trajectories_by_pattern, patternRows]);
 
-  // 2. Transition matrix heat map option
   const transitionOption = useMemo(() => {
-    const states = ['Low', 'Med-Low', 'Med-High', 'High'];
-    // 4x4 empirical transition matrix from active run states/summary.json
-    const matrix = [
-      [0.715, 0.225, 0.025, 0.036],
-      [0.102, 0.724, 0.095, 0.079],
-      [0.027, 0.237, 0.433, 0.303],
-      [0.034, 0.15, 0.336, 0.48],
-    ];
-
-    const data: [number, number, number][] = [];
-    for (let r = 0; r < 4; r++) {
-      for (let c = 0; c < 4; c++) {
-        data.push([c, 3 - r, Math.round(matrix[r][c] * 1000) / 10]);
-      }
-    }
+    const matrix = data?.transition_matrix ?? [];
+    const values: [number, number, number][] = [];
+    matrix.forEach((row, rowIndex) => {
+      row.forEach((probability, columnIndex) => {
+        values.push([
+          columnIndex,
+          matrix.length - 1 - rowIndex,
+          probability * 100,
+        ]);
+      });
+    });
 
     return {
       tooltip: {
         position: 'top',
-        formatter: (params: any) => {
-          const fromState = states[3 - params.data[1]];
-          const toState = states[params.data[0]];
-          const prob = params.data[2];
-          return `<div style="font-family: inherit; font-size: 13px; padding: 4px;">
-            <div style="color: #5B6168;">From <strong>${fromState}</strong> → To <strong>${toState}</strong></div>
-            <div style="font-weight: 600; color: #1A1D21; margin-top: 2px;">Transition probability: ${prob}%</div>
-          </div>`;
+        formatter: (params: { data: [number, number, number] }) => {
+          const [column, reversedRow, probability] = params.data;
+          const from = stateLabels[matrix.length - 1 - reversedRow] ?? 'Unknown';
+          const to = stateLabels[column] ?? 'Unknown';
+          return `${from} to ${to}: ${probability.toFixed(1)}%`;
         },
       },
-      grid: {
-        top: 24,
-        right: 20,
-        bottom: 36,
-        left: 80,
-      },
+      grid: { top: 16, right: 16, bottom: 32, left: 96 },
       xAxis: {
         type: 'category',
-        data: states,
-        name: 'To state',
-        nameLocation: 'middle',
-        nameGap: 24,
-        nameTextStyle: { color: '#5B6168', fontSize: 11 },
-        axisLine: { lineStyle: { color: '#DDD8CE' } },
-        axisLabel: { color: '#1A1D21', fontSize: 11, fontFamily: 'inherit' },
+        data: stateLabels,
+        name: 'Next period',
+        axisLabel: { color: '#1A1D21' },
       },
       yAxis: {
         type: 'category',
-        data: [...states].reverse(),
-        name: 'From state',
-        nameLocation: 'middle',
-        nameGap: 48,
-        nameTextStyle: { color: '#5B6168', fontSize: 11 },
-        axisLine: { lineStyle: { color: '#DDD8CE' } },
-        axisLabel: { color: '#1A1D21', fontSize: 11, fontFamily: 'inherit' },
+        data: [...stateLabels].reverse(),
+        name: 'Current period',
+        axisLabel: { color: '#1A1D21' },
       },
       visualMap: {
         min: 0,
-        max: 80,
-        calculable: false,
-        orient: 'horizontal',
-        left: 'center',
-        bottom: 0,
+        max: 100,
         show: false,
-        inRange: {
-          color: ['#F5F2EC', '#D4E2D8', '#86B599', '#2E7D4F', '#1F4E46'],
-        },
+        inRange: { color: ['#F5F2EC', '#D4E2D8', '#86B599', '#1F4E46'] },
       },
       series: [
         {
-          name: 'Transition Probability',
+          name: 'Transition probability',
           type: 'heatmap',
-          data,
+          data: values,
           label: {
             show: true,
-            formatter: (p: any) => `${p.data[2]}%`,
+            formatter: (params: { data: [number, number, number] }) =>
+              `${params.data[2].toFixed(0)}%`,
             color: '#1A1D21',
-            fontFamily: 'monospace',
-            fontSize: 11,
           },
-          itemStyle: {
-            borderColor: '#FFFFFF',
-            borderWidth: 2,
-          },
+          itemStyle: { borderColor: '#FFFFFF', borderWidth: 2 },
         },
       ],
     };
-  }, []);
+  }, [data?.transition_matrix, stateLabels]);
 
-  // 3. Indicator Emission Heatmap
   const emissionOption = useMemo(() => {
-    const states = ['Low', 'Med-Low', 'Med-High', 'High'];
-    const indicators = [
-      'Attendance',
-      'Study Hours',
-      'LMS Logins',
-      'Submissions',
-      'Forum Posts',
-      'Downloads',
-      'Quiz Attempts',
-    ];
-
-    // Standardized z-score emission means from summary.json
-    const rawMeans = [
-      [-1.33, -1.3, -0.46, -1.28, -1.29, -1.3, -1.25],
-      [-0.27, -0.29, -0.6, -0.27, -0.28, -0.27, -0.29],
-      [0.67, 0.69, 0.52, 0.67, 0.68, 0.68, 0.25],
-      [0.93, 0.92, 0.81, 0.89, 0.9, 0.89, 1.29],
-    ];
-
-    const data: [number, number, number][] = [];
-    for (let s = 0; s < 4; s++) {
-      for (let ind = 0; ind < 7; ind++) {
-        data.push([s, 6 - ind, rawMeans[s][ind]]);
-      }
-    }
+    const values: [number, number, number][] = [];
+    emissionMatrix.forEach((row, stateIndex) => {
+      row.forEach((mean, indicatorIndex) => {
+        values.push([stateIndex, indicators.length - 1 - indicatorIndex, mean]);
+      });
+    });
 
     return {
       tooltip: {
         position: 'top',
-        formatter: (params: any) => {
-          const stateName = states[params.data[0]];
-          const indicatorName = indicators[6 - params.data[1]];
-          const z = params.data[2];
-          return `<div style="font-family: inherit; font-size: 13px; padding: 4px;">
-            <div style="font-weight: 600; color: #1A1D21;">${indicatorName} (${stateName})</div>
-            <div style="color: #5B6168; margin-top: 2px;">Standardized level: <strong>${z > 0 ? '+' : ''}${z.toFixed(2)} SD</strong></div>
-          </div>`;
+        formatter: (params: { data: [number, number, number] }) => {
+          const [stateIndex, reversedIndicator, value] = params.data;
+          const indicator = indicators[indicators.length - 1 - reversedIndicator];
+          const state = stateLabels[stateIndex] ?? 'Unknown';
+          return `${indicator} (${state}): ${formatMetric(value, 2)} SD`;
         },
       },
-      grid: {
-        top: 24,
-        right: 20,
-        bottom: 24,
-        left: 110,
-      },
+      grid: { top: 16, right: 16, bottom: 24, left: 112 },
       xAxis: {
         type: 'category',
-        data: states,
-        axisLine: { lineStyle: { color: '#DDD8CE' } },
-        axisLabel: { color: '#1A1D21', fontSize: 11, fontFamily: 'inherit' },
+        data: stateLabels,
+        axisLabel: { color: '#1A1D21' },
       },
       yAxis: {
         type: 'category',
         data: [...indicators].reverse(),
-        axisLine: { lineStyle: { color: '#DDD8CE' } },
-        axisLabel: { color: '#1A1D21', fontSize: 11, fontFamily: 'inherit' },
+        axisLabel: { color: '#1A1D21' },
       },
       visualMap: {
         min: -1.5,
         max: 1.5,
-        calculable: false,
         show: false,
-        inRange: {
-          color: ['#D65A4B', '#F5E4E2', '#F5F2EC', '#D4E2D8', '#2E7D4F'],
-        },
+        inRange: { color: ['#D65A4B', '#F5F2EC', '#D4E2D8', '#2E7D4F'] },
       },
       series: [
         {
-          name: 'Indicator Standardized Level',
+          name: 'Standardized emission mean',
           type: 'heatmap',
-          data,
+          data: values,
           label: {
             show: true,
-            formatter: (p: any) => `${p.data[2] > 0 ? '+' : ''}${p.data[2].toFixed(1)}σ`,
+            formatter: (params: { data: [number, number, number] }) =>
+              `${params.data[2] > 0 ? '+' : ''}${params.data[2].toFixed(1)}`,
             color: '#1A1D21',
-            fontFamily: 'monospace',
-            fontSize: 10,
           },
-          itemStyle: {
-            borderColor: '#FFFFFF',
-            borderWidth: 2,
-          },
+          itemStyle: { borderColor: '#FFFFFF', borderWidth: 2 },
         },
       ],
     };
-  }, []);
-
-  // Patterns summary data
-  const patternCards = [
-    {
-      name: 'Consistent',
-      share: '54.6%',
-      n: 834,
-      atRiskPct: 19.4,
-      ciLow: 16.8,
-      ciHigh: 22.2,
-      sparkline: [71, 72, 71, 72],
-      color: '#2E7D4F',
-      icon: <Minus className="w-4 h-4 text-forest" />,
-      meaning: 'Maintains steady study habits and attendance across all four quarters of the semester.',
-    },
-    {
-      name: 'Sporadic',
-      share: '23.2%',
-      n: 355,
-      atRiskPct: 27.6,
-      ciLow: 23.1,
-      ciHigh: 32.5,
-      sparkline: [52, 66, 41, 58],
-      color: '#C98A00',
-      icon: <Shuffle className="w-4 h-4 text-amber-700" />,
-      meaning: 'Fluctuates between active participation and disengagement week by week.',
-    },
-    {
-      name: 'Declining',
-      share: '14.5%',
-      n: 222,
-      atRiskPct: 49.5,
-      ciLow: 42.8,
-      ciHigh: 56.3,
-      sparkline: [68, 58, 44, 32],
-      color: '#B3261E',
-      icon: <TrendingDown className="w-4 h-4 text-scarlet" />,
-      meaning: 'Starts with moderate or high activity but steadily drops off toward final exams.',
-    },
-    {
-      name: 'Improving',
-      share: '7.7%',
-      n: 117,
-      atRiskPct: 22.2,
-      ciLow: 15.1,
-      ciHigh: 30.8,
-      sparkline: [34, 45, 59, 70],
-      color: '#1F4E46',
-      icon: <TrendingUp className="w-4 h-4 text-forest" />,
-      meaning: 'Begins with low activity or missed milestones but accelerates engagement over time.',
-    },
-  ];
+  }, [emissionMatrix, stateLabels]);
 
   if (isLoading) {
     return (
       <div className="space-y-6">
         <Skeleton className="h-10 w-64" />
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <Skeleton className="h-36" />
-          <Skeleton className="h-36" />
-          <Skeleton className="h-36" />
-          <Skeleton className="h-36" />
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+          {[0, 1, 2, 3].map((item) => (
+            <Skeleton key={item} className="h-36" />
+          ))}
         </div>
-        <Skeleton className="h-72" />
+        <Skeleton className="h-80" />
       </div>
     );
   }
 
+  if (isError || !data) {
+    return (
+      <ErrorState
+        title="Study patterns are unavailable"
+        message="The active run's state analysis could not be loaded. Check the server and try again."
+        error={error}
+        onRetry={() => void refetch()}
+      />
+    );
+  }
+
+  const ablationResults = Object.entries(data.ablation_benchmark?.results ?? {});
+  const clusteringRows = data.clustering_comparison_table ?? [];
+  const aucPValue =
+    data.ablation_benchmark?.wilcoxon_tests?.logistic_regression?.auc?.p_value;
+  const isAucSignificant =
+    typeof aucPValue === 'number' && aucPValue < 0.05;
+  const chartDescription = patternRows
+    .map((pattern) => {
+      const values = periods
+        .map(({ key }) => data.mean_trajectories_by_pattern[pattern.name]?.[key])
+        .filter((value): value is number => typeof value === 'number');
+      return `${pattern.name}: ${values.map((value) => value.toFixed(1)).join(', ')}`;
+    })
+    .join('; ');
+
   return (
     <div className="space-y-8">
-      {/* Header & Intro */}
       <div>
         <h1 className="font-serif text-page-title text-ink font-semibold">
           Study Patterns
         </h1>
         <p className="text-body text-muted mt-1.5 max-w-3xl">
-          Students do not study at a constant pace. We looked for typical patterns across the four
-          parts of the semester to identify who stays on track and who disengages.
+          These patterns describe how survey engagement changed over four periods.
+          They are summaries of the active run, not predictions about individual students.
         </p>
-      </div>
-
-      {/* 4 Pattern Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {patternCards.map((p) => {
-          return (
-            <div
-              key={p.name}
-              className="border border-line rounded-md p-4 bg-paper/30 flex flex-col justify-between"
-            >
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    <span
-                      className="w-2.5 h-2.5 rounded-full"
-                      style={{ backgroundColor: p.color }}
-                    />
-                    <h3 className="font-serif text-subheading font-semibold text-ink">
-                      {p.name}
-                    </h3>
-                  </div>
-                  <Tag variant="neutral">{p.share}</Tag>
-                </div>
-
-                <p className="text-caption text-muted leading-relaxed mb-3">
-                  {p.meaning}
-                </p>
-              </div>
-
-              <div>
-                {/* Mini sparkline visualization */}
-                <div className="flex items-end gap-1.5 h-8 mb-3 pt-1 border-b border-line/60">
-                  {p.sparkline.map((val, idx) => (
-                    <div
-                      key={idx}
-                      className="flex-1 rounded-t-sm"
-                      style={{
-                        height: `${(val / 80) * 100}%`,
-                        backgroundColor: p.color,
-                        opacity: idx === 3 ? 1 : 0.65,
-                      }}
-                      title={`P${idx + 1}: ${val}/100`}
-                    />
-                  ))}
-                </div>
-
-                <div className="pt-1">
-                  <div className="flex items-baseline justify-between text-caption">
-                    <span className="text-muted">Observed at-risk:</span>
-                    <span className="font-mono font-semibold text-ink">
-                      {p.atRiskPct.toFixed(1)}%
-                    </span>
-                  </div>
-                  <div className="text-[11px] font-mono text-muted text-right">
-                    95% CI: [{p.ciLow.toFixed(1)}%–{p.ciHigh.toFixed(1)}%] · n={p.n}
-                  </div>
-                </div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Trajectory Chart */}
-      <Card
-        title="Engagement trajectories across the semester"
-        subtitle="Average composite study engagement (0–100) across four semester checkpoints"
-        action={
-          <button
-            onClick={() => setShowSdBands(!showSdBands)}
-            className="text-caption font-mono text-forest hover:text-ink underline transition-colors"
-          >
-            {showSdBands ? 'Hide ±1 SD range' : 'Show ±1 SD range'}
-          </button>
-        }
-      >
-        <div className="mb-2 flex items-center justify-between text-caption text-muted">
-          <span>
-            Reading guide: Lines show average trajectory for each student group. Shaded bands represent ±1 standard deviation within each pattern group.
-          </span>
-          <span className="font-mono text-caption text-ink font-medium shrink-0 ml-2">n = 1,856</span>
+        <div className="flex flex-wrap gap-2 mt-3">
+          <Tag variant="neutral">Development students: {totalStudents.toLocaleString()}</Tag>
+          <Tag variant="neutral">HMM states: {data.hmm_k}</Tag>
+          <Tag variant="neutral">Clustering groups: {data.clustering_k}</Tag>
         </div>
-        <div className="h-80">
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+        {patternRows.map((pattern) => (
+          <Card key={pattern.name} className="flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between gap-2">
+                <h2 className="font-serif text-section-title font-semibold text-ink">
+                  {pattern.name}
+                </h2>
+                <Tag variant="neutral">{pattern.sharePct.toFixed(1)}%</Tag>
+              </div>
+              <p className="text-caption text-muted mt-2">{pattern.meaning}</p>
+            </div>
+            <div className="mt-4">
+              <div className="text-caption text-muted">
+                {pattern.n_students.toLocaleString()} development students
+              </div>
+              <div className="flex items-baseline justify-between mt-2 text-caption">
+                <span className="text-muted">Observed at-risk rate</span>
+                <span className="font-mono font-semibold text-ink">
+                  {pattern.at_risk_pct.toFixed(1)}%
+                </span>
+              </div>
+              <p className="text-[11px] font-mono text-muted text-right mt-1">
+                95% CI: [{pattern.ci95_low.toFixed(1)}%–{pattern.ci95_high.toFixed(1)}%]
+              </p>
+            </div>
+          </Card>
+        ))}
+      </div>
+
+      <Card
+        title="Engagement across the four periods"
+        subtitle="Mean composite engagement for each pattern in the development data."
+      >
+        <div
+          role="img"
+          aria-label={`Mean engagement by pattern across four periods. ${chartDescription}`}
+        >
           <ReactECharts
             option={trajectoryOption}
-            style={{ height: '100%', width: '100%' }}
+            style={{ height: 320, width: '100%' }}
             opts={{ renderer: 'canvas' }}
           />
         </div>
+        <p className="sr-only">
+          Pattern trajectory values by period: {chartDescription}
+        </p>
       </Card>
 
-      {/* Engagement Levels (HMM States) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Emission Heatmap */}
-        <div className="lg:col-span-6">
-          <Card
-            title="Engagement levels (latent states)"
-            subtitle="Standardized profile for each of the four Hidden Markov Model states across 7 engagement indicators"
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+        <Card
+          title="State transitions"
+          subtitle="Each cell shows the chance of moving from the row state to the column state."
+        >
+          <div
+            role="img"
+            aria-label={`Transition matrix for ${stateLabels.length} engagement states.`}
           >
-            <div className="mb-2 flex items-center justify-between text-caption text-muted">
-              <span>Reading guide: Values reflect standard deviations from cohort mean (green = above average, red = below).</span>
-              <span className="font-mono text-caption text-ink font-medium shrink-0 ml-2">K = 4</span>
-            </div>
-            <div className="h-72">
-              <ReactECharts
-                option={emissionOption}
-                style={{ height: '100%', width: '100%' }}
-                opts={{ renderer: 'canvas' }}
-              />
-            </div>
-            {/* Dwell Times */}
-            <div className="grid grid-cols-4 gap-2 mt-4 pt-3 border-t border-line/60 text-center">
-              <div>
-                <span className="text-[11px] text-muted block">Low Dwell</span>
-                <span className="font-mono text-caption font-semibold text-ink">3.50 terms</span>
-              </div>
-              <div>
-                <span className="text-[11px] text-muted block">Med-Low Dwell</span>
-                <span className="font-mono text-caption font-semibold text-ink">3.62 terms</span>
-              </div>
-              <div>
-                <span className="text-[11px] text-muted block">Med-High Dwell</span>
-                <span className="font-mono text-caption font-semibold text-ink">1.76 terms</span>
-              </div>
-              <div>
-                <span className="text-[11px] text-muted block">High Dwell</span>
-                <span className="font-mono text-caption font-semibold text-ink">1.92 terms</span>
-              </div>
-            </div>
-          </Card>
-        </div>
+            <ReactECharts
+              option={transitionOption}
+              style={{ height: 320, width: '100%' }}
+              opts={{ renderer: 'canvas' }}
+            />
+          </div>
+          <p className="sr-only">
+            Transition rows are current states and columns are next-period states.
+          </p>
+        </Card>
 
-        {/* Transition Matrix Heatmap */}
-        <div className="lg:col-span-6">
-          <Card
-            title="State transition dynamics"
-            subtitle="Probability of a student moving from one engagement state to another between periods"
+        <Card
+          title="Engagement levels within each state"
+          subtitle="Values are standardized emission means; positive values are above the cohort mean."
+        >
+          <div
+            role="img"
+            aria-label={`Standardized mean profile for ${stateLabels.length} states across ${indicators.length} engagement indicators.`}
           >
-            <div className="mb-2 flex items-center justify-between text-caption text-muted">
-              <span>Reading guide: Read across — from the row state to the column state. High diagonal values reflect stability.</span>
-              <span className="font-mono text-caption text-ink font-medium shrink-0 ml-2">P(t → t+1)</span>
-            </div>
-            <div className="h-72">
-              <ReactECharts
-                option={transitionOption}
-                style={{ height: '100%', width: '100%' }}
-                opts={{ renderer: 'canvas' }}
-              />
-            </div>
-            <p className="text-caption text-muted mt-4 pt-3 border-t border-line/60">
-              Low and Medium-Low states exhibit high persistence (&gt;70% self-transition), meaning students who fall into low engagement rarely recover without active intervention.
-            </p>
-          </Card>
-        </div>
+            <ReactECharts
+              option={emissionOption}
+              style={{ height: 320, width: '100%' }}
+              opts={{ renderer: 'canvas' }}
+            />
+          </div>
+          <p className="sr-only">
+            Rows are engagement indicators and columns are hidden states.
+          </p>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-4 pt-3 border-t border-line/60">
+            {stateEntries.map(([stateId, stateName]) => (
+              <div key={stateId} className="text-center">
+                <span className="text-[11px] text-muted block">{stateName} dwell</span>
+                <span className="font-mono text-caption font-semibold text-ink">
+                  {formatMetric(data.expected_dwell_times[stateId], 2)} periods
+                </span>
+              </div>
+            ))}
+          </div>
+        </Card>
       </div>
 
-      {/* Pattern x Level Cross Matrix */}
       <Card
-        title="Pattern × level cross-matrix"
-        subtitle="Distribution and observed at-risk prevalence across pattern archetypes and dominant semester levels"
+        title="Pattern risk rates"
+        subtitle="Observed rates and confidence intervals use development data only."
       >
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse text-body">
             <thead>
-              <tr className="border-b border-line text-caption font-mono text-muted">
-                <th className="pb-2.5 font-medium">Pattern</th>
-                <th className="pb-2.5 font-medium text-center">High Level (n / Risk)</th>
-                <th className="pb-2.5 font-medium text-center">Medium Level (n / Risk)</th>
-                <th className="pb-2.5 font-medium text-center">Low Level (n / Risk)</th>
-                <th className="pb-2.5 font-medium text-right">Total Students</th>
+              <tr className="border-b border-line text-caption text-muted">
+                <th className="pb-2 pr-4 font-medium">Pattern</th>
+                <th className="pb-2 px-4 text-right font-medium">Students</th>
+                <th className="pb-2 px-4 text-right font-medium">Share</th>
+                <th className="pb-2 px-4 text-right font-medium">At-risk rate</th>
+                <th className="pb-2 pl-4 text-right font-medium">95% CI</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-line/60 text-caption font-mono">
-              <tr className="hover:bg-paper/30">
-                <td className="py-2.5 font-sans font-medium text-ink">Consistent</td>
-                <td className="py-2.5 text-center">188 students · <strong className="text-forest">3.2%</strong></td>
-                <td className="py-2.5 text-center">548 students · <strong className="text-ink">14.2%</strong></td>
-                <td className="py-2.5 text-center">288 students · <strong className="text-scarlet">59.0%</strong></td>
-                <td className="py-2.5 text-right font-semibold text-ink">1,024</td>
-              </tr>
-              <tr className="hover:bg-paper/30">
-                <td className="py-2.5 font-sans font-medium text-ink">Declining</td>
-                <td className="py-2.5 text-center">19 students · <strong className="text-scarlet">52.6%</strong></td>
-                <td className="py-2.5 text-center">253 students · <strong className="text-scarlet">53.8%</strong></td>
-                <td className="py-2.5 text-center">2 students · <strong className="text-scarlet">100.0%</strong></td>
-                <td className="py-2.5 text-right font-semibold text-ink">274</td>
-              </tr>
-              <tr className="hover:bg-paper/30">
-                <td className="py-2.5 font-sans font-medium text-ink">Improving</td>
-                <td className="py-2.5 text-center">8 students · <strong className="text-forest">0.0%</strong></td>
-                <td className="py-2.5 text-center">126 students · <strong className="text-forest">7.9%</strong></td>
-                <td className="py-2.5 text-center">4 students · <strong className="text-amber-700">25.0%</strong></td>
-                <td className="py-2.5 text-right font-semibold text-ink">138</td>
-              </tr>
-              <tr className="hover:bg-paper/30">
-                <td className="py-2.5 font-sans font-medium text-ink">Sporadic</td>
-                <td className="py-2.5 text-center">151 students · <strong className="text-forest">4.0%</strong></td>
-                <td className="py-2.5 text-center">233 students · <strong className="text-amber-700">18.0%</strong></td>
-                <td className="py-2.5 text-center">36 students · <strong className="text-amber-700">25.0%</strong></td>
-                <td className="py-2.5 text-right font-semibold text-ink">420</td>
-              </tr>
+            <tbody className="divide-y divide-line/60 text-caption">
+              {patternRows.map((pattern) => (
+                <tr key={pattern.name}>
+                  <td className="py-2.5 pr-4 font-medium text-ink">{pattern.name}</td>
+                  <td className="py-2.5 px-4 text-right font-mono">
+                    {pattern.n_students.toLocaleString()}
+                  </td>
+                  <td className="py-2.5 px-4 text-right font-mono">
+                    {pattern.sharePct.toFixed(1)}%
+                  </td>
+                  <td className="py-2.5 px-4 text-right font-mono">
+                    {pattern.at_risk_pct.toFixed(1)}%
+                  </td>
+                  <td className="py-2.5 pl-4 text-right font-mono">
+                    [{pattern.ci95_low.toFixed(1)}%, {pattern.ci95_high.toFixed(1)}%]
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
       </Card>
 
-      {/* Clustering Method Comparison & Ablation Analysis */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Method Comparison Table */}
-        <div className="lg:col-span-6">
-          <Card
-            title="How we grouped students"
-            subtitle="Benchmark comparing unsupervised clustering algorithms against sequential Hidden Markov Models"
-          >
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse text-body">
-                <thead>
-                  <tr className="border-b border-line text-caption font-mono text-muted">
-                    <th className="pb-2 font-medium">Method</th>
-                    <th className="pb-2 font-medium text-center">K</th>
-                    <th className="pb-2 font-medium text-right">
-                      <Tooltip content="Higher silhouette indicates tighter and better-separated clusters (range: -1 to +1).">
-                        <span className="cursor-help underline decoration-dotted">Silhouette</span>
-                      </Tooltip>
-                    </th>
-                    <th className="pb-2 font-medium text-right">
-                      <Tooltip content="Lower Davies-Bouldin score indicates better clustering quality.">
-                        <span className="cursor-help underline decoration-dotted">Davies-Bouldin</span>
-                      </Tooltip>
-                    </th>
-                    <th className="pb-2 font-medium text-right">
-                      <Tooltip content="Lower Bayesian Information Criterion penalizes over-parameterization.">
-                        <span className="cursor-help underline decoration-dotted">BIC</span>
-                      </Tooltip>
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-line/60 text-caption font-mono">
-                  <tr className="bg-forest/5 font-medium">
-                    <td className="py-2.5 font-sans text-forest flex items-center gap-1.5">
-                      <strong>Hidden Markov (HMM)</strong>
-                      <Tag variant="primary">CHOSEN</Tag>
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+        <Card
+          title="Clustering comparison"
+          subtitle={`Candidate clustering methods; selected cluster count is K = ${data.clustering_k}.`}
+        >
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse text-body">
+              <thead>
+                <tr className="border-b border-line text-caption text-muted">
+                  <th className="pb-2 pr-3 font-medium">Method</th>
+                  <th className="pb-2 px-3 text-right font-medium">K</th>
+                  <th className="pb-2 px-3 text-right font-medium">
+                    <Tooltip content="Higher silhouette values indicate better-separated clusters.">
+                      <span className="cursor-help underline decoration-dotted">Silhouette</span>
+                    </Tooltip>
+                  </th>
+                  <th className="pb-2 px-3 text-right font-medium">Davies–Bouldin</th>
+                  <th className="pb-2 pl-3 text-right font-medium">BIC</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-line/60 text-caption font-mono">
+                {clusteringRows.map((row, index) => (
+                  <tr key={`${row.model_key ?? row.algorithm}-${row.k}-${index}`}>
+                    <td className="py-2 pr-3 font-sans text-ink">
+                      {String(row.algorithm ?? 'Unknown')}
                     </td>
-                    <td className="py-2.5 text-center">4</td>
-                    <td className="py-2.5 text-right">0.382</td>
-                    <td className="py-2.5 text-right">1.04</td>
-                    <td className="py-2.5 text-right">18,940</td>
+                    <td className="py-2 px-3 text-right">{row.k ?? '—'}</td>
+                    <td className="py-2 px-3 text-right">
+                      {formatMetric(row.silhouette)}
+                    </td>
+                    <td className="py-2 px-3 text-right">
+                      {formatMetric(row.davies_bouldin)}
+                    </td>
+                    <td className="py-2 pl-3 text-right">
+                      {formatMetric(row.bic)}
+                    </td>
                   </tr>
-                  <tr className="hover:bg-paper/30">
-                    <td className="py-2.5 font-sans text-ink">K-Means</td>
-                    <td className="py-2.5 text-center">3</td>
-                    <td className="py-2.5 text-right">0.374</td>
-                    <td className="py-2.5 text-right">1.09</td>
-                    <td className="py-2.5 text-right">—</td>
-                  </tr>
-                  <tr className="hover:bg-paper/30">
-                    <td className="py-2.5 font-sans text-ink">Gaussian Mixture (GMM)</td>
-                    <td className="py-2.5 text-center">3</td>
-                    <td className="py-2.5 text-right">0.362</td>
-                    <td className="py-2.5 text-right">1.12</td>
-                    <td className="py-2.5 text-right">24,850</td>
-                  </tr>
-                  <tr className="hover:bg-paper/30">
-                    <td className="py-2.5 font-sans text-ink">Hierarchical (Ward)</td>
-                    <td className="py-2.5 text-center">3</td>
-                    <td className="py-2.5 text-right">0.358</td>
-                    <td className="py-2.5 text-right">1.15</td>
-                    <td className="py-2.5 text-right">—</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </Card>
 
-            <p className="text-caption text-muted mt-4 pt-3 border-t border-line/60 leading-relaxed">
-              <strong>Selection Rationale:</strong> Static clustering algorithms treat survey periods as independent tabular dimensions. Hidden Markov Models capture the natural chronological sequence, allowing us to compute transition dynamics and expected dwell times week over week.
-            </p>
-          </Card>
-        </div>
-
-        {/* Ablation Benchmark: Do Patterns Help Predict Risk? */}
-        <div className="lg:col-span-6">
-          <Card
-            title="Do patterns help predict risk?"
-            subtitle="Ablation benchmark measuring incremental predictive gain when adding latent state features"
-          >
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse text-body">
-                <thead>
-                  <tr className="border-b border-line text-caption font-mono text-muted">
-                    <th className="pb-2 font-medium">Feature Set</th>
-                    <th className="pb-2 font-medium text-right">AUC</th>
-                    <th className="pb-2 font-medium text-right">F1 Score</th>
-                    <th className="pb-2 font-medium text-right">MCC</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-line/60 text-caption font-mono">
-                  <tr className="hover:bg-paper/30">
-                    <td className="py-2.5 font-sans text-ink">Summary Aggregates Only (agg)</td>
-                    <td className="py-2.5 text-right">0.871</td>
-                    <td className="py-2.5 text-right">0.642</td>
-                    <td className="py-2.5 text-right">0.537</td>
-                  </tr>
-                  <tr className="hover:bg-paper/30">
-                    <td className="py-2.5 font-sans text-ink">Latent States Only (states_only)</td>
-                    <td className="py-2.5 text-right">0.869</td>
-                    <td className="py-2.5 text-right">0.645</td>
-                    <td className="py-2.5 text-right">0.538</td>
-                  </tr>
-                  <tr className="bg-paper font-medium">
-                    <td className="py-2.5 font-sans text-ink">Combined (agg + states)</td>
-                    <td className="py-2.5 text-right">0.869</td>
-                    <td className="py-2.5 text-right">0.644</td>
-                    <td className="py-2.5 text-right">0.536</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-
-            {/* Plain Empirical Verdict */}
-            <div className="mt-4 p-3.5 rounded-md bg-paper border border-line text-caption text-ink leading-relaxed">
-              <div className="font-semibold text-forest mb-1 flex items-center gap-1.5">
-                <ShieldCheck className="w-4 h-4 stroke-1.5" />
-                Empirical Evaluation Verdict (15 CV Folds)
-              </div>
-              <p>
-                Latent state features carry strong standalone predictive value (AUC 0.869), confirming that study trajectories reliably signal student outcomes. However, when added on top of rich engineered aggregates, the incremental gain is neutral (Wilcoxon p = 0.489). This occurs because composite slopes and volatility statistics in the aggregate feature set already capture most longitudinal variance.
-              </p>
-            </div>
-          </Card>
-        </div>
+        <Card
+          title="Do state features improve prediction?"
+          subtitle="Cross-validation ablation results for each model and feature set."
+        >
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse text-body">
+              <thead>
+                <tr className="border-b border-line text-caption text-muted">
+                  <th className="pb-2 pr-3 font-medium">Model / feature set</th>
+                  <th className="pb-2 px-3 text-right font-medium">AUC</th>
+                  <th className="pb-2 px-3 text-right font-medium">F1</th>
+                  <th className="pb-2 pl-3 text-right font-medium">MCC</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-line/60 text-caption font-mono">
+                {ablationResults.flatMap(([model, featureSets]) =>
+                  Object.entries(featureSets as Record<string, Record<string, number>>).map(
+                    ([featureSet, metrics]) => (
+                      <tr key={`${model}-${featureSet}`}>
+                        <td className="py-2 pr-3 font-sans text-ink">
+                          {model.replace(/_/g, ' ')} / {featureSet}
+                        </td>
+                        <td className="py-2 px-3 text-right">
+                          {formatMetric(metrics.auc_mean)}
+                        </td>
+                        <td className="py-2 px-3 text-right">
+                          {formatMetric(metrics.f1_mean)}
+                        </td>
+                        <td className="py-2 pl-3 text-right">
+                          {formatMetric(metrics.mcc_mean)}
+                        </td>
+                      </tr>
+                    )
+                  )
+                )}
+              </tbody>
+            </table>
+          </div>
+          <p className="mt-4 p-3 rounded-md bg-paper border border-line text-caption text-ink">
+            {typeof aucPValue === 'number'
+              ? `The AUC ablation p-value is ${aucPValue.toFixed(3)}. The difference is ${
+                  isAucSignificant ? 'statistically significant' : 'not statistically significant'
+                } at the 0.05 level.`
+              : 'The AUC significance test is not available in this run.'}
+          </p>
+        </Card>
       </div>
     </div>
   );
