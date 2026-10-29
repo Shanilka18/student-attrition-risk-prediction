@@ -1,5 +1,5 @@
 import React from 'react';
-import { Layers, ArrowDown, Network, Database, Cpu, ShieldCheck } from 'lucide-react';
+import { Layers, ArrowDown, Network, Database, Cpu, ShieldCheck, FileJson, CheckCircle2 } from 'lucide-react';
 
 export const MethodologyDocsPage: React.FC = () => {
   return (
@@ -141,6 +141,101 @@ export const MethodologyDocsPage: React.FC = () => {
           <span className="font-mono text-[10px] px-2.5 py-1 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 shrink-0">
             Output Contract: JSON Schema v1.0
           </span>
+        </div>
+      </div>
+
+      {/* Fusion Export Contract Specification & Schema */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Sample Payload */}
+        <div className="bg-navy-900 border border-navy-800 rounded-xl p-5 shadow-lg">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <FileJson className="w-4 h-4 text-amber-400" />
+              <h3 className="font-semibold text-sm text-slate-100">Downstream Fusion Contract Payload</h3>
+            </div>
+            <span className="text-[10px] font-mono text-slate-400">Endpoint: /api/export/fusion/&#123;id&#125;.json</span>
+          </div>
+          <p className="text-xs text-slate-400 mb-3">
+            Standardized JSON format delivered to the Fusion Framework combining numerical index and explainability attributions:
+          </p>
+          <pre className="p-3 bg-navy-950 border border-navy-800 rounded-lg text-emerald-300 font-mono text-[11px] overflow-x-auto leading-relaxed max-h-72">
+{`{
+  "contract_version": "1.0.0",
+  "component": "psychosocial_risk_index",
+  "champion_model": "Ridge (Regression) / HistGradient (Class)",
+  "records": [
+    {
+      "study_id": "SLIIT_01986",
+      "pri_score": 84.5,
+      "risk_category": "High",
+      "factor_scores": {
+        "stress": 4.67,
+        "motivation": 1.67,
+        "belongingness": 2.00,
+        "self_efficacy": 2.33,
+        "peer_support": 2.00
+      },
+      "shap_attributions": {
+        "factor_stress": 18.2,
+        "factor_belongingness": 12.4,
+        "factor_motivation": 9.8,
+        "factor_peer_support": -3.2
+      }
+    }
+  ]
+}`}
+          </pre>
+        </div>
+
+        {/* Data Exchange Dictionary */}
+        <div className="bg-navy-900 border border-navy-800 rounded-xl p-5 shadow-lg flex flex-col justify-between">
+          <div>
+            <div className="flex items-center gap-2 mb-3">
+              <Database className="w-4 h-4 text-cyan-400" />
+              <h3 className="font-semibold text-sm text-slate-100">Interface Data Dictionary</h3>
+            </div>
+            <p className="text-xs text-slate-400 mb-3">
+              Formal data types and semantic constraints enforced on downstream integration:
+            </p>
+            <div className="space-y-2 text-xs">
+              <div className="p-2.5 rounded-lg bg-navy-950 border border-navy-800 flex items-center justify-between">
+                <div>
+                  <span className="font-mono font-bold text-indigo-300">study_id</span>
+                  <p className="text-[11px] text-slate-400">Pseudonymized institutional student token</p>
+                </div>
+                <span className="font-mono text-[10px] text-slate-300 bg-navy-800 px-2 py-0.5 rounded">String (Pattern: SLIIT_*)</span>
+              </div>
+
+              <div className="p-2.5 rounded-lg bg-navy-950 border border-navy-800 flex items-center justify-between">
+                <div>
+                  <span className="font-mono font-bold text-emerald-300">pri_score</span>
+                  <p className="text-[11px] text-slate-400">Continuous Psychosocial Risk Index</p>
+                </div>
+                <span className="font-mono text-[10px] text-slate-300 bg-navy-800 px-2 py-0.5 rounded">Float [0.0, 100.0]</span>
+              </div>
+
+              <div className="p-2.5 rounded-lg bg-navy-950 border border-navy-800 flex items-center justify-between">
+                <div>
+                  <span className="font-mono font-bold text-amber-300">risk_category</span>
+                  <p className="text-[11px] text-slate-400">Tri-level categorical triage tier</p>
+                </div>
+                <span className="font-mono text-[10px] text-slate-300 bg-navy-800 px-2 py-0.5 rounded">Enum ("Low", "Moderate", "High")</span>
+              </div>
+
+              <div className="p-2.5 rounded-lg bg-navy-950 border border-navy-800 flex items-center justify-between">
+                <div>
+                  <span className="font-mono font-bold text-rose-300">shap_attributions</span>
+                  <p className="text-[11px] text-slate-400">Additive game-theoretic factor contributions</p>
+                </div>
+                <span className="font-mono text-[10px] text-slate-300 bg-navy-800 px-2 py-0.5 rounded">Record&lt;Factor, Float&gt;</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-3 pt-3 border-t border-navy-800 flex items-center gap-1.5 text-xs text-emerald-400">
+            <CheckCircle2 className="w-3.5 h-3.5" />
+            <span>Strict Pydantic schema validation enforced on all exports</span>
+          </div>
         </div>
       </div>
     </div>
