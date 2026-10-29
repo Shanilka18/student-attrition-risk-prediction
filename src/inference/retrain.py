@@ -15,15 +15,10 @@ Workflow:
 from __future__ import annotations
 
 import argparse
-from pathlib import Path
-from typing import Any, Dict
-import pandas as pd
+from typing import Any
 
-from src.cleaning.cleaner import SurveyCleaner
-from src.evaluation.evaluate_phase5 import run_phase5_evaluation
-from src.inference.ingestion import align_dataframe_schema, load_raw_file
-from src.preprocessing.split import create_grouped_stratified_split
-from src.training.run_all import run_all
+from src.cleaning.cleaner import EnvironmentalFinancialCleaner
+from src.preprocessing.pipeline import ALL_ALLOWED_FEATURES
 from src.utils.logging_config import setup_logger
 
 logger = setup_logger("inference_retrain")
@@ -31,18 +26,32 @@ logger = setup_logger("inference_retrain")
 
 def retrain_pipeline_on_file(
     file_path: str,
-    outcome_col: str = "attrition",
+    outcome_col: str = "at_risk",
     confirm_overwrite: bool = False,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Execute end-to-end retraining on a newly uploaded user dataset."""
     logger.info(f"Starting retraining pipeline on file: {file_path}")
 
-    # 1. Load and align file
-    df_raw = load_raw_file(file_path)
-    df_aligned, schema_report = align_dataframe_schema(df_raw)
+    # 1. Clean with the shared EF pipeline and persist its audit report.
+    cleaner = EnvironmentalFinancialCleaner()
+    clean_result = cleaner.clean(file_path, mode="training")
+    saved_clean = cleaner.write_result(clean_result)
+    df_clean = saved_clean.data
+    if saved_clean.report["traffic_light"]["status"] == "red":
+        err_msg = (
+            "Retraining rejected because the EF cleaning report contains blocking "
+            f"issues: {saved_clean.report['traffic_light']['messages']}"
+        )
+        logger.error(err_msg)
+        return {
+            "status": "failed",
+            "reason": err_msg,
+            "clean_parquet": str(saved_clean.parquet_path),
+            "quality_report": str(saved_clean.report_path),
+        }
 
     # Validate outcome column presence
-    if outcome_col not in df_aligned.columns:
+    if outcome_col not in df_clean.columns:
         err_msg = (
             f"Retraining rejected: Uploaded file does not contain the required ground-truth outcome column '{outcome_col}'. "
             "Supervised retraining is impossible without true outcomes. You can still score this file using "
@@ -50,64 +59,70 @@ def retrain_pipeline_on_file(
         )
         logger.error(err_msg)
         print(f"\n[ERROR] {err_msg}\n")
-        return {"status": "failed", "reason": err_msg}
+        return {
+            "status": "failed",
+            "reason": err_msg,
+            "clean_parquet": str(saved_clean.parquet_path),
+            "quality_report": str(saved_clean.report_path),
+        }
 
     # Ensure outcome is binary (0 or 1)
-    unique_vals = set(df_aligned[outcome_col].dropna().unique())
-    if not unique_vals.issubset({0, 1, 0.0, 1.0}):
+    unique_vals = set(df_clean[outcome_col].dropna().unique())
+    if not unique_vals.issubset({0, 1}):
         err_msg = f"Retraining rejected: Outcome column '{outcome_col}' must be binary (0 or 1). Found values: {unique_vals}"
         logger.error(err_msg)
         print(f"\n[ERROR] {err_msg}\n")
-        return {"status": "failed", "reason": err_msg}
+        return {
+            "status": "failed",
+            "reason": err_msg,
+            "clean_parquet": str(saved_clean.parquet_path),
+            "quality_report": str(saved_clean.report_path),
+        }
 
-    if not confirm_overwrite:
-        warn_msg = (
-            "SAFETY CHECK: Retraining requested without --confirm flag. "
-            "Pipeline will validate data and show expected steps, but will NOT overwrite production artifacts. "
-            "To execute full retraining and artifact update, re-run with: "
-            f"python -m src.inference.retrain --file {file_path} --outcome {outcome_col} --confirm"
-        )
-        logger.warning(warn_msg)
-        print(f"\n[WARNING] {warn_msg}\n")
-        return {"status": "dry_run", "message": warn_msg}
+    missing_features = sorted(set(ALL_ALLOWED_FEATURES) - set(df_clean.columns))
+    incompatibility = (
+        "The EF questionnaire does not match the currently deployed model feature "
+        "contract, which has not yet been migrated."
+    )
+    if missing_features:
+        incompatibility += " Missing model features: " + ", ".join(missing_features)
+    if confirm_overwrite:
+        logger.error(incompatibility)
+        return {
+            "status": "failed",
+            "reason": incompatibility,
+            "clean_parquet": str(saved_clean.parquet_path),
+            "quality_report": str(saved_clean.report_path),
+        }
 
-    logger.info("Executing full retraining cycle with artifact overwrites...")
-
-    # 2. Save raw file to data/raw/
-    raw_target = Path("data/raw/user_retrain_data.csv")
-    df_aligned.to_csv(raw_target, index=False)
-
-    # 3. Clean dataset
-    cleaner = SurveyCleaner()
-    df_clean, clean_log = cleaner.clean(raw_target)
-    clean_target = Path("data/interim/clean.csv")
-    df_clean.to_csv(clean_target, index=False)
-
-    # 4. Stratified Split
-    train_ids, val_ids, test_ids = create_grouped_stratified_split(df_clean)
-    logger.info(f"Split created: Train={len(train_ids)}, Val={len(val_ids)}, Test={len(test_ids)}")
-
-    # 5. Train Model Zoo
-    logger.info("Training Model Zoo on new partitions...")
-    train_report = run_all(track="C", quick=True, no_tune=True)
-
-    # 6. Evaluate Leaderboard & Parsimony Selection
-    logger.info("Evaluating Leaderboard and selecting champion...")
-    phase5_res = run_phase5_evaluation()
-
-    logger.info("Retraining completed successfully. Production artifacts updated.")
+    warn_msg = (
+        "EF data passed cleaning and outcome validation, but retraining is "
+        f"unavailable until the model feature contract is migrated. {incompatibility}"
+    )
+    logger.warning(warn_msg)
     return {
-        "status": "success",
-        "selected_model": phase5_res["selected_model"],
-        "training_report": train_report,
+        "status": "dry_run",
+        "message": warn_msg,
+        "clean_parquet": str(saved_clean.parquet_path),
+        "quality_report": str(saved_clean.report_path),
     }
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Retrain ERI Model Pipeline on User Data")
-    parser.add_argument("--file", type=str, required=True, help="Path to custom CSV or XLSX dataset")
-    parser.add_argument("--outcome", type=str, default="attrition", help="Name of binary outcome column")
-    parser.add_argument("--confirm", action="store_true", help="Explicitly confirm overwriting production artifacts")
+    parser = argparse.ArgumentParser(
+        description="Validate EF survey data for model retraining"
+    )
+    parser.add_argument(
+        "--file", type=str, required=True, help="Path to custom CSV or XLSX dataset"
+    )
+    parser.add_argument(
+        "--outcome", type=str, default="at_risk", help="Name of binary outcome column"
+    )
+    parser.add_argument(
+        "--confirm",
+        action="store_true",
+        help="Explicitly confirm overwriting production artifacts",
+    )
     args = parser.parse_args()
 
     retrain_pipeline_on_file(args.file, args.outcome, args.confirm)
