@@ -53,6 +53,7 @@ def run_training_pipeline(
     target_models: Optional[List[str]] = None,
     target_categories: Optional[List[str]] = None,
     force: bool = False,
+    progress_callback: Optional[Any] = None,
 ) -> Dict[str, Any]:
     """
     Main entry point for `make train` / `python run.py train`.
@@ -104,6 +105,17 @@ def run_training_pipeline(
 
         logger.info(f"\n[{idx}/{len(models_to_run)}] Processing Model: {m_key} (Category {cat})...")
 
+        if progress_callback:
+            try:
+                progress_callback({
+                    "phase": "training",
+                    "current_model": m_key,
+                    "models_done": idx - 1,
+                    "models_total": len(models_to_run),
+                })
+            except Exception as pe:
+                logger.debug(f"Progress callback non-fatal exception: {pe}")
+
         # Select data representation
         if cat == "F":
             m_data = cached_data["static"]
@@ -135,6 +147,17 @@ def run_training_pipeline(
             force=force,
         )
         results.append(summary)
+
+        if progress_callback:
+            try:
+                progress_callback({
+                    "phase": "training",
+                    "current_model": m_key,
+                    "models_done": idx,
+                    "models_total": len(models_to_run),
+                })
+            except Exception as pe:
+                logger.debug(f"Progress callback non-fatal exception: {pe}")
 
     # 4. Generate Validation Summary Table & Artifacts
     config.metrics_dir.mkdir(parents=True, exist_ok=True)
