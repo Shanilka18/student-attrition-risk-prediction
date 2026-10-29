@@ -1,10 +1,14 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   UploadCloud,
   FileSpreadsheet,
   Download,
   AlertTriangle,
+  AlertCircle,
   CheckCircle2,
+  Check,
+  RotateCcw,
+  Database,
   Layers,
   ArrowRight,
   TrendingDown,
@@ -15,6 +19,10 @@ import {
   FileText,
   ExternalLink,
   Code2,
+  X,
+  ShieldCheck,
+  Clock,
+  Sparkles,
 } from 'lucide-react';
 import {
   ResponsiveContainer,
@@ -26,13 +34,27 @@ import {
   Tooltip,
 } from 'recharts';
 import { api } from '../api/client';
-import type { BatchUploadResult, StudentPredictionResult, ValidationErrorDetail } from '../api/client';
+import type {
+  BatchUploadResult,
+  StudentPredictionResult,
+  ValidationErrorDetail,
+  RetrainInspectResponse,
+  RetrainJobStatusResponse,
+  RetrainJobResult,
+  RetrainRunItem,
+  MetaResponse,
+} from '../api/client';
 import { RiskBadge } from '../components/RiskBadge';
 import { TrajectoryChart } from '../components/TrajectoryChart';
 import type { TrajectoryPoint } from '../components/TrajectoryChart';
 import { LoadingState } from '../components/StateViews';
 
-export const PredictPage: React.FC = () => {
+interface PredictPageProps {
+  meta?: MetaResponse | null;
+  onRefreshMeta?: () => void;
+}
+
+export const PredictPage: React.FC<PredictPageProps> = ({ meta, onRefreshMeta }) => {
   const [activeTab, setActiveTab] = useState<'upload' | 'simulate'>('upload');
 
   // File Upload State
@@ -42,6 +64,28 @@ export const PredictPage: React.FC = () => {
   const [batchResult, setBatchResult] = useState<BatchUploadResult | null>(null);
   const [selectedStudent, setSelectedStudent] = useState<StudentPredictionResult | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Retraining State
+  const [inspectLoading, setInspectLoading] = useState<boolean>(false);
+  const [inspectResult, setInspectResult] = useState<RetrainInspectResponse | null>(null);
+  const [isRetrainModalOpen, setIsRetrainModalOpen] = useState<boolean>(false);
+  const [retrainBudget, setRetrainBudget] = useState<'quick' | 'standard' | 'full'>('quick');
+  const [retrainScope, setRetrainScope] = useState<'champions' | 'full'>('champions');
+  const [activeJobId, setActiveJobId] = useState<string | null>(() => {
+    return localStorage.getItem('academic_intelligence_active_retrain_job');
+  });
+  const [jobStatus, setJobStatus] = useState<RetrainJobStatusResponse | null>(null);
+  const [retrainResult, setRetrainResult] = useState<RetrainJobResult | null>(null);
+  const [retrainError, setRetrainError] = useState<string | null>(null);
+
+  // Phase 2: Active Run & Past Runs Management
+  const [pastRuns, setPastRuns] = useState<RetrainRunItem[]>([]);
+  const [loadingRuns, setLoadingRuns] = useState<boolean>(false);
+  const [actionMessage, setActionMessage] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
+  const [activatingJobId, setActivatingJobId] = useState<string | null>(null);
+  const [isRollingBack, setIsRollingBack] = useState<boolean>(false);
+  const [showPastRuns, setShowPastRuns] = useState<boolean>(false);
 
   // Single Student Simulator State
   const [simStudentId, setSimStudentId] = useState<string>('STU_MANUAL_01');
@@ -60,6 +104,53 @@ export const PredictPage: React.FC = () => {
   const [simLoading, setSimLoading] = useState<boolean>(false);
   const [simResult, setSimResult] = useState<StudentPredictionResult | null>(null);
 
+  // Polling Effect for Background Retraining Job
+  useEffect(() => {
+    if (!activeJobId) return;
+
+    let isMounted = true;
+    let timer: ReturnType<typeof setTimeout> | null = null;
+
+    const poll = async () => {
+      try {
+        const status = await api.getJobStatus(activeJobId);
+        if (!isMounted) return;
+        setJobStatus(status);
+
+        if (status.state === 'succeeded') {
+          if (status.result) {
+            setRetrainResult(status.result);
+          }
+          localStorage.removeItem('academic_intelligence_active_retrain_job');
+          setActiveJobId(null);
+          fetchPastRuns();
+        } else if (status.state === 'failed') {
+          setRetrainError(status.error || 'Retraining job encountered an error.');
+          localStorage.removeItem('academic_intelligence_active_retrain_job');
+          setActiveJobId(null);
+        } else {
+          // Queued or running: poll every 2 seconds
+          timer = setTimeout(poll, 2000);
+        }
+      } catch (err: any) {
+        if (!isMounted) return;
+        if (err.status === 404) {
+          localStorage.removeItem('academic_intelligence_active_retrain_job');
+          setActiveJobId(null);
+        } else {
+          timer = setTimeout(poll, 3000);
+        }
+      }
+    };
+
+    poll();
+
+    return () => {
+      isMounted = false;
+      if (timer) clearTimeout(timer);
+    };
+  }, [activeJobId]);
+
   // File Drag & Drop Handlers
   const handleFileDrop = (e: React.DragEvent) => {
     e.preventDefault();
@@ -68,11 +159,115 @@ export const PredictPage: React.FC = () => {
     }
   };
 
-  const handleFileSelected = (selectedFile: File) => {
+  const handleFileSelected = async (selectedFile: File) => {
     setFile(selectedFile);
     setUploadErrors(null);
     setBatchResult(null);
     setSelectedStudent(null);
+    setInspectResult(null);
+    setInspectLoading(true);
+
+    try {
+      const res = await api.inspectDataset(selectedFile);
+      setInspectResult(res);
+    } catch (err: any) {
+      console.error('Inspection failed:', err);
+    } finally {
+      setInspectLoading(false);
+    }
+  };
+
+  const handleStartRetrain = async () => {
+    if (!file) return;
+    setIsRetrainModalOpen(false);
+    setRetrainError(null);
+    setRetrainResult(null);
+
+    try {
+      const res = await api.startRetrain(file, retrainBudget, retrainScope);
+      setActiveJobId(res.job_id);
+      localStorage.setItem('academic_intelligence_active_retrain_job', res.job_id);
+      setJobStatus({
+        job_id: res.job_id,
+        state: 'queued',
+        phase: 'validate',
+        progress_pct: 5,
+        message: 'Retraining job queued. Initializing isolated directory workspace...',
+        models_done: 0,
+        models_total: 0,
+        elapsed_s: 0.0,
+      });
+    } catch (err: any) {
+      const detailMsg = err.detail?.message || err.detail || 'Failed to submit retraining job.';
+      setRetrainError(String(detailMsg));
+    }
+  };
+
+  const fetchPastRuns = async () => {
+    try {
+      setLoadingRuns(true);
+      const res = await api.getRetrainRuns();
+      setPastRuns(res.runs || []);
+    } catch (e: any) {
+      console.warn('Could not load past runs:', e);
+    } finally {
+      setLoadingRuns(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchPastRuns();
+  }, []);
+
+  const handleActivateRun = async (jobId: string) => {
+    try {
+      setActivatingJobId(jobId);
+      setActionMessage(null);
+      setActionError(null);
+      const res = await api.activateRun(jobId);
+      setActionMessage(res.message);
+      onRefreshMeta?.();
+      await fetchPastRuns();
+    } catch (e: any) {
+      setActionError(e?.detail || 'Failed to activate retrained model for scoring.');
+    } finally {
+      setActivatingJobId(null);
+    }
+  };
+
+  const handleRollback = async () => {
+    try {
+      setIsRollingBack(true);
+      setActionMessage(null);
+      setActionError(null);
+      const res = await api.rollbackRun();
+      setActionMessage(res.message);
+      onRefreshMeta?.();
+      await fetchPastRuns();
+    } catch (e: any) {
+      setActionError(e?.detail || 'Failed to roll back to synthetic benchmark.');
+    } finally {
+      setIsRollingBack(false);
+    }
+  };
+
+  const handleDeleteRun = async (jobId: string) => {
+    if (!window.confirm(`Are you sure you want to delete retrained run '${jobId}'? This cannot be undone.`)) {
+      return;
+    }
+    try {
+      setActionMessage(null);
+      setActionError(null);
+      const res = await api.deleteRetrainRun(jobId);
+      setActionMessage(res.message);
+      onRefreshMeta?.();
+      await fetchPastRuns();
+      if (retrainResult?.job_id === jobId) {
+        setRetrainResult(null);
+      }
+    } catch (e: any) {
+      setActionError(e?.detail || 'Failed to delete retrained run.');
+    }
   };
 
   const executeUpload = async () => {
@@ -182,6 +377,219 @@ export const PredictPage: React.FC = () => {
         </div>
       </div>
 
+      {/* Global Action Alerts */}
+      {actionMessage && (
+        <div className="rounded-xl border border-emerald-500/40 bg-emerald-950/20 p-3.5 flex items-center justify-between text-xs text-emerald-300">
+          <div className="flex items-center gap-2">
+            <Check className="w-4 h-4 text-emerald-400 shrink-0" />
+            <span>{actionMessage}</span>
+          </div>
+          <button
+            onClick={() => setActionMessage(null)}
+            className="text-slate-400 hover:text-slate-200 p-1 rounded"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      )}
+
+      {actionError && (
+        <div className="rounded-xl border border-rose-500/40 bg-rose-950/20 p-3.5 flex items-center justify-between text-xs text-rose-300">
+          <div className="flex items-center gap-2">
+            <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0" />
+            <span>{actionError}</span>
+          </div>
+          <button
+            onClick={() => setActionError(null)}
+            className="text-slate-400 hover:text-slate-200 p-1 rounded"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      )}
+
+      {/* Active Model Scoring Provenance Banner */}
+      <div className={`rounded-xl border p-4 flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs ${
+        meta?.data_mode === 'REAL'
+          ? 'bg-emerald-950/30 border-emerald-500/40 text-emerald-200'
+          : 'bg-slate-900/60 border-slate-800 text-slate-300'
+      }`}>
+        <div className="flex items-start md:items-center gap-3">
+          <div className={`p-2 rounded-lg shrink-0 ${
+            meta?.data_mode === 'REAL'
+              ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+              : 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20'
+          }`}>
+            <Database className="w-4 h-4" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className={`px-2 py-0.5 rounded text-[10px] font-bold font-mono uppercase ${
+                meta?.data_mode === 'REAL'
+                  ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+                  : 'bg-slate-800 text-slate-400 border border-slate-700'
+              }`}>
+                {meta?.data_mode === 'REAL' ? 'Active: REAL USER DATA' : 'Active: SYNTHETIC BENCHMARK'}
+              </span>
+              <span className="font-bold text-white text-sm">
+                Scoring Champion: {meta?.champion_model?.label || 'CatBoost'}
+              </span>
+              {meta?.active_run_id && (
+                <span className="text-slate-400 font-mono text-[11px] hidden sm:inline">
+                  (Run: {meta.active_run_id})
+                </span>
+              )}
+            </div>
+            <p className="text-slate-400 mt-0.5 text-xs">
+              {meta?.data_mode === 'REAL' ? (
+                <>
+                  Predictions use retrained weights: ROC-AUC <strong>{meta.champion_model?.test_roc_auc}</strong> | PR-AUC <strong>{meta.champion_model?.test_pr_auc}</strong> | F2 <strong>{meta.champion_model?.test_f2_score}</strong> | Lead Time <strong>{meta.champion_model?.lead_time_semesters} sems</strong>.
+                </>
+              ) : (
+                <>
+                  Inference is evaluated using the canonical thesis benchmark (CatBoost, ROC-AUC {meta?.champion_model?.test_roc_auc ?? 0.7815}).
+                </>
+              )}
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 shrink-0 self-end md:self-auto">
+          {meta?.data_mode === 'REAL' && (
+            <button
+              onClick={handleRollback}
+              disabled={isRollingBack}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition-colors disabled:opacity-50"
+              title="Deactivate real user model scoring and roll back to canonical thesis synthetic benchmark"
+            >
+              <RotateCcw className={`w-3.5 h-3.5 ${isRollingBack ? 'animate-spin' : ''}`} />
+              Rollback to Synthetic
+            </button>
+          )}
+
+          <button
+            onClick={() => setShowPastRuns(!showPastRuns)}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-indigo-300 text-xs font-medium border border-slate-700 transition-colors"
+          >
+            <Clock className="w-3.5 h-3.5" />
+            {showPastRuns ? 'Hide Past Runs' : `Past Retrained Models (${pastRuns.length})`}
+          </button>
+        </div>
+      </div>
+
+      {/* Past Runs Drawer / Table */}
+      {showPastRuns && (
+        <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5 space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                <Clock className="w-4 h-4 text-indigo-400" />
+                Retrained Models Registry (Isolated Benchmarks)
+              </h3>
+              <p className="text-xs text-slate-400 mt-0.5">
+                All models are stored under isolated directories (<code>artifacts/user_dataset/&lt;job_id&gt;/</code>). Activate any model to switch the live scoring engine.
+              </p>
+            </div>
+            <button
+              onClick={fetchPastRuns}
+              disabled={loadingRuns}
+              className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors"
+              title="Refresh list"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${loadingRuns ? 'animate-spin' : ''}`} />
+            </button>
+          </div>
+
+          {pastRuns.length === 0 ? (
+            <div className="text-center py-6 text-xs text-slate-500 font-mono">
+              No retrained runs found in <code>artifacts/user_dataset/</code>. Upload data with outcome columns to retrain.
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead>
+                  <tr className="border-b border-slate-800 text-slate-400 uppercase font-mono text-[10px]">
+                    <th className="py-2.5 px-3">Run ID / Date</th>
+                    <th className="py-2.5 px-3">Champion Model</th>
+                    <th className="py-2.5 px-3">Cohort Size</th>
+                    <th className="py-2.5 px-3">Test ROC-AUC</th>
+                    <th className="py-2.5 px-3">Test PR-AUC</th>
+                    <th className="py-2.5 px-3">Test F2</th>
+                    <th className="py-2.5 px-3">Lead Time</th>
+                    <th className="py-2.5 px-3">Status</th>
+                    <th className="py-2.5 px-3 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-800/60 font-mono">
+                  {pastRuns.map((r) => (
+                    <tr key={r.job_id} className={`hover:bg-slate-800/30 transition-colors ${r.is_active ? 'bg-emerald-950/20' : ''}`}>
+                      <td className="py-3 px-3">
+                        <div className="font-bold text-white">{r.job_id}</div>
+                        <div className="text-[10px] text-slate-500">
+                          {r.trained_at ? new Date(r.trained_at).toLocaleString() : 'N/A'}
+                        </div>
+                      </td>
+                      <td className="py-3 px-3">
+                        <div className="font-semibold text-amber-300">{r.champion_label}</div>
+                        <div className="text-[10px] text-slate-500 capitalize">{r.budget} budget &bull; {r.scope}</div>
+                      </td>
+                      <td className="py-3 px-3 text-slate-300">
+                        {r.n_students} students
+                        <div className="text-[10px] text-slate-500">({r.n_attrited} attrited)</div>
+                      </td>
+                      <td className="py-3 px-3 text-amber-400 font-bold">{r.test_roc_auc.toFixed(4)}</td>
+                      <td className="py-3 px-3 text-indigo-400">{r.test_pr_auc.toFixed(4)}</td>
+                      <td className="py-3 px-3 text-emerald-400">{r.test_f2_score.toFixed(4)}</td>
+                      <td className="py-3 px-3 text-cyan-400">{r.lead_time_semesters.toFixed(1)} sems</td>
+                      <td className="py-3 px-3">
+                        {r.is_active ? (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                            ACTIVE
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] bg-slate-800 text-slate-400 border border-slate-700">
+                            Inactive
+                          </span>
+                        )}
+                      </td>
+                      <td className="py-3 px-3 text-right">
+                        <div className="flex items-center justify-end gap-1.5">
+                          {!r.is_active ? (
+                            <button
+                              onClick={() => handleActivateRun(r.job_id)}
+                              disabled={activatingJobId === r.job_id}
+                              className="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-semibold transition-colors disabled:opacity-50"
+                            >
+                              {activatingJobId === r.job_id ? 'Activating...' : 'Activate'}
+                            </button>
+                          ) : (
+                            <button
+                              onClick={handleRollback}
+                              disabled={isRollingBack}
+                              className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] font-medium transition-colors disabled:opacity-50"
+                            >
+                              Rollback
+                            </button>
+                          )}
+                          <button
+                            onClick={() => handleDeleteRun(r.job_id)}
+                            className="p-1 rounded-lg text-slate-500 hover:text-rose-400 hover:bg-rose-950/30 transition-colors"
+                            title="Delete run artifacts"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* ── MODE 1: BATCH UPLOAD ────────────────────────────────────────────── */}
       {activeTab === 'upload' && (
         <div className="space-y-6">
@@ -211,9 +619,33 @@ export const PredictPage: React.FC = () => {
                 <p className="text-xs text-slate-400 mt-1">
                   Supports <strong>CSV</strong> or <strong>Excel (.xlsx)</strong> formatted in either canonical long format or wide format. Max 10 MB.
                 </p>
+
+                {/* Outcome Detection Chip */}
+                {inspectLoading && (
+                  <div className="mt-2.5 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono bg-slate-800 text-indigo-300 border border-slate-700">
+                    <RefreshCw className="w-3 h-3 animate-spin text-indigo-400" />
+                    Inspecting dataset for outcome labels...
+                  </div>
+                )}
+
+                {!inspectLoading && inspectResult && (
+                  <div className="mt-2.5 flex items-center justify-center">
+                    {inspectResult.has_outcomes ? (
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold font-mono bg-amber-500/10 text-amber-400 border border-amber-500/30">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-amber-400" />
+                        Outcome labels detected: {inspectResult.n_students} students, {(inspectResult.attrition_rate * 100).toFixed(1)}% attrited
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium font-mono bg-slate-800 text-slate-400 border border-slate-700">
+                        <HelpCircle className="w-3.5 h-3.5 text-slate-400" />
+                        No outcome column found — inference only
+                      </span>
+                    )}
+                  </div>
+                )}
               </div>
 
-              <div className="flex items-center justify-center gap-3 pt-2">
+              <div className="flex flex-wrap items-center justify-center gap-2 pt-2">
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
@@ -222,28 +654,261 @@ export const PredictPage: React.FC = () => {
                   Browse Computer
                 </button>
                 <a
-                  href={api.getTemplateUrl()}
+                  href={api.getTemplateUrl(false)}
                   download="academic_observation_template.csv"
                   className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-indigo-300 text-xs font-medium border border-slate-800 transition-colors"
                 >
                   <Download className="w-3.5 h-3.5" />
-                  Download Template CSV
+                  Template (Inference)
+                </a>
+                <a
+                  href={api.getTemplateUrl(true)}
+                  download="academic_observation_template_with_outcomes.csv"
+                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-amber-300 text-xs font-medium border border-amber-900/40 transition-colors"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  Template (With Outcomes)
                 </a>
               </div>
 
               {file && (
-                <div className="pt-3">
+                <div className="pt-3 flex flex-col sm:flex-row items-center gap-3">
                   <button
                     onClick={executeUpload}
-                    disabled={uploading}
-                    className="w-full py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition-all shadow-md shadow-indigo-600/30 disabled:opacity-50"
+                    disabled={uploading || Boolean(activeJobId)}
+                    className="flex-1 w-full py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition-all shadow-md shadow-indigo-600/30 disabled:opacity-50"
                   >
                     {uploading ? 'Processing Zero-Leakage Pipeline & TreeSHAP...' : 'Execute Model Inference & Explainability'}
                   </button>
+
+                  {inspectResult?.has_outcomes && (
+                    <button
+                      type="button"
+                      onClick={() => setIsRetrainModalOpen(true)}
+                      disabled={!inspectResult.can_retrain || Boolean(activeJobId)}
+                      title={
+                        !inspectResult.can_retrain
+                          ? inspectResult.blocking_issues.join(' | ')
+                          : activeJobId
+                          ? 'A retraining job is currently in progress.'
+                          : 'Retrain champion and candidate models on your uploaded cohort'
+                      }
+                      className="w-full sm:w-auto px-5 py-2.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold transition-all shadow-md shadow-amber-600/30 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 whitespace-nowrap"
+                    >
+                      <RefreshCw className={`w-3.5 h-3.5 ${activeJobId ? 'animate-spin' : ''}`} />
+                      Retrain on My Data
+                    </button>
+                  )}
                 </div>
               )}
             </div>
           </section>
+
+          {/* Dataset Retrain Issues & Warnings Box */}
+          {inspectResult && (inspectResult.blocking_issues.length > 0 || inspectResult.warnings.length > 0) && (
+            <div className="space-y-3">
+              {inspectResult.blocking_issues.length > 0 && (
+                <div className="rounded-xl border border-rose-500/40 bg-rose-950/20 p-4 space-y-2">
+                  <div className="flex items-center gap-2 text-rose-400 text-xs font-bold uppercase tracking-wider font-mono">
+                    <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0" />
+                    Retraining Blocked ({inspectResult.blocking_issues.length} Criteria Not Met)
+                  </div>
+                  <ul className="space-y-1 text-xs text-rose-300/90 pl-6 list-disc">
+                    {inspectResult.blocking_issues.map((issue, idx) => (
+                      <li key={idx}>{issue}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {inspectResult.warnings.length > 0 && (
+                <div className="rounded-xl border border-amber-500/40 bg-amber-950/20 p-4 space-y-2">
+                  <div className="flex items-center gap-2 text-amber-400 text-xs font-bold uppercase tracking-wider font-mono">
+                    <AlertCircle className="w-4 h-4 text-amber-400 shrink-0" />
+                    Advisory Dataset Warnings
+                  </div>
+                  <ul className="space-y-1 text-xs text-amber-300/90 pl-6 list-disc">
+                    {inspectResult.warnings.map((warn, idx) => (
+                      <li key={idx}>{warn}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Live Retraining Progress Banner */}
+          {activeJobId && jobStatus && (jobStatus.state === 'queued' || jobStatus.state === 'running') && (
+            <div className="rounded-xl border border-amber-500/40 bg-slate-900/90 p-5 space-y-3 shadow-lg shadow-amber-950/20">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div className="flex items-center gap-2.5 text-amber-400 font-bold text-sm">
+                  <RefreshCw className="w-4 h-4 animate-spin text-amber-400" />
+                  <span>Model Retraining in Progress ({jobStatus.phase || 'initializing'})</span>
+                </div>
+                <div className="flex items-center gap-3 text-xs text-slate-400 font-mono">
+                  {jobStatus.current_model && (
+                    <span className="px-2 py-0.5 rounded bg-slate-800 text-amber-300 border border-amber-500/30">
+                      Model: {jobStatus.current_model} ({jobStatus.models_done}/{jobStatus.models_total})
+                    </span>
+                  )}
+                  <span className="inline-flex items-center gap-1">
+                    <Clock className="w-3.5 h-3.5 text-slate-400" />
+                    {jobStatus.elapsed_s.toFixed(1)}s elapsed
+                  </span>
+                </div>
+              </div>
+
+              {/* Progress Bar */}
+              <div className="w-full bg-slate-800 rounded-full h-2.5 overflow-hidden">
+                <div
+                  className="bg-amber-500 h-2.5 rounded-full transition-all duration-300 ease-out"
+                  style={{ width: `${Math.max(5, jobStatus.progress_pct)}%` }}
+                />
+              </div>
+
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-slate-300 font-mono">{jobStatus.message}</span>
+                <span className="text-amber-400 font-mono font-bold">{jobStatus.progress_pct}%</span>
+              </div>
+            </div>
+          )}
+
+          {/* Retraining Success Result Card */}
+          {retrainResult && (
+            <div className="rounded-2xl border border-amber-500/50 bg-gradient-to-br from-amber-950/30 via-slate-900 to-slate-900/90 p-6 space-y-5 shadow-xl shadow-amber-950/20">
+              <div className="flex items-start justify-between">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="px-2.5 py-0.5 rounded-full text-xs font-bold font-mono bg-amber-500/20 text-amber-400 border border-amber-500/40">
+                      Trained on user-provided data
+                    </span>
+                    <span className="text-xs text-slate-400 font-mono">
+                      Job ID: {retrainResult.job_id}
+                    </span>
+                  </div>
+                  <h3 className="text-lg font-bold text-white flex items-center gap-2 mt-1">
+                    <Sparkles className="w-5 h-5 text-amber-400" />
+                    Retrained Champion: {retrainResult.champion_label}
+                  </h3>
+                  <p className="text-xs text-slate-400">
+                    Evaluated across {retrainResult.n_students} students ({retrainResult.n_attrited} attrited cases) under {retrainResult.budget} budget.
+                  </p>
+                </div>
+
+                <button
+                  onClick={() => setRetrainResult(null)}
+                  className="text-slate-500 hover:text-slate-300 p-1 rounded-lg transition-colors"
+                  title="Dismiss card"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Metrics Grid */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 font-mono">
+                <div className="rounded-xl border border-slate-800 bg-slate-950/60 p-3">
+                  <span className="text-xs text-slate-400 uppercase">Test ROC-AUC</span>
+                  <div className="text-xl font-bold text-amber-400 mt-1">
+                    {retrainResult.test_roc_auc.toFixed(4)}
+                  </div>
+                  <span className="text-xs text-slate-500">Discrimination</span>
+                </div>
+
+                <div className="rounded-xl border border-slate-800 bg-slate-950/60 p-3">
+                  <span className="text-xs text-slate-400 uppercase">Test PR-AUC</span>
+                  <div className="text-xl font-bold text-indigo-400 mt-1">
+                    {retrainResult.test_pr_auc.toFixed(4)}
+                  </div>
+                  <span className="text-xs text-slate-500">Imbalance-Robust</span>
+                </div>
+
+                <div className="rounded-xl border border-slate-800 bg-slate-950/60 p-3">
+                  <span className="text-xs text-slate-400 uppercase">Test F2-Score</span>
+                  <div className="text-xl font-bold text-emerald-400 mt-1">
+                    {retrainResult.test_f2_score.toFixed(4)}
+                  </div>
+                  <span className="text-xs text-slate-500">Recall-Oriented</span>
+                </div>
+
+                <div className="rounded-xl border border-slate-800 bg-slate-950/60 p-3">
+                  <span className="text-xs text-slate-400 uppercase">Early Lead Time</span>
+                  <div className="text-xl font-bold text-cyan-400 mt-1">
+                    {retrainResult.lead_time_semesters.toFixed(1)} Sems
+                  </div>
+                  <span className="text-xs text-slate-500">Pre-Attrition Lead</span>
+                </div>
+              </div>
+
+              {/* Card Actions: Scoring Activation & Isolation Provenance */}
+              <div className="pt-2 flex flex-wrap items-center justify-between gap-3 border-t border-slate-800">
+                <div className="flex items-center gap-2">
+                  {meta?.active_run_id === retrainResult.job_id ? (
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold font-mono bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                      <Check className="w-4 h-4 text-emerald-400" />
+                      Active Scoring Model
+                    </span>
+                  ) : (
+                    <button
+                      onClick={() => handleActivateRun(retrainResult.job_id)}
+                      disabled={activatingJobId === retrainResult.job_id}
+                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold shadow-md shadow-amber-500/20 transition-all disabled:opacity-50"
+                    >
+                      {activatingJobId === retrainResult.job_id ? (
+                        <>
+                          <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                          Activating Model...
+                        </>
+                      ) : (
+                        <>
+                          <Check className="w-3.5 h-3.5" />
+                          Use this model for scoring
+                        </>
+                      )}
+                    </button>
+                  )}
+
+                  {meta?.data_mode === 'REAL' && (
+                    <button
+                      onClick={handleRollback}
+                      disabled={isRollingBack}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium border border-slate-700 transition-colors disabled:opacity-50"
+                    >
+                      <RotateCcw className="w-3.5 h-3.5" />
+                      Rollback to Synthetic
+                    </button>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-1.5 text-xs text-slate-400">
+                  <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <span>Isolated: Saved to <code>artifacts/user_dataset/{retrainResult.job_id}/</code></span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Retraining Failure Alert */}
+          {retrainError && (
+            <div className="rounded-xl border border-rose-500/40 bg-rose-950/20 p-4 space-y-2 flex items-start justify-between">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2 text-rose-400 text-xs font-bold uppercase tracking-wider font-mono">
+                  <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0" />
+                  Retraining Job Failed
+                </div>
+                <p className="text-xs text-rose-300">{retrainError}</p>
+                <p className="text-xs text-slate-400 mt-1">
+                  Existing thesis models and benchmarks were not changed.
+                </p>
+              </div>
+              <button
+                onClick={() => setRetrainError(null)}
+                className="text-slate-500 hover:text-slate-300 p-1 rounded-lg transition-colors"
+                title="Dismiss error"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          )}
 
           {/* Validation Errors Box */}
           {uploadErrors && (
@@ -304,7 +969,12 @@ export const PredictPage: React.FC = () => {
                 </div>
 
                 <div className="rounded-xl border border-slate-800 bg-slate-900/40 p-4 flex flex-col justify-between">
-                  <span className="text-xs text-slate-400 uppercase font-mono">Export Predictions</span>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-slate-400 uppercase font-mono">Actions</span>
+                    {inspectResult?.has_outcomes && (
+                      <span className="text-[10px] text-amber-400 font-mono font-semibold">Outcomes Detected</span>
+                    )}
+                  </div>
                   <div className="flex gap-2 mt-2">
                     <a
                       href={api.getDownloadUrl(batchResult.download_token, 'csv')}
@@ -319,6 +989,24 @@ export const PredictPage: React.FC = () => {
                       Export JSON
                     </a>
                   </div>
+                  {inspectResult?.has_outcomes && (
+                    <button
+                      type="button"
+                      onClick={() => setIsRetrainModalOpen(true)}
+                      disabled={!inspectResult.can_retrain || Boolean(activeJobId)}
+                      title={
+                        !inspectResult.can_retrain
+                          ? inspectResult.blocking_issues.join(' | ')
+                          : activeJobId
+                          ? 'A retraining job is currently in progress.'
+                          : 'Retrain champion and candidate models on this uploaded cohort'
+                      }
+                      className="mt-2 w-full py-1.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold transition-all shadow-sm shadow-amber-600/30 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-1.5"
+                    >
+                      <RefreshCw className={`w-3.5 h-3.5 ${activeJobId ? 'animate-spin' : ''}`} />
+                      Retrain on This Dataset
+                    </button>
+                  )}
                 </div>
               </div>
 
@@ -720,6 +1408,142 @@ export const PredictPage: React.FC = () => {
           </div>
         </div>
       </section>
+
+      {/* ── Retraining Confirmation Modal ── */}
+      {isRetrainModalOpen && inspectResult && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-fade-in">
+          <div className="relative w-full max-w-lg rounded-2xl border border-slate-700 bg-slate-900 p-6 space-y-5 shadow-2xl">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center">
+                  <RefreshCw className="w-4 h-4 text-amber-400" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-white">Retrain on My Data</h3>
+                  <p className="text-xs text-slate-400">Configure background model training run</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsRetrainModalOpen(false)}
+                className="text-slate-400 hover:text-white p-1 rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Dataset Summary */}
+            <div className="rounded-xl border border-slate-800 bg-slate-950/60 p-4 space-y-2">
+              <span className="text-xs font-mono font-semibold text-slate-400 uppercase tracking-wider block">
+                Dataset Summary
+              </span>
+              <div className="grid grid-cols-3 gap-3 text-center">
+                <div className="p-2 rounded-lg bg-slate-900 border border-slate-800">
+                  <div className="text-base font-bold font-mono text-white">{inspectResult.n_students}</div>
+                  <div className="text-[11px] text-slate-400">Total Students</div>
+                </div>
+                <div className="p-2 rounded-lg bg-slate-900 border border-slate-800">
+                  <div className="text-base font-bold font-mono text-white">{inspectResult.n_records}</div>
+                  <div className="text-[11px] text-slate-400">Observations</div>
+                </div>
+                <div className="p-2 rounded-lg bg-slate-900 border border-slate-800">
+                  <div className="text-base font-bold font-mono text-amber-400">
+                    {inspectResult.n_attrited} ({(inspectResult.attrition_rate * 100).toFixed(1)}%)
+                  </div>
+                  <div className="text-[11px] text-slate-400">Attrited</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Hyperparameter Optimization Budget */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-slate-300 block">
+                Training Budget (Hyperparameter Optimization)
+              </label>
+              <div className="grid grid-cols-3 gap-2">
+                {(['quick', 'standard', 'full'] as const).map(b => (
+                  <button
+                    key={b}
+                    type="button"
+                    onClick={() => setRetrainBudget(b)}
+                    className={`py-2 px-3 rounded-lg text-xs font-semibold border transition-all ${
+                      retrainBudget === b
+                        ? 'bg-amber-600/20 border-amber-500 text-amber-300 shadow-sm shadow-amber-600/30'
+                        : 'bg-slate-800/80 border-slate-700 text-slate-400 hover:text-slate-200'
+                    }`}
+                  >
+                    <span className="capitalize">{b}</span>
+                    <span className="block text-[10px] font-normal opacity-70">
+                      {b === 'quick' ? 'Fast (1 trial)' : b === 'standard' ? 'Standard (10 trials)' : 'Full (30 trials)'}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Model Scope */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-slate-300 block">
+                Model Scope
+              </label>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setRetrainScope('champions')}
+                  className={`py-2 px-3 rounded-lg text-xs font-semibold border text-left transition-all ${
+                    retrainScope === 'champions'
+                      ? 'bg-amber-600/20 border-amber-500 text-amber-300 shadow-sm shadow-amber-600/30'
+                      : 'bg-slate-800/80 border-slate-700 text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  <div className="font-bold">Champions Only</div>
+                  <div className="text-[10px] font-normal opacity-70">GRU, CatBoost, Logistic, RF, LightGBM</div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setRetrainScope('full')}
+                  className={`py-2 px-3 rounded-lg text-xs font-semibold border text-left transition-all ${
+                    retrainScope === 'full'
+                      ? 'bg-amber-600/20 border-amber-500 text-amber-300 shadow-sm shadow-amber-600/30'
+                      : 'bg-slate-800/80 border-slate-700 text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  <div className="font-bold">All Models</div>
+                  <div className="text-[10px] font-normal opacity-70">Full 11-model zoo (Categories A-F)</div>
+                </button>
+              </div>
+            </div>
+
+            {/* Isolation Guarantee Callout */}
+            <div className="rounded-xl border border-emerald-500/30 bg-emerald-950/20 p-3.5 flex items-start gap-3">
+              <ShieldCheck className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
+              <p className="text-xs text-emerald-200/90 leading-relaxed">
+                <strong>Filesystem Isolation:</strong> Results and checkpoints are saved separately in{' '}
+                <code>artifacts/user_dataset/</code> and do not replace or overwrite the synthetic thesis benchmark.
+              </p>
+            </div>
+
+            {/* Modal Actions */}
+            <div className="flex items-center justify-end gap-3 pt-2 border-t border-slate-800">
+              <button
+                type="button"
+                onClick={() => setIsRetrainModalOpen(false)}
+                className="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold border border-slate-700 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleStartRetrain}
+                className="px-5 py-2 rounded-lg bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold transition-all shadow-md shadow-amber-600/30 flex items-center gap-2"
+              >
+                <RefreshCw className="w-3.5 h-3.5" />
+                Confirm & Start Retraining
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
