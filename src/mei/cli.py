@@ -1,5 +1,7 @@
 """CLI entrypoint for Multimodal Student Engagement Intelligence (MEI)."""
 
+import subprocess
+import sys
 from pathlib import Path
 from typing import Optional
 
@@ -4017,7 +4019,25 @@ def activate(
 @app.command()
 def docs() -> None:
     """Generate and verify documentation and publication figures."""
-    typer.echo("not implemented yet")
+    project_root = Path(__file__).resolve().parents[2]
+    for script_name in ("build_docs_numbers.py", "check_docs.py"):
+        script_path = project_root / "scripts" / script_name
+        if not script_path.is_file():
+            typer.echo(f"Documentation command failed: missing {script_path}", err=True)
+            raise typer.Exit(code=1)
+        result = subprocess.run(
+            [sys.executable, str(script_path)],
+            cwd=project_root,
+            check=False,
+        )
+        if result.returncode != 0:
+            typer.echo(
+                f"Documentation command failed in {script_name} "
+                f"(exit code {result.returncode}).",
+                err=True,
+            )
+            raise typer.Exit(code=result.returncode)
+    typer.echo("Documentation numbers, summaries, figures, and links rebuilt and checked.")
 
 
 @app.command("all")

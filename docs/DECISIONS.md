@@ -642,3 +642,43 @@ Every design, architectural, and methodological decision is recorded here chrono
 - **Decision**: `frontend/src/api/client.ts` (from commit `e7c2c7b`) and `frontend/src/App.tsx` (from commit `0af5778`) were missing from the working tree. Restored via `git checkout <commit> -- <file>`. Both files are now tracked and committed as part of the Phase 16 frontend section.
 - **Reason**: These files were present in earlier phase commits but were accidentally excluded from the HEAD working tree (likely during a rebase or selective checkout). The frontend build fails without them.
 
+---
+
+### D-069: Viva Results Are Rendered Only from Active-Run Artifacts
+- **Date**: 2026-10-28
+- **Decision**: Generate `docs/_numbers.json` and both results-summary files from the active run's model card, split summary, leaderboards, state report, bootstrap intervals, calibration fields, risk bands, feature manifest, and SHAP artifacts. Missing required artifacts fail the build; unavailable optional evidence is stated as unavailable.
+- **Reason**: The viva pack must be reproducible when the real survey is available and must not carry stale values forward from earlier reports.
+- **Alternatives Rejected**:
+  - Keeping result values in handwritten Markdown: This risks divergence from the active run.
+  - Substituting historical phase-report values: This would misrepresent the current active run.
+
+---
+
+### D-070: Conflicting Evidence Is Reported, Not Silently Reconciled
+- **Date**: 2026-10-28
+- **Decision**: Report the leaderboard and frozen model-card thresholds separately. Also report that a test-use marker exists while saved leaderboard rows contain non-champion test metrics; the artifacts therefore do not independently confirm strict one-time test access.
+- **Reason**: The evidence is inconsistent with an unqualified single-threshold or single-model test-use claim. Documentation must preserve that uncertainty and must not trigger another test evaluation.
+- **Alternatives Rejected**:
+  - Choosing one threshold without explanation.
+  - Treating a marker as conclusive proof that the test was used only for one frozen model.
+  - Re-evaluating the test set to investigate the discrepancy.
+
+---
+
+### D-071: Figure Exports Preserve Vector Sources and Disclose Raster Wrappers
+- **Date**: 2026-10-28
+- **Decision**: Export every source PNG with 300-dpi metadata, preserve an available SVG source, and create an SVG container around the PNG only when a source SVG is absent. Label wrapper files in the catalog.
+- **Reason**: The requested catalog needs both formats without falsely describing a raster image as a vector-redrawn chart.
+- **Alternatives Rejected**:
+  - Omitting figures without an SVG source.
+  - Describing an SVG container around a raster as fully vector artwork.
+
+---
+
+### D-072: Document Risk-Band Display Mismatch Without Changing the Website
+- **Date**: 2026-10-28
+- **Decision**: Report that the scoring-results chart uses cutoffs that differ from the active model's saved risk-band definitions. Keep the artifact-backed result table tied to the model artifact and do not interpret the chart as verification.
+- **Reason**: The viva documentation must describe observed interface behavior accurately without silently reconciling incompatible thresholds or expanding the documentation task into an unrequested website change.
+- **Alternatives Rejected**:
+  - Treating the chart cutoffs as the active model's verified bands.
+  - Changing the website as part of this documentation-only phase.
