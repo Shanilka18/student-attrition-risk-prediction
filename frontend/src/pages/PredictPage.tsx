@@ -1025,7 +1025,15 @@ export const PredictPage: React.FC<PredictPageProps> = ({ meta, onRefreshMeta })
                 </div>
 
                 <div className="overflow-x-auto">
-                  <table className="w-full text-left text-xs border-collapse">
+                  <table className="w-full text-left text-xs border-collapse table-fixed min-w-[900px]">
+                    <colgroup>
+                      <col className="w-24" />
+                      <col className="w-16" />
+                      <col className="w-28" />
+                      <col className="w-24" />
+                      <col className="w-44" />
+                      <col />
+                    </colgroup>
                     <thead>
                       <tr className="bg-slate-950/80 border-b border-slate-800 text-slate-400 uppercase font-semibold">
                         <th className="py-2.5 px-3">Student ID</th>
@@ -1047,22 +1055,22 @@ export const PredictPage: React.FC<PredictPageProps> = ({ meta, onRefreshMeta })
                               isSelected ? 'bg-indigo-950/30' : 'hover:bg-slate-800/30'
                             }`}
                           >
-                            <td className="py-3 px-3 font-mono font-bold text-indigo-300">
+                            <td className="py-3 px-3 font-mono font-bold text-indigo-300 align-top">
                               {p.student_id}
                             </td>
-                            <td className="py-3 px-3 font-mono text-slate-400">
+                            <td className="py-3 px-3 font-mono text-slate-400 align-top">
                               Sem {p.window_semester}
                             </td>
-                            <td className="py-3 px-3 font-mono font-bold text-slate-100">
+                            <td className="py-3 px-3 font-mono font-bold text-slate-100 align-top">
                               {p.academic_risk_index.toFixed(1)} / 100
                             </td>
-                            <td className="py-3 px-3">
+                            <td className="py-3 px-3 align-top">
                               <RiskBadge band={p.risk_band} score={p.academic_risk_index} />
                             </td>
-                            <td className="py-3 px-3 text-[11px] text-slate-400 max-w-xs">
+                            <td className="py-3 px-3 text-[11px] text-slate-400 align-top">
                               {p.top_factors.map(f => f.display_name).join(', ')}
                             </td>
-                            <td className="py-3 px-3 text-xs text-slate-200 max-w-md line-clamp-2">
+                            <td className="py-3 px-3 text-xs text-slate-200 align-top leading-relaxed">
                               {p.explanation_text}
                             </td>
                           </tr>
