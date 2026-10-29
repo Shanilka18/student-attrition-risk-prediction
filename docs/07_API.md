@@ -59,10 +59,14 @@ flowchart TD
 | `GET` | `/data/summary` | Cohort distribution metrics and catalog of all 19 diagnostic plots | 200 |
 | `GET` | `/explain/global` | Global TreeSHAP importance (22 features) and semester attributions | 200 |
 | `GET` | `/explain/student/{id}` | Clinical risk index and diagnostic narrative for specific student | 200, 404 |
-| `GET` | `/predict/template` | Downloadable CSV template conforming to schema | 200 |
+| `GET` | `/predict/template` | Downloadable CSV observation template (`?with_outcomes=true` for retraining) | 200 |
 | `POST` | `/predict/student` | Real-time prediction and explanation for one student's semesters | 200, 422 |
 | `POST` | `/predict/upload` | Batch upload (CSV/XLSX), wide/long conversion, and risk triage | 200, 400, 413, 422 |
 | `GET` | `/predict/download/{token}` | Download batch results in CSV or JSON format | 200, 404 |
+| `POST` | `/train/inspect` | Multipart file inspection for retraining feasibility, class balance, and leakage | 200, 400, 413, 422 |
+| `POST` | `/retrain` | Initiates asynchronous isolated model retraining on uploaded data | 202, 400, 409, 413, 422 |
+| `GET` | `/jobs/{job_id}` | Real-time retraining status, phase progress, current model, and metrics | 200, 404 |
+| `GET` | `/train/latest` | Metadata summary for the most recent retrained user dataset benchmark | 200, 404 |
 
 ---
 
@@ -317,6 +321,169 @@ Exports previously processed predictions in CSV or formatted JSON.
 curl -X GET "http://127.0.0.1:8000/predict/download/eba5a8d7-7f70-43a6-b104-873f73d0c46f?format=csv" -o results.csv
 ```
 
+### 3.5 Retraining & Filesystem Isolation Endpoints
+
+#### `POST /train/inspect`
+Multipart file inspection verifying whether an uploaded dataset satisfies training feasibility and zero-leakage safety constraints.
+
+* **Outcome Column Detection**: Looks for canonical `attrited` (0/1) or synonyms (`attrition`, `dropout`, `dropped_out`, `withdrawn`, `label`).
+* **Blocking Rules**:
+  * Insufficient cohort size: $< 100$ students.
+  * Insufficient positive cases: $< 20$ attrited students.
+  * Insufficient negative cases: $< 20$ non-attrited students.
+  * Temporal Data Leakage: Records present for `semester > attrition_semester`.
+  * Invalid Labels: Non-binary outcome values.
+* **Advisory Warnings**: Cohort size between 100 and 300, extreme attrition rate ($< 5\%$ or $> 60\%$), defaulted attrition semesters.
+
+**Response (HTTP 200)**:
+```json
+{
+  "has_outcomes": true,
+  "n_students": 120,
+  "n_records": 360,
+  "n_attrited": 30,
+  "attrition_rate": 0.25,
+  "can_retrain": true,
+  "blocking_issues": [],
+  "warnings": [
+    "Cohort size (120) is below the recommended 300 students for high-confidence multi-semester model convergence."
+  ]
+}
+```
+
+#### `POST /retrain`
+Starts an asynchronous, non-blocking background retraining job using a separate worker thread.
+
+* **Parameters** (Multipart Form):
+  * `file`: Dataset in CSV or Excel format.
+  * `budget`: `'quick'` (1 trial, default), `'standard'` (10 trials), or `'full'` (30 Optuna trials).
+  * `scope`: `'champions'` (GRU, CatBoost, Logistic ElasticNet, Random Forest, LightGBM; default) or `'full'` (all 11 models across Categories A-F).
+* **Concurrency Protection**: Returns **HTTP 409 Conflict** if another retraining job is already running.
+* **Filesystem Isolation**: Writes all checkpoints, metrics, splits, and leaderboards strictly to `artifacts/user_dataset/<job_id>/`. The canonical thesis benchmark (`artifacts/models/`, `artifacts/leaderboard/`) remains untouched.
+* **Response (HTTP 202 Accepted)**:
+```json
+{
+  "job_id": "job_20261029_113000_a1b2c3",
+  "message": "Retraining job queued successfully. Isolated training environment active."
+}
+```
+
+#### `GET /jobs/{job_id}`
+Real-time progress polling endpoint for active or completed retraining jobs.
+
+**Response (HTTP 200)**:
+```json
+{
+  "job_id": "job_20261029_113000_a1b2c3",
+  "state": "running",
+  "phase": "training",
+  "progress_pct": 55,
+  "message": "Training catboost (1/5 models completed)...",
+  "current_model": "catboost",
+  "models_done": 1,
+  "models_total": 5,
+  "elapsed_s": 24.5,
+  "result": null,
+  "error": null
+}
+```
+
+#### `GET /train/latest`
+Retrieves summary metadata for the most recently completed user dataset retraining run from `artifacts/user_dataset/latest.json`. Returns **HTTP 404** if no retraining run has completed yet.
+
+**Response (HTTP 200)**:
+```json
+{
+  "job_id": "job_20261029_113000_a1b2c3",
+  "trained_at": "2026-10-29T11:32:00.123456+00:00",
+  "n_students": 120,
+  "n_attrited": 30,
+  "champion": "catboost",
+  "champion_label": "CatBoost (Categorical GBDT)",
+  "sequence_champion": "gru",
+  "test_roc_auc": 0.8842,
+  "test_pr_auc": 0.7612,
+  "test_f2_score": 0.8250,
+  "lead_time_semesters": 2.1,
+  "budget": "quick",
+  "scope": "champions",
+  "data_mode": "REAL"
+}
+```
+
+#### `GET /train/runs`
+Lists all completed retraining runs preserved in `artifacts/user_dataset/`, sorted newest first, and identifies which model run is currently active for live inference scoring.
+
+**Response (HTTP 200)**:
+```json
+{
+  "runs": [
+    {
+      "job_id": "job_20261029_113000_a1b2c3",
+      "trained_at": "2026-10-29T11:32:00+00:00",
+      "n_students": 125,
+      "n_attrited": 30,
+      "champion": "catboost",
+      "champion_label": "CatBoost",
+      "sequence_champion": "gru",
+      "test_roc_auc": 0.8842,
+      "test_pr_auc": 0.7612,
+      "test_f2_score": 0.8250,
+      "lead_time_semesters": 2.1,
+      "budget": "quick",
+      "scope": "champions",
+      "is_active": true
+    }
+  ],
+  "active_run_id": "job_20261029_113000_a1b2c3",
+  "data_mode": "REAL"
+}
+```
+
+#### `POST /train/activate/{job_id}`
+Hot-reloads the in-process `InferenceService` without server restart to score all future single-student and batch prediction requests using the retrained champion weights from `artifacts/user_dataset/<job_id>/`. Writes the pointer to `artifacts/active_run.json`.
+
+**Response (HTTP 200)**:
+```json
+{
+  "message": "Successfully activated model 'CatBoost' (job_20261029_113000_a1b2c3) for live inference scoring.",
+  "job_id": "job_20261029_113000_a1b2c3",
+  "data_mode": "REAL",
+  "champion": "catboost",
+  "champion_label": "CatBoost",
+  "metrics": {
+    "test_roc_auc": 0.8842,
+    "test_pr_auc": 0.7612,
+    "test_f2_score": 0.8250,
+    "lead_time_semesters": 2.1
+  }
+}
+```
+
+#### `POST /train/rollback`
+Safely rolls back the scoring engine to the canonical thesis synthetic benchmark (`artifacts/models/` and `artifacts/leaderboard/`). Deletes `artifacts/active_run.json` and hot-reloads the `InferenceService` without restart.
+
+**Response (HTTP 200)**:
+```json
+{
+  "message": "Successfully rolled back scoring model to canonical thesis synthetic benchmark.",
+  "data_mode": "SYNTHETIC",
+  "active_model": "catboost"
+}
+```
+
+#### `DELETE /train/runs/{job_id}`
+Permanently deletes the isolated retraining directory `artifacts/user_dataset/<job_id>/` and associated upload backup `data/uploads/<job_id>/`. If the run is currently active, it automatically triggers rollback to the synthetic thesis benchmark first.
+
+**Response (HTTP 200)**:
+```json
+{
+  "message": "Retrained run 'job_20261029_113000_a1b2c3' deleted successfully.",
+  "job_id": "job_20261029_113000_a1b2c3",
+  "rolled_back": true
+}
+```
+
 ---
 
 ## 4. Academic Observation Schema & Validation Protocol
@@ -380,11 +547,12 @@ If a malformed file is uploaded, the API responds with **HTTP 422 Unprocessable 
   * Batch evaluation (12 rows, 3 students): **$9.39\text{ ms}$ per student** ($213\times$ faster than SLA).
   * Feature extraction, Platt scaling, and TreeSHAP attribution execute in under $10\text{ ms}$ combined.
 
-### 5.2 Zero-PII & Ephemeral Processing Policy
-* **Memory-Only Processing**: Uploaded CSV/Excel streams are parsed in volatile RAM using `io.BytesIO`. Files are never written to the server's disk storage.
-* **Zero PII Logging**: Log streams record only record counts, byte sizes, and anonymized latency metrics. Real names, emails, and student IDs are never logged.
+### 5.2 Privacy & Data Persistence Architecture
+* **Ephemeral Inference Processing**: Standard batch prediction uploads (`/predict/upload`) are parsed strictly in volatile RAM using `io.BytesIO`. Inference payloads are never persisted to disk, student names/PII are never logged, and batch export caches use ephemeral UUID tokens with automatic FIFO eviction.
+* **Controlled Local Retraining Storage**: When model retraining is explicitly initiated (`/retrain`), raw uploaded data is saved locally to `data/uploads/<job_id>/` (excluded from git via `.gitignore`) solely to allow multi-stage pipeline execution (splits → preprocessor → training → evaluation → explainability) and audit provenance.
+* **Filesystem Isolation**: Checkpoints, models, splits, and leaderboards generated from user retraining are written strictly to `artifacts/user_dataset/<job_id>/`. The canonical thesis synthetic benchmarks in `artifacts/models/` and `artifacts/leaderboard/` remain strictly immutable.
+* **Zero PII Logging**: Structured application logs record only record counts, byte sizes, model keys, and compute latency metrics. Real student IDs, student names, and individual raw values are never logged.
 * **Capped File Size**: Uploads exceeding **10 MB** (`10,485,760 bytes`) are immediately terminated with **HTTP 413 Content Too Large** before memory buffering.
-* **Self-Pruning Export Cache**: Ephemeral download tokens reside in an in-memory dictionary capped at 50 sessions with FIFO eviction.
 
 ---
 
@@ -404,3 +572,11 @@ If a malformed file is uploaded, the API responds with **HTTP 422 Unprocessable 
 
 ### Q4: Why use exact TreeSHAP in the API instead of a fast approximation like LIME or a generative LLM?
 > **Answer**: TreeSHAP computes exact Shapley values in polynomial time ($O(T L D^2)$) using the tree graph structure. Unlike LIME, TreeSHAP satisfies the four fundamental axioms of cooperative game theory: Efficiency, Symmetry, Dummy (Null player), and Additivity. Unlike generative LLMs, which are prone to hallucinating explanations, TreeSHAP coupled with our deterministic template engine guarantees that every explanation is 100% faithful to the model's true decision surface.
+
+### Q5: How does the framework prevent data leakage when retraining on real user datasets?
+> **Answer**: The retraining engine implements five verified leakage guards:
+> 1. **Temporal Post-Attrition Check**: The inspection engine detects and blocks any dataset containing student observations recorded *after* that student's documented `attrition_semester`.
+> 2. **Zero-Overlap Student Grouping**: Dataset partitioning enforces strict grouped stratification by `student_id`. A student's entire longitudinal history exists exclusively in train, validation, or test partitions.
+> 3. **Train-Only Preprocessor Fitting**: The `AcademicPreprocessor` (imputation medians, standard scaling) is fitted strictly on the training partition students; test and validation sets are strictly transformed without parameter recalculation.
+> 4. **One-Touch Test Evaluation**: Model hyperparameters are tuned using cross-validation or validation splits; the hold-out test set is evaluated exactly once at the conclusion of training.
+> 5. **Complete Filesystem Isolation**: Retrained artifacts are saved in `artifacts/user_dataset/<job_id>/` and cannot overwrite the canonical thesis benchmark models.
