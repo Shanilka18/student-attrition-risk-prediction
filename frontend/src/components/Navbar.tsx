@@ -64,6 +64,31 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         {/* Controls: Health, Presentation, Theme */}
         <div className="flex items-center gap-2">
+          {/* Active Data Mode Provenance Badge (SYNTHETIC vs REAL) */}
+          {meta && (
+            <div
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-xs font-semibold tracking-wide ${
+                meta.data_mode === 'REAL'
+                  ? 'bg-emerald-950/70 border-emerald-500/50 text-emerald-300 shadow-sm shadow-emerald-500/20'
+                  : 'bg-slate-900 border-amber-500/30 text-amber-300/90'
+              }`}
+              title={
+                meta.data_mode === 'REAL'
+                  ? `Active Scoring Model: ${meta.champion_model?.label || 'Retrained Model'} (Trained on user-provided data)`
+                  : 'Active Scoring Model: Canonical Synthetic Thesis Benchmark'
+              }
+            >
+              <span
+                className={`w-2 h-2 rounded-full ${
+                  meta.data_mode === 'REAL' ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'
+                }`}
+              />
+              <span className="font-mono text-[11px]">
+                {meta.data_mode === 'REAL' ? 'Active: REAL DATA' : 'Active: SYNTHETIC BENCHMARK'}
+              </span>
+            </div>
+          )}
+
           {/* Health Status Pill */}
           <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-xs">
             <Server className={`w-3.5 h-3.5 ${health?.status === 'healthy' ? 'text-emerald-400' : 'text-amber-400'}`} />
