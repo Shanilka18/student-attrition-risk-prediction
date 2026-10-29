@@ -79,6 +79,7 @@ from src.causal.dag import (
     OUTCOME,
     build_causal_dag,
 )
+from src.cleaning.cleaner import EnvironmentalFinancialCleaner
 from src.inference.export import export_inference_bundle
 from src.inference.ingestion import align_dataframe_schema
 from src.inference.predict import ProductionInferenceEngine
@@ -627,7 +628,19 @@ async def upload_and_predict(
             detail=f"Unable to parse table: {str(exc)}",
         )
 
-    # 3. Pipeline Ingestion & Schema Alignment (Strict PII Drop)
+    # 3. Run the shared EF cleaner on the original upload for quality findings.
+    try:
+        clean_result = EnvironmentalFinancialCleaner().clean(
+            content, mode="scoring", filename=filename
+        )
+    except (ValueError, FileNotFoundError) as exc:
+        logger.error("Survey cleaning failed: %s", exc)
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=f"Survey cleaning error: {str(exc)}",
+        )
+
+    # 4. Pipeline Ingestion & Schema Alignment (Strict PII Drop)
     try:
         df_aligned, report = align_dataframe_schema(df_raw)
     except Exception as exc:
@@ -637,11 +650,11 @@ async def upload_and_predict(
             detail=f"Data schema ingestion error: {str(exc)}",
         )
 
-    # 4. Score Batch with Production Engine
+    # 5. Score Batch with Production Engine
     engine = ProductionInferenceEngine()
     df_scored, cohort_summary = engine.score_dataframe(df_aligned)
 
-    # 5. Export deliverables bundle
+    # 6. Export deliverables bundle
     job_id = f"job_{uuid.uuid4().hex[:8]}"
     out_dir = ARTIFACTS_DIR / "predictions" / job_id
     ensure_dir(out_dir)
@@ -671,6 +684,7 @@ async def upload_and_predict(
         dropped_pii_columns=report.get("dropped_pii_columns", []),
         has_outcome_column=report.get("has_outcome_column", False),
         generated_pseudonyms=True,
+        data_quality_report=clean_result.report,
     )
 
     # Format cohort summary
@@ -879,9 +893,9 @@ async def _run_retraining_worker(job_id: str, req: RetrainRequest):
     await asyncio.sleep(0.5)
 
     try:
-        from src.inference.retrain import retrain_pipeline_from_file
+        from src.inference.retrain import retrain_pipeline_on_file
 
-        data_file = req.dataset_path or "data/synthetic/survey_raw.csv"
+        data_file = req.dataset_path or "data/raw/survey_raw_sample.csv"
 
         job["progress_percent"] = 35
         job["message"] = "Data cleaning and stratified cross-validation split..."
@@ -890,18 +904,21 @@ async def _run_retraining_worker(job_id: str, req: RetrainRequest):
         job["progress_percent"] = 65
         job["message"] = "Training benchmark model zoo and computing leaderboards..."
 
-        # Run actual retrain logic
-        result = retrain_pipeline_from_file(
+        result = retrain_pipeline_on_file(
             file_path=data_file,
             outcome_col=req.outcome_column,
-            confirm=req.confirm,
-            artifacts_dir=ARTIFACTS_DIR,
+            confirm_overwrite=req.confirm,
         )
 
         job["progress_percent"] = 100
-        job["status"] = "completed"
+        job["status"] = "failed" if result.get("status") == "failed" else "completed"
         job["completed_at"] = datetime.now(timezone.utc).isoformat()
-        job["message"] = "Retraining completed successfully."
+        job["message"] = result.get(
+            "message",
+            "Retraining completed successfully."
+            if result.get("status") == "success"
+            else "Cleaning and validation completed; no model artifacts were updated.",
+        )
         job["result"] = result
     except Exception as exc:
         logger.error("Retraining background task %s failed: %s", job_id, exc)

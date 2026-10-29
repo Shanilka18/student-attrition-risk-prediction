@@ -237,6 +237,7 @@ class SchemaReport(BaseModel):
     dropped_pii_columns: List[str]
     has_outcome_column: bool
     generated_pseudonyms: bool = True
+    data_quality_report: Optional[Dict[str, Any]] = None
 
 
 class PredictionItem(BaseModel):
@@ -302,7 +303,7 @@ class FusionScoreResponse(BaseModel):
 # ---------------------------------------------------------------------------
 
 class RetrainRequest(BaseModel):
-    outcome_column: str = Field(default="student_attrition", example="student_attrition")
+    outcome_column: str = Field(default="at_risk", example="at_risk")
     confirm: bool = Field(
         default=False,
         description="Must be explicitly True to replace production models and scalers",
