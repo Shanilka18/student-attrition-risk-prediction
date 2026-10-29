@@ -21,6 +21,8 @@ data/interim/*
 !data/interim/.gitkeep
 data/processed/*
 !data/processed/.gitkeep
+data/synthetic/*
+!data/synthetic/.gitkeep
 
 # Artifacts - runs, large models and binary files (keep manifest files)
 artifacts/runs/**/*
