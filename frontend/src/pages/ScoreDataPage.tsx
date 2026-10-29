@@ -34,6 +34,7 @@ import {
 } from '../types/api';
 import { ChartCard } from '../components/common/ChartCard';
 import { LoadingState } from '../components/common/FeedbackStates';
+import { useCohort } from '../context/CohortContext';
 
 const RISK_COLORS: Record<string, string> = {
   Low: '#10b981',
@@ -42,17 +43,26 @@ const RISK_COLORS: Record<string, string> = {
 };
 
 export const ScoreDataPage: React.FC = () => {
-  const [file, setFile] = useState<File | null>(null);
-  const [uploadResult, setUploadResult] = useState<UploadResponse | null>(null);
+  const {
+    file,
+    setFile,
+    fileName,
+    setFileName,
+    uploadResult,
+    setUploadResult,
+    mappings,
+    setMappings,
+    predictionResult,
+    setPredictionResult,
+    selectedStudent,
+    setSelectedStudent,
+    setCurrentPage,
+    resetCohort,
+  } = useCohort();
+
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
-
-  // Column mappings
-  const [mappings, setMappings] = useState<Record<string, string>>({});
-
-  // Prediction execution
   const [predicting, setPredicting] = useState(false);
-  const [predictionResult, setPredictionResult] = useState<CohortPredictionResponse | null>(null);
 
   // Single student detail drawer
   const [selectedStudent, setSelectedStudent] = useState<StudentPrediction | null>(null);
@@ -75,6 +85,7 @@ export const ScoreDataPage: React.FC = () => {
     try {
       const res = await api.uploadFile(file);
       setUploadResult(res);
+      setFileName(file.name);
       setMappings(res.suggested_mappings || {});
     } catch (err: any) {
       setUploadError(err.message || 'File upload failed');
