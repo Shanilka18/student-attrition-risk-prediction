@@ -27,10 +27,14 @@ export function AppContent() {
   const [researchAnswer, setResearchAnswer] = useState<ResearchQuestionAnswer | null>(null);
   const [dataSummary, setDataSummary] = useState<DataSummaryResponse | null>(null);
 
+  const refreshMeta = () => {
+    api.getMeta().then(setMeta).catch(console.warn);
+  };
+
   useEffect(() => {
     // Initial fetch of foundational metadata
     api.getHealth().then(setHealth).catch(console.warn);
-    api.getMeta().then(setMeta).catch(console.warn);
+    refreshMeta();
     api.getLeaderboard().then(setLeaderboard).catch(console.warn);
     api.getResearchAnswer().then(setResearchAnswer).catch(console.warn);
     api.getDataSummary().then(setDataSummary).catch(console.warn);
@@ -66,7 +70,9 @@ export function AppContent() {
 
         {currentPage === 'explainability' && <ExplainabilityPage />}
 
-        {currentPage === 'predict' && <PredictPage />}
+        {currentPage === 'predict' && (
+          <PredictPage meta={meta} onRefreshMeta={refreshMeta} />
+        )}
       </main>
 
       {/* 3. Footer */}
