@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from typing import Any
 
 import numpy as np
@@ -68,6 +69,7 @@ def select_profile_candidate(
     values: np.ndarray,
     settings: dict[str, Any] | None = None,
     index_columns: tuple[str, ...] = DEFAULT_INDEX_COLUMNS,
+    centers_for_naming: Callable[[np.ndarray], np.ndarray] | None = None,
 ) -> tuple[ClusterFit, dict[str, Any]]:
     """Choose the most stable candidate satisfying the silhouette minimum."""
     config = settings or {}
@@ -104,8 +106,13 @@ def select_profile_candidate(
     )
     fitted: ClusterFit = selected["fit"]
     metrics = selected["metrics"]
+    naming_centers = (
+        fitted.centers
+        if centers_for_naming is None
+        else centers_for_naming(fitted.centers)
+    )
     order, names = canonical_profile_order(
-        fitted.centers,
+        naming_centers,
         index_columns=index_columns,
         low_pressure_maximum=float(config.get("low_pressure_maximum", 0.35)),
         high_pressure_minimum=float(config.get("high_pressure_minimum", 0.60)),

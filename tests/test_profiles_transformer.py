@@ -61,6 +61,10 @@ profile_selection:
     transformed = transformer.transform(validation)
 
     assert len(transformer.training_labels_) == len(training)
+    assert transformer.profile_names_ == (
+        "Few pressures",
+        "Several pressures at once",
+    )
     assert learned_candidate_count == 1
     assert transformed.filter(regex=r"^profile_id_").shape[1] == 2
     assert "profile_distance_to_center" in transformed

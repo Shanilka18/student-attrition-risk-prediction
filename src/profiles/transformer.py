@@ -52,10 +52,15 @@ class ProfileFeatureTransformer(BaseEstimator, TransformerMixin):
         matrix = self._profile_matrix(X)
         self.scaler_ = StandardScaler().fit(matrix)
         standardized = self.scaler_.transform(matrix)
+        project_config = load_yaml(get_project_root() / "config" / "project.yaml")
+        self.high_pressure_threshold_ = float(
+            project_config["feature_engineering"]["index_high_pressure_threshold"]
+        )
         self.clusterer_, self.selection_summary_ = select_profile_candidate(
             standardized,
             settings=self._selection_settings(),
             index_columns=self.index_columns,
+            centers_for_naming=self.scaler_.inverse_transform,
         )
         self.n_profiles_ = self.clusterer_.n_clusters
         self.profile_names_ = tuple(self.clusterer_.profile_names_)
@@ -107,7 +112,10 @@ class ProfileFeatureTransformer(BaseEstimator, TransformerMixin):
         distances = np.linalg.norm(standardized - centers, axis=1)
         profiles["profile_distance_to_center"] = distances
         profiles["profile_high_pressure_index_count"] = (
-            X.loc[:, self.index_columns].gt(0.66).sum(axis=1).astype("int8")
+            X.loc[:, self.index_columns]
+            .gt(self.high_pressure_threshold_)
+            .sum(axis=1)
+            .astype("int8")
         )
         return pd.concat([X.copy(), profiles], axis=1)
 

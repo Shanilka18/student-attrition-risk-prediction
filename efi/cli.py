@@ -63,23 +63,50 @@ def cmd_setup(args):
 
 
 def cmd_profiles(args):
-    """Show latent risk profile configuration from project.yaml."""
-    cfg = _load_project_yaml()
-    design = cfg.get("design", {})
-    project = cfg.get("project", {})
-    method = design.get("profile_method", "gmm")
-    n_profiles = design.get("n_profiles", 4)
-    data_source = project.get("data_source", "sample")
+    """Discover condition profiles and evaluate their classifier ablation."""
+    from src.profiles.workflow import run_profiles_workflow
 
-    print(
-        f"Component   : {project.get('component', 'Environmental & Financial Factors')}"
+    summary = run_profiles_workflow(
+        input_path=args.input,
+        run_id=args.run_id,
+        output_root=Path(args.output_root) if args.output_root else None,
+        seed=args.seed,
     )
-    print(f"Index       : {project.get('index_name', 'EFI')} (0–100)")
-    print(f"Data source : {data_source}")
-    print()
-    print(f"Profile method  : {method}  (cross-sectional; fitted inside CV folds)")
-    print(f"N profiles      : {n_profiles}  (tuned by BIC/AIC)")
-    sys.exit(0)
+    print(f"Profile run: {summary['run_id']} (data source: {summary['data_source']})")
+    print(
+        f"Selected: {summary['chosen_algorithm']} with k={summary['chosen_k']} "
+        f"(silhouette={summary['selection']['selected_metrics']['silhouette']:.3f}, "
+        f"bootstrap stability={summary['selection']['selected_metrics']['stability_ari_mean']:.3f})"
+    )
+    print(f"Profile table: {summary['profile_table']}")
+    recovery = summary["hidden_type_recovery"]
+    if recovery.get("status") == "available":
+        print(
+            "Hidden type recovery (valid only for generated data): "
+            f"ARI={recovery['ari']:.3f}, NMI={recovery['nmi']:.3f}"
+        )
+    else:
+        print(f"Hidden type recovery: {recovery.get('reason', recovery['status'])}")
+    print("Ablation (mean +/- standard deviation):")
+    for row in summary["ablation"]["summary"]:
+        print(
+            f"  {row['model']} / {row['feature_set']}: "
+            f"F1={row['f1_mean']} +/- {row['f1_std']}; "
+            f"AUC={row['roc_auc_mean']} +/- {row['roc_auc_std']}; "
+            f"MCC={row['mcc_mean']} +/- {row['mcc_std']} "
+            f"({row['status']}, {row['n_folds']}/{row['expected_folds']} folds)"
+        )
+    for test in summary["ablation"]["paired_wilcoxon_tests"]:
+        if test["p_value"] is not None:
+            print(
+                f"  Wilcoxon {test['model']} {test['comparison']} vs agg "
+                f"on {test['metric']}: p={test['p_value']:.4g}"
+            )
+    for model, error in summary["ablation"]["model_errors"].items():
+        print(f"Model unavailable ({model}): {error}")
+    for figure in summary["figures"]:
+        print(f"Figure: {figure}")
+    print(f"Profile summary: {summary['summary_path']}")
 
 
 def cmd_info(args):
@@ -218,7 +245,22 @@ def main():
 
     subparsers.add_parser(
         "profiles",
-        help="Show latent risk profile configuration",
+        help="Discover risk profiles and run the profile-feature ablation",
+    )
+    profiles_parser = subparsers.choices["profiles"]
+    profiles_parser.add_argument(
+        "--input",
+        help="Optional CSV/XLSX/XLS override; otherwise uses the configured data source",
+    )
+    profiles_parser.add_argument("--run-id", help="Unique profile-run identifier")
+    profiles_parser.add_argument(
+        "--output-root",
+        help="Optional project root for run artifacts (primarily for tests)",
+    )
+    profiles_parser.add_argument(
+        "--seed",
+        type=int,
+        help="Optional override for the configured split seed",
     )
 
     # info
