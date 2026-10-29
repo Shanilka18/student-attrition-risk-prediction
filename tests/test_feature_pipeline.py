@@ -13,6 +13,7 @@ from sklearn.pipeline import Pipeline
 
 from src.preprocessing.codec import EnvFinCodec
 from src.preprocessing.feature_transformers import build_feature_pipeline
+from src.profiles.transformer import ProfileFeatureTransformer
 
 
 @pytest.fixture
@@ -45,7 +46,17 @@ def _survey_frame(codec, size=240, seed=4):
     return frame
 
 
-def test_feature_sets_have_expected_boundaries_and_shapes(codec):
+def test_feature_sets_have_expected_boundaries_and_shapes(codec, monkeypatch):
+    monkeypatch.setattr(
+        ProfileFeatureTransformer,
+        "_selection_settings",
+        lambda self: {
+            "k_values": [2],
+            "algorithms": ["kmeans"],
+            "silhouette_minimum": -1.0,
+            "bootstrap_resamples": 3,
+        },
+    )
     frame = _survey_frame(codec)
     expected_features = {
         "raw": lambda columns: any(name.endswith("__pressure") for name in columns)
@@ -53,9 +64,20 @@ def test_feature_sets_have_expected_boundaries_and_shapes(codec):
         "agg": lambda columns: "financial_stress_index" in columns
         and "travel_spend_to_income_ratio" in columns,
         "agg_profiles": lambda columns: sum(
-            name.startswith("profile_cluster_") for name in columns
+            name.startswith("profile_id_") for name in columns
         )
-        == 4,
+        >= 2,
+        "profiles_only": lambda columns: all(
+            name.startswith(
+                (
+                    "profile_id_",
+                    "profile_probability_",
+                    "profile_distance",
+                    "profile_high_pressure_index_count",
+                )
+            )
+            for name in columns
+        ),
         "single_signal": lambda columns: list(columns) == ["income_band__pressure"],
     }
 

@@ -19,7 +19,7 @@ from src.preprocessing.splits import FeatureSplits, create_feature_splits
 from src.utils.config_loader import load_yaml
 from src.utils.paths import get_project_root
 
-FEATURE_SETS = ("raw", "agg", "agg_profiles", "single_signal")
+FEATURE_SETS = ("raw", "agg", "agg_profiles", "profiles_only", "single_signal")
 
 
 def _configured_input_path() -> Path:

@@ -9,10 +9,10 @@ from typing import Any
 import numpy as np
 import pandas as pd
 from sklearn.base import BaseEstimator, TransformerMixin
-from sklearn.cluster import KMeans
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
 from src.preprocessing.codec import EnvFinCodec
+from src.profiles.transformer import ProfileFeatureTransformer
 from src.utils.config_loader import load_yaml
 from src.utils.paths import get_project_root
 
@@ -477,68 +477,6 @@ class IndexBuilder(BaseEstimator, TransformerMixin):
         )
 
 
-class ProfileFeatureEncoder(BaseEstimator, TransformerMixin):
-    """Fit profile memberships on the current training partition only."""
-
-    def __init__(
-        self,
-        n_profiles: int = 4,
-        random_state: int = 42,
-        index_columns: tuple[str, ...] = (
-            "financial_stress_index",
-            "commute_burden_index",
-            "digital_access_gap_index",
-            "study_environment_pressure_index",
-        ),
-    ) -> None:
-        self.n_profiles = n_profiles
-        self.random_state = random_state
-        self.index_columns = index_columns
-
-    def fit(self, X: pd.DataFrame, y: Any = None) -> ProfileFeatureEncoder:
-        missing = set(self.index_columns) - set(X.columns)
-        if missing:
-            raise ValueError(f"Profile inputs are missing indices: {sorted(missing)}")
-        if len(X) < self.n_profiles:
-            raise ValueError(
-                f"At least {self.n_profiles} rows are required to fit profile groups"
-            )
-        self.feature_names_in_ = np.asarray(X.columns, dtype=object)
-        self.clusterer_ = KMeans(
-            n_clusters=self.n_profiles,
-            random_state=self.random_state,
-            n_init=10,
-        ).fit(X.loc[:, self.index_columns])
-        self.profile_feature_names_ = tuple(
-            f"profile_cluster_{index}" for index in range(self.n_profiles)
-        )
-        return self
-
-    def transform(self, X: pd.DataFrame) -> pd.DataFrame:
-        if not hasattr(self, "clusterer_"):
-            raise RuntimeError("ProfileFeatureEncoder must be fitted before transform")
-        labels = self.clusterer_.predict(X.loc[:, self.index_columns])
-        membership = pd.DataFrame(
-            np.eye(self.n_profiles, dtype=np.int8)[labels],
-            index=X.index,
-            columns=self.profile_feature_names_,
-        )
-        return pd.concat([X.copy(), membership], axis=1)
-
-    def get_feature_names_out(self, input_features=None) -> np.ndarray:
-        if not hasattr(self, "profile_feature_names_"):
-            raise RuntimeError(
-                "ProfileFeatureEncoder must be fitted before requesting feature names"
-            )
-        input_names = (
-            self.feature_names_in_ if input_features is None else input_features
-        )
-        return np.asarray(
-            [*input_names, *self.profile_feature_names_],
-            dtype=object,
-        )
-
-
 class FeatureSetSelector(BaseEstimator, TransformerMixin):
     """Select configured raw, aggregated, profile, or income-only columns."""
 
@@ -580,11 +518,17 @@ class FeatureSetSelector(BaseEstimator, TransformerMixin):
             ]
             if self.feature_set in {"agg", "agg_profiles"}:
                 selected.extend(sets["agg"]["engineered_features"])
-            if self.feature_set == "agg_profiles":
-                profile_prefix = specification["profile_prefix"]
-                selected.extend(
-                    column for column in X.columns if column.startswith(profile_prefix)
-                )
+            if self.feature_set in {"agg_profiles", "profiles_only"}:
+                profile_prefixes = tuple(specification["profile_feature_prefixes"])
+                profile_columns = [
+                    column
+                    for column in X.columns
+                    if column.startswith(profile_prefixes)
+                ]
+                if self.feature_set == "profiles_only":
+                    selected = profile_columns
+                else:
+                    selected.extend(profile_columns)
         missing = set(selected) - set(X.columns)
         if missing:
             raise ValueError(
@@ -712,14 +656,11 @@ def build_feature_pipeline(
     feature_set_config = model_zoo["feature_sets"].get(feature_set)
     if feature_set_config is None:
         raise ValueError(f"Unknown feature set: {feature_set}")
-    if feature_set == "agg_profiles":
+    if feature_set in {"agg_profiles", "profiles_only"}:
         steps.append(
             (
                 "profiles",
-                ProfileFeatureEncoder(
-                    n_profiles=int(feature_set_config["profile_count"]),
-                    random_state=42,
-                ),
+                ProfileFeatureTransformer(),
             )
         )
     steps.extend(

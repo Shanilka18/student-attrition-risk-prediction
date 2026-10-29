@@ -23,9 +23,17 @@ feature_sets:
       - working_over_20h_long_commute
       - weak_internet_smartphone_only
   agg_profiles:
-    profile_prefix: "profile_cluster_"
-    profile_method: "kmeans"
-    profile_count: 4
+    profile_feature_prefixes:
+      - "profile_id_"
+      - "profile_probability_"
+      - "profile_distance"
+      - "profile_high_pressure_index_count"
+  profiles_only:
+    profile_feature_prefixes:
+      - "profile_id_"
+      - "profile_probability_"
+      - "profile_distance"
+      - "profile_high_pressure_index_count"
   single_signal:
     features:
       - income_band__pressure
