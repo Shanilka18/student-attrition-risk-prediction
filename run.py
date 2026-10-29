@@ -149,17 +149,8 @@ def target_preprocess() -> int:
     """Preprocesses academic sequences, enforces grouped splits, and builds feature representations."""
     logger.info("=== Running Target: preprocess (Phase 3) ===")
     from backend.src.config import config
-    from backend.src.data.splits import create_stratified_group_splits, create_temporal_split
-    from backend.src.features.preprocessor import AcademicPreprocessor
-    from backend.src.features.builder import (
-        build_tabular_engineered_features,
-        build_static_snapshot_features,
-        build_sequence_tensors
-    )
-    from backend.src.evaluation.static_baseline import evaluate_static_snapshot_baseline
+    from backend.src.features.pipeline import run_feature_pipeline
     import pandas as pd
-    import torch
-    import json
 
     # 1. Load Synthetic Cohort
     long_path = config.synthetic_data_dir / "academic_long.csv"
@@ -174,68 +165,30 @@ def target_preprocess() -> int:
     df_outcomes = pd.read_csv(outcomes_path)
     df_task = pd.read_csv(task_path)
 
-    # 2. Generate Leakage-Safe Splits
-    logger.info("Step 1: Generating grouped stratified and temporal splits...")
-    split_stats = create_stratified_group_splits(
-        df_outcomes, config.splits_dir, seed=config.global_seed
+    # 2. Run Unified Zero-Leakage Feature Pipeline
+    pipeline_results = run_feature_pipeline(
+        df_long=df_long,
+        df_outcomes=df_outcomes,
+        df_task=df_task,
+        seed=config.global_seed,
+        max_window=6,
+        train_ratio=0.70,
+        val_ratio=0.15,
+        test_ratio=0.15,
+        n_cv_folds=5,
+        evaluate_static_baseline=True,
     )
-    temporal_stats = create_temporal_split(df_outcomes, config.splits_dir)
 
-    with open(config.splits_dir / "train_students.json", "r", encoding="utf-8") as f:
-        train_sids = json.load(f)
-    with open(config.splits_dir / "test_students.json", "r", encoding="utf-8") as f:
-        test_sids = json.load(f)
-
-    # 3. Fit Preprocessor STRICTLY on Training Students
-    logger.info("Step 2: Fitting preprocessor on training partition records...")
-    df_train_long = df_long[df_long["student_id"].isin(train_sids)]
-    preprocessor = AcademicPreprocessor()
-    preprocessor.fit(df_train_long)
-    preprocessor.save(config.models_dir / "preprocessor.joblib")
-
-    # Transform all records using fitted preprocessor
-    df_clean_long = preprocessor.transform(df_long)
-
-    # 4. Build Tabular Engineered Features
-    logger.info("Step 3: Extracting longitudinal trend features (Tabular)...")
-    df_tabular = build_tabular_engineered_features(df_clean_long, df_task)
-    tab_csv_path = config.processed_data_dir / "tabular_features.csv"
-    df_tabular.to_csv(tab_csv_path, index=False)
-    try:
-        df_tabular.to_parquet(config.processed_data_dir / "tabular_features.parquet", index=False)
-    except Exception:
-        pass
-    logger.info(f"Saved tabular features to: {tab_csv_path} (Shape: {df_tabular.shape})")
-
-    # 5. Build Static Snapshot Features (Proposal Baseline Comparator)
-    logger.info("Step 4: Building static snapshot baseline features...")
-    df_static = build_static_snapshot_features(df_tabular)
-    static_csv_path = config.processed_data_dir / "static_features.csv"
-    df_static.to_csv(static_csv_path, index=False)
-    logger.info(f"Saved static snapshot features to: {static_csv_path}")
-
-    # 6. Build Sequence Tensors for PyTorch Models
-    logger.info("Step 5: Building 3D padded sequence tensors and masks...")
-    seq_payload = build_sequence_tensors(df_clean_long, df_task, preprocessor, max_window=6)
-    seq_path = config.processed_data_dir / "sequence_tensors.pt"
-    torch.save(seq_payload, seq_path)
-    logger.info(f"Saved sequence tensors to: {seq_path} (Tensor Shape: {seq_payload['tensors'].shape})")
-
-    # 7. Evaluate Static Snapshot Logistic Regression Comparator
-    logger.info("Step 6: Running static snapshot baseline benchmark...")
-    static_results = evaluate_static_snapshot_baseline(
-        df_static, train_sids, test_sids,
-        config.metrics_dir / "static_snapshot_benchmark.json",
-        seed=config.global_seed
-    )
-    print("\n--- STATIC SNAPSHOT BASELINE RESULT (PROPOSAL COMPARATOR) ---")
-    print(f"Model:     {static_results['model']}")
-    print(f"Features:  {static_results['features_used']}")
-    print(f"ROC-AUC:   {static_results['roc_auc']:.4f}")
-    print(f"Recall:    {static_results['recall']:.4f}")
-    print(f"Precision: {static_results['precision']:.4f}")
-    print(f"F1-Score:  {static_results['f1_score']:.4f}")
-    print(f"Accuracy:  {static_results['accuracy']:.4f}\n")
+    static_results = pipeline_results.get("static_results")
+    if static_results:
+        print("\n--- STATIC SNAPSHOT BASELINE RESULT (PROPOSAL COMPARATOR) ---")
+        print(f"Model:     {static_results['model']}")
+        print(f"Features:  {static_results['features_used']}")
+        print(f"ROC-AUC:   {static_results['roc_auc']:.4f}")
+        print(f"Recall:    {static_results['recall']:.4f}")
+        print(f"Precision: {static_results['precision']:.4f}")
+        print(f"F1-Score:  {static_results['f1_score']:.4f}")
+        print(f"Accuracy:  {static_results['accuracy']:.4f}\n")
 
     logger.info("Phase 3 Preprocessing and Feature Extraction completed successfully.")
     return 0
