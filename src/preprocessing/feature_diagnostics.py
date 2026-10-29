@@ -126,6 +126,30 @@ def mutual_information_ranking(
     ).sort_values("Mutual information", ascending=False)
 
 
+def variance_inflation_report(features: pd.DataFrame) -> pd.DataFrame:
+    """Report multicollinearity for numeric linear-model inputs without dropping them."""
+    values = features.apply(pd.to_numeric, errors="coerce")
+    values = values.loc[:, values.nunique(dropna=True) > 1]
+    values = values.fillna(values.median()).astype(float)
+    if values.empty:
+        return pd.DataFrame(columns=["Feature", "VIF"])
+
+    matrix = values.to_numpy()
+    rows = []
+    for column_index, name in enumerate(values.columns):
+        response = matrix[:, column_index]
+        predictors = np.delete(matrix, column_index, axis=1)
+        design = np.column_stack([np.ones(len(response)), predictors])
+        coefficients, *_ = np.linalg.lstsq(design, response, rcond=None)
+        residuals = response - design @ coefficients
+        total = np.square(response - response.mean()).sum()
+        residual = np.square(residuals).sum()
+        r_squared = 1.0 - residual / total if total else 1.0
+        vif = float("inf") if 1.0 - r_squared <= 1e-12 else 1.0 / (1.0 - r_squared)
+        rows.append({"Feature": name, "VIF": vif})
+    return pd.DataFrame(rows).sort_values("VIF", ascending=False)
+
+
 def _save_diagnostic_figures(
     effects: pd.DataFrame,
     mutual_information: pd.DataFrame,
@@ -210,9 +234,11 @@ def run_feature_diagnostics(
     }
     effects = feature_effect_sizes(features, target)
     mutual_information = mutual_information_ranking(features, target)
+    vif = variance_inflation_report(features)
     audit = leakage_audit(features, target, source_columns)
     effects.to_csv(output / "feature_effect_sizes.csv", index=False)
     mutual_information.to_csv(output / "feature_mutual_information.csv", index=False)
+    vif.to_csv(output / "linear_model_vif.csv", index=False)
     (output / "leakage_audit.json").write_text(
         json.dumps(audit, indent=2),
         encoding="utf-8",
@@ -223,6 +249,7 @@ def run_feature_diagnostics(
     return {
         "effects": effects,
         "mutual_information": mutual_information,
+        "variance_inflation": vif,
         "leakage_audit": audit,
         "figures": figures,
     }

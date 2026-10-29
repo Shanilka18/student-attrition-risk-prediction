@@ -48,7 +48,9 @@ def test_diagnostics_write_effect_mi_and_spearman_outputs(tmp_path):
     assert result["leakage_audit"]["passed"]
     assert len(result["effects"]) == len(features.columns)
     assert len(result["mutual_information"]) == len(features.columns)
+    assert len(result["variance_inflation"]) == len(features.columns)
     assert len(result["figures"]) == 3
     assert all(path.is_file() for path in result["figures"])
     assert (tmp_path / "feature_spearman_heatmap.png").is_file()
+    assert (tmp_path / "linear_model_vif.csv").is_file()
     assert np.isfinite(result["effects"]["Effect size"]).all()
