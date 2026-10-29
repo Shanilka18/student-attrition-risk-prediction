@@ -1,8 +1,13 @@
 # Virtual Environment
+.venv
 .venv/
 env/
 venv/
 ENV/
+
+# Real student data (strictly uncommitted)
+data/real/*
+!data/real/.gitkeep
 
 # Data directories (raw is strictly uncommitted; synthetic & interim cached)
 data/raw/*
@@ -12,7 +17,13 @@ data/interim/*
 data/processed/*
 !data/processed/.gitkeep
 
-# Artifacts - large models and binary files
+# Artifacts - runs, large models and binary files (keep manifest files)
+artifacts/runs/**/*
+!artifacts/runs/**/
+!artifacts/runs/**/manifest.json
+!artifacts/runs/**/manifest.yaml
+!artifacts/runs/**/manifest.yml
+!artifacts/runs/.gitkeep
 artifacts/models/*
 !artifacts/models/.gitkeep
 artifacts/scalers/*
@@ -26,7 +37,9 @@ artifacts/calibrators/*
 *.bin
 *.onnx
 
-# Frontend
+# Node dependencies
+node_modules/
+**/node_modules/
 frontend/node_modules/
 frontend/dist/
 frontend/.next/
@@ -36,6 +49,7 @@ frontend/build/
 
 # Python bytecode and caches
 __pycache__/
+**/__pycache__/
 *.py[cod]
 *$py.class
 .pytest_cache/
