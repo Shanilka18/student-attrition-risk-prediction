@@ -8,7 +8,11 @@ import pytest
 from sklearn.base import clone
 
 from src.preprocessing.codec import EnvFinCodec
-from src.preprocessing.feature_transformers import ItemEncoder, ItemImputer
+from src.preprocessing.feature_transformers import (
+    IndexBuilder,
+    ItemEncoder,
+    ItemImputer,
+)
 
 
 @pytest.fixture
@@ -76,3 +80,41 @@ def test_structural_commute_state_is_encoded_as_zero_pressure(codec):
     assert transformed["commute_time__pressure"].eq(0.0).all()
     assert transformed["commute_spend__pressure"].eq(0.0).all()
     assert transformed["transport_mode__pressure"].eq(0.0).all()
+
+
+def test_index_builder_creates_indices_ratio_and_configured_interactions(codec):
+    frame = _frame(codec, 4)
+    frame.loc[0, "income_band"] = 0
+    frame.loc[0, "aid_status"] = 2
+    frame.loc[0, "part_time_job"] = 2
+    frame.loc[0, "job_hours"] = 3
+    frame.loc[0, "commute_time"] = 2
+    frame.loc[0, "commute_spend"] = 3
+    frame.loc[0, "home_internet"] = 2
+    frame.loc[0, "main_device"] = 1
+    frame.loc[1, "commute_time"] = -2
+    frame.loc[1, "commute_spend"] = -2
+    frame.loc[1, "transport_mode"] = -2
+    frame.loc[1, "is_online"] = True
+
+    encoded = ItemEncoder(codec=codec).fit_transform(
+        ItemImputer(codec=codec).fit_transform(frame)
+    )
+    result = IndexBuilder(codec=codec).fit_transform(encoded)
+    index_columns = [
+        "financial_stress_index",
+        "commute_burden_index",
+        "digital_access_gap_index",
+        "study_environment_pressure_index",
+    ]
+
+    assert result[index_columns].ge(0.0).all().all()
+    assert result[index_columns].le(1.0).all().all()
+    assert result.loc[0, "travel_spend_to_income_ratio"] == pytest.approx(1.0)
+    assert result.loc[0, "low_income_no_aid"] == 1
+    assert result.loc[0, "working_over_20h_long_commute"] == 1
+    assert result.loc[0, "weak_internet_smartphone_only"] == 1
+    assert result.loc[1, "commute_burden_index"] == 0.0
+    assert result.loc[1, "travel_spend_to_income_ratio"] == 0.0
+    assert result.loc[1, "working_over_20h_long_commute"] == 0
+    assert not any(column.endswith("__code") for column in result.columns)

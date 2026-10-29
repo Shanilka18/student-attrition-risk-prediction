@@ -226,6 +226,26 @@ cleaning:
   low_at_risk_fraction: 0.15
   dominant_item_level_fraction: 0.60
 
+feature_engineering:
+  missing_indicator_threshold: 0.03
+  index_high_pressure_threshold: 0.66
+  income_band_monthly_midpoints_lkr:
+    0: 12500
+    1: 37500
+    2: 75000
+    3: 150000
+    4: 250000
+  commute_spend_monthly_midpoints_lkr:
+    0: 1250
+    1: 3750
+    2: 7500
+    3: 12500
+  low_income_max_code: 1
+  long_commute_min_code: 2
+  work_hours_over_20_min_code: 3
+  weak_internet_min_code: 2
+  smartphone_only_code: 1
+
 # ── Cross-sectional design ─────────────────────────────────────────────────────
 design:
   cross_sectional: true

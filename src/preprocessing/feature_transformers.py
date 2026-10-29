@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+from pathlib import Path
 from typing import Any
 
 import numpy as np
@@ -11,6 +12,8 @@ from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.preprocessing import OneHotEncoder
 
 from src.preprocessing.codec import EnvFinCodec
+from src.utils.config_loader import load_yaml
+from src.utils.paths import get_project_root
 
 _NON_FEATURE_COLUMNS = {
     "student_id",
@@ -21,6 +24,16 @@ _NON_FEATURE_COLUMNS = {
     "at_risk",
     "row_reasons",
 }
+_INTERMEDIATE_CODE_ITEMS = (
+    "income_band",
+    "aid_status",
+    "part_time_job",
+    "job_hours",
+    "commute_time",
+    "commute_spend",
+    "home_internet",
+    "main_device",
+)
 
 
 def _codec_from_paths(schema_path: str | None, mapping_path: str | None) -> EnvFinCodec:
@@ -272,6 +285,8 @@ class ItemEncoder(BaseEstimator, TransformerMixin):
 
         for column in self.passthrough_names_:
             encoded[column] = X[column]
+        for item in _INTERMEDIATE_CODE_ITEMS:
+            encoded[f"{item}__code"] = pd.to_numeric(X[item], errors="coerce")
         return encoded
 
     def fit_transform(
@@ -290,12 +305,172 @@ class ItemEncoder(BaseEstimator, TransformerMixin):
             if metadata["type"] != "nominal"
         ]
         nominal_pressure = [f"{item}__pressure" for item in self.nominal_items_]
+        code_names = [f"{item}__code" for item in _INTERMEDIATE_CODE_ITEMS]
         return np.asarray(
             [
                 *ordinal,
                 *self.encoded_names_,
                 *nominal_pressure,
                 *self.passthrough_names_,
+                *code_names,
             ],
+            dtype=object,
+        )
+
+
+class IndexBuilder(BaseEstimator, TransformerMixin):
+    """Build schema-defined pressure indices and configured ratio/interactions."""
+
+    def __init__(
+        self,
+        codec: EnvFinCodec | None = None,
+        settings: dict[str, Any] | None = None,
+        schema_path: str | None = None,
+        project_config_path: str | None = None,
+    ) -> None:
+        self.codec = codec
+        self.settings = settings
+        self.schema_path = schema_path
+        self.project_config_path = project_config_path
+
+    def _get_codec(self) -> EnvFinCodec:
+        if self.codec is not None:
+            return self.codec
+        return _codec_from_paths(self.schema_path, None)
+
+    def _get_settings(self) -> dict[str, Any]:
+        if self.settings is not None:
+            return self.settings
+        config_path = (
+            Path(self.project_config_path)
+            if self.project_config_path is not None
+            else get_project_root() / "config" / "project.yaml"
+        )
+        return load_yaml(config_path).get("feature_engineering", {})
+
+    def fit(self, X: pd.DataFrame, y: Any = None) -> IndexBuilder:
+        self.codec_ = self._get_codec()
+        self.settings_ = self._get_settings()
+        self.feature_names_in_ = np.asarray(X.columns, dtype=object)
+        self.index_columns_ = tuple(
+            f"{name}_index" for name in self.codec_.derived_indices
+        )
+        return self
+
+    @staticmethod
+    def _interpolate_midpoints(
+        codes: pd.Series, midpoint_config: dict[Any, Any]
+    ) -> pd.Series:
+        code_midpoints = sorted(
+            (float(code), float(value)) for code, value in midpoint_config.items()
+        )
+        if not code_midpoints:
+            raise ValueError("Monetary midpoint configuration cannot be empty")
+        code_values, monetary_values = map(np.asarray, zip(*code_midpoints))
+        numeric_codes = pd.to_numeric(codes, errors="coerce")
+        interpolated = np.interp(
+            numeric_codes.to_numpy(dtype=float),
+            code_values,
+            monetary_values,
+            left=np.nan,
+            right=np.nan,
+        )
+        return pd.Series(interpolated, index=codes.index)
+
+    def transform(self, X: pd.DataFrame) -> pd.DataFrame:
+        if not hasattr(self, "settings_"):
+            raise RuntimeError("IndexBuilder must be fitted before transform")
+        result = X.copy()
+        for name, metadata in self.codec_.derived_indices.items():
+            pressure_columns = [f"{item}__pressure" for item in metadata["items"]]
+            missing = set(pressure_columns) - set(result.columns)
+            if missing:
+                raise ValueError(
+                    f"Inputs are missing pressure values for {name}: {sorted(missing)}"
+                )
+            values = result[pressure_columns].mean(axis=1, skipna=True)
+            if name == "commute_burden" and "is_online" in result.columns:
+                values = values.mask(result["is_online"].astype(bool), 0.0)
+            result[f"{name}_index"] = values.clip(0.0, 1.0)
+
+        result["overall_pressure_index"] = (
+            result[list(self.index_columns_)].mean(axis=1, skipna=True).clip(0.0, 1.0)
+        )
+        threshold = float(self.settings_["index_high_pressure_threshold"])
+        result["indices_above_066_count"] = (
+            result[list(self.index_columns_)].gt(threshold).sum(axis=1).astype("int8")
+        )
+
+        income_amount = self._interpolate_midpoints(
+            result["income_band__code"],
+            self.settings_["income_band_monthly_midpoints_lkr"],
+        )
+        commute_amount = self._interpolate_midpoints(
+            result["commute_spend__code"],
+            self.settings_["commute_spend_monthly_midpoints_lkr"],
+        )
+        ratio = commute_amount.div(income_amount.where(income_amount > 0))
+        if "is_online" in result.columns:
+            ratio = ratio.mask(result["is_online"].astype(bool), 0.0)
+        result["travel_spend_to_income_ratio"] = ratio.clip(0.0, 1.0)
+
+        result["low_income_no_aid"] = (
+            result["income_band__code"].le(float(self.settings_["low_income_max_code"]))
+            & result["aid_status__code"].eq(
+                max(
+                    float(level["code"])
+                    for level in self.codec_.items["aid_status"]["levels"]
+                )
+            )
+        ).astype("int8")
+        result["working_over_20h_long_commute"] = (
+            result["part_time_job__code"].gt(0)
+            & result["job_hours__code"].ge(
+                float(self.settings_["work_hours_over_20_min_code"])
+            )
+            & result["commute_time__code"].ge(
+                float(self.settings_["long_commute_min_code"])
+            )
+        ).astype("int8")
+        result["weak_internet_smartphone_only"] = (
+            result["home_internet__code"].ge(
+                float(self.settings_["weak_internet_min_code"])
+            )
+            & result["main_device__code"].eq(
+                float(self.settings_["smartphone_only_code"])
+            )
+        ).astype("int8")
+
+        result = result.drop(
+            columns=[f"{item}__code" for item in _INTERMEDIATE_CODE_ITEMS],
+            errors="ignore",
+        )
+        return result
+
+    def fit_transform(
+        self, X: pd.DataFrame, y: Any = None, **fit_params: Any
+    ) -> pd.DataFrame:
+        return self.fit(X, y).transform(X)
+
+    def get_feature_names_out(self, input_features=None) -> np.ndarray:
+        if not hasattr(self, "settings_"):
+            raise RuntimeError(
+                "IndexBuilder must be fitted before requesting feature names"
+            )
+        input_names = (
+            self.feature_names_in_ if input_features is None else input_features
+        )
+        dropped = {f"{item}__code" for item in _INTERMEDIATE_CODE_ITEMS}
+        added = [
+            *self.index_columns_,
+            "overall_pressure_index",
+            "indices_above_066_count",
+            "travel_spend_to_income_ratio",
+            "low_income_no_aid",
+            "working_over_20h_long_commute",
+            "weak_internet_smartphone_only",
+        ]
+        return np.asarray(
+            [column for column in input_names if column not in dropped] + added,
             dtype=object,
         )
