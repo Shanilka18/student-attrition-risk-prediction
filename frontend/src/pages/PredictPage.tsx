@@ -63,6 +63,7 @@ export const PredictPage: React.FC<PredictPageProps> = ({ meta, onRefreshMeta })
   const [uploadErrors, setUploadErrors] = useState<ValidationErrorDetail[] | null>(null);
   const [batchResult, setBatchResult] = useState<BatchUploadResult | null>(null);
   const [selectedStudent, setSelectedStudent] = useState<StudentPredictionResult | null>(null);
+  const [diagStudentId, setDiagStudentId] = useState<string>('STU_00001');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Retraining State
@@ -280,6 +281,7 @@ export const PredictPage: React.FC<PredictPageProps> = ({ meta, onRefreshMeta })
       setBatchResult(res);
       if (res.predictions.length > 0) {
         setSelectedStudent(res.predictions[0]);
+        setDiagStudentId(res.predictions[0].student_id);
       }
     } catch (err: any) {
       if (Array.isArray(err.detail)) {
@@ -1050,7 +1052,7 @@ export const PredictPage: React.FC<PredictPageProps> = ({ meta, onRefreshMeta })
                         return (
                           <tr
                             key={p.student_id}
-                            onClick={() => setSelectedStudent(p)}
+                            onClick={() => { setSelectedStudent(p); setDiagStudentId(p.student_id); }}
                             className={`cursor-pointer transition-colors ${
                               isSelected ? 'bg-indigo-950/30' : 'hover:bg-slate-800/30'
                             }`}
@@ -1082,28 +1084,51 @@ export const PredictPage: React.FC<PredictPageProps> = ({ meta, onRefreshMeta })
               </div>
 
               {/* Selected Student Expanded View */}
-              {selectedStudent && (
+              {batchResult && batchResult.predictions.length > 0 && (() => {
+                const diagStudent = batchResult.predictions.find(
+                  p => p.student_id.toLowerCase() === diagStudentId.trim().toLowerCase()
+                ) ?? selectedStudent;
+                if (!diagStudent) return null;
+                return (
                 <div className="rounded-xl border border-indigo-500/40 bg-slate-900/60 p-5 space-y-4">
                   <div className="flex items-center justify-between border-b border-slate-800 pb-3">
                     <div>
                       <h4 className="text-sm font-bold text-white flex items-center gap-2">
-                        Student Diagnostic Detail: <span className="font-mono text-indigo-400">{selectedStudent.student_id}</span>
+                        Student Diagnostic Detail:
+                        <input
+                          type="text"
+                          value={diagStudentId}
+                          onChange={e => {
+                            setDiagStudentId(e.target.value);
+                            const found = batchResult.predictions.find(
+                              p => p.student_id.toLowerCase() === e.target.value.trim().toLowerCase()
+                            );
+                            if (found) setSelectedStudent(found);
+                          }}
+                          className="font-mono text-indigo-400 bg-transparent border-b border-indigo-500/60 focus:border-indigo-400 outline-none w-36 text-sm px-1 pb-0.5 transition-colors"
+                          placeholder="STU_00001"
+                          spellCheck={false}
+                        />
                       </h4>
+                      {batchResult.predictions.find(p => p.student_id.toLowerCase() === diagStudentId.trim().toLowerCase())
+                        ? null
+                        : <p className="text-[11px] text-amber-400 mt-0.5">No match — showing last selected student</p>
+                      }
                       <p className="text-xs text-slate-400 mt-0.5">
-                        Calibrated Attrition Risk: <strong className="text-white">{selectedStudent.academic_risk_index.toFixed(1)}/100</strong> ({selectedStudent.risk_band} Band)
+                        Calibrated Attrition Risk: <strong className="text-white">{diagStudent.academic_risk_index.toFixed(1)}/100</strong> ({diagStudent.risk_band} Band)
                       </p>
                     </div>
-                    <RiskBadge band={selectedStudent.risk_band} size="lg" />
+                    <RiskBadge band={diagStudent.risk_band} size="lg" />
                   </div>
 
                   <div className="rounded-lg bg-indigo-950/20 border border-indigo-500/20 p-3 text-xs text-slate-200">
                     <strong className="text-indigo-400 block mb-1">Plain-Language Diagnostic Sentence:</strong>
-                    "{selectedStudent.explanation_text}"
+                    "{diagStudent.explanation_text}"
                   </div>
 
                   {/* Top Driving Factors */}
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    {selectedStudent.top_factors.map((f, idx) => (
+                    {diagStudent.top_factors.map((f, idx) => (
                       <div key={idx} className="p-3 rounded-lg bg-slate-950 border border-slate-800 text-xs">
                         <span className="text-[10px] uppercase font-bold text-slate-400 block">
                           Factor #{idx + 1} ({f.direction === 'RISK_INCREASING' ? 'Risk Elevator' : 'Stabilizer'})
@@ -1119,7 +1144,8 @@ export const PredictPage: React.FC<PredictPageProps> = ({ meta, onRefreshMeta })
                     ))}
                   </div>
                 </div>
-              )}
+                );
+              })()}
             </div>
           )}
         </div>
