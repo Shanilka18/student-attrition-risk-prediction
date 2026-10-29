@@ -11,6 +11,7 @@ import {
   Eye,
   X,
   Sparkles,
+  PlusCircle,
 } from 'lucide-react';
 import {
   PieChart,
@@ -140,15 +141,26 @@ export const ScoreDataPage: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="pb-2 border-b border-navy-800">
-        <h2 className="text-xl font-bold text-white tracking-tight">Score Cohort Dataset</h2>
-        <p className="text-xs text-slate-400 mt-1">
-          Upload student survey responses (.csv, .xlsx, .xls) to validate schema, map columns, run inference, and export downstream Fusion contracts.
-        </p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-navy-800">
+        <div>
+          <h2 className="text-xl font-bold text-white tracking-tight">Score Cohort Dataset</h2>
+          <p className="text-xs text-slate-400 mt-1">
+            Upload student survey responses (.csv, .xlsx, .xls) to validate schema, map columns, run inference, and export downstream Fusion contracts.
+          </p>
+        </div>
+        {(uploadResult || predictionResult) && (
+          <button
+            onClick={resetCohort}
+            className="self-start sm:self-auto px-3 py-1.5 rounded-lg bg-navy-850 hover:bg-navy-800 border border-navy-700 text-xs font-medium text-slate-300 hover:text-white flex items-center gap-1.5 transition-colors shadow-sm"
+          >
+            <PlusCircle className="w-3.5 h-3.5 text-indigo-400" />
+            Upload New Dataset
+          </button>
+        )}
       </div>
 
       {/* Step 1: Upload Card */}
-      {!uploadResult && (
+      {!uploadResult && !predictionResult && (
         <div className="bg-navy-900 border border-navy-800 rounded-xl p-6 shadow-lg text-center">
           <div className="max-w-md mx-auto space-y-4">
             <div className="w-14 h-14 rounded-2xl bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center mx-auto text-indigo-400">
@@ -220,10 +232,7 @@ export const ScoreDataPage: React.FC = () => {
                   Schema: {uploadResult.validation_report.status}
                 </span>
                 <button
-                  onClick={() => {
-                    setUploadResult(null);
-                    setFile(null);
-                  }}
+                  onClick={resetCohort}
                   className="px-2 py-1 rounded bg-navy-800 text-slate-400 hover:text-white text-xs border border-navy-700"
                 >
                   Replace File
@@ -314,6 +323,25 @@ export const ScoreDataPage: React.FC = () => {
       {/* Step 3: Prediction Results Dashboard */}
       {predictionResult && (
         <div className="space-y-6">
+          {/* Active Dataset Status Bar */}
+          <div className="p-3 bg-navy-900/90 border border-navy-800 rounded-xl flex flex-wrap items-center justify-between gap-3 text-xs">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="text-slate-400">Scored Cohort Source:</span>
+              <span className="font-mono font-semibold text-white">{fileName || uploadResult?.filename || 'Uploaded Dataset'}</span>
+              <span className="text-slate-500">({predictionResult.students?.length} students)</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setCurrentPage('student')}
+                className="px-2.5 py-1 rounded bg-indigo-600/30 hover:bg-indigo-600/40 text-indigo-300 border border-indigo-500/40 font-medium flex items-center gap-1 transition-colors"
+              >
+                <Users className="w-3.5 h-3.5" />
+                View in Individual Student Tab
+              </button>
+            </div>
+          </div>
+
           {/* Summary Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="bg-navy-900 border border-navy-800 rounded-xl p-4">
