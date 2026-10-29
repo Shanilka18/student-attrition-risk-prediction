@@ -119,16 +119,37 @@ flowchart LR
 ---
 
 ### Page 8: PREDICT & Upload (`/predict`)
-* **Visual**: Drag-and-drop file upload zone, format guidance, live validation report, batch triage table, and single-student simulator.
-* **Demonstration Action (Live Prediction)**:
-  1. Click **Download Template CSV** to demonstrate availability of schema templates.
+* **Visual**: Drag-and-drop file upload zone, format guidance, outcome detection chip, "Retrain on My Data" action button, live validation report, batch triage table, single-student simulator, and retrained champion result card.
+* **Demonstration Action 1 (Live Prediction)**:
+  1. Click **Template (Inference)** to demonstrate availability of standard observation schema templates.
   2. Drag and drop `upload_template.csv` into the drop zone.
-  3. Click **Execute Model Inference & Explainability**.
-  4. Show the live results: 3 students scored, triage summary cards, color-coded risk badges (**High** for `STU_DEMO_02`, **Low** for `STU_DEMO_01` and `STU_DEMO_03`).
-  5. Click on `STU_DEMO_02` row to expand their trajectory and top factors.
-  6. Click **Single-Student Simulator** tab: adjust GPA from 3.4 down to 2.1 across 3 semesters, click **Compute Academic Risk Index**, and watch the live risk index jump into the High band!
+  3. Observe the outcome chip: `"No outcome column found — inference only"`.
+  4. Click **Execute Model Inference & Explainability**.
+  5. Show the live results: 3 students scored, triage summary cards, color-coded risk badges (**High** for `STU_DEMO_02`, **Low** for `STU_DEMO_01` and `STU_DEMO_03`).
+  6. Click on `STU_DEMO_02` row to expand their trajectory and top factors.
+  7. Click **Single-Student Simulator** tab: adjust GPA from 3.4 down to 2.1 across 3 semesters, click **Compute Academic Risk Index**, and watch the live risk index jump into the High band!
+* **Demonstration Action 2 (Live Retraining on User Data)**:
+  1. Click **Template (With Outcomes)** to download `academic_observation_template_with_outcomes.csv` containing longitudinal records plus `attrited` and `attrition_semester`.
+  2. Drag and drop the dataset with outcomes.
+  3. Notice the amber outcome chip appears: `"Outcome labels detected: N students, X% attrited"`.
+  4. Observe that the amber **"Retrain on My Data"** button with a refresh icon dynamically illuminates beside the inference button.
+  5. Click **Retrain on My Data** to open the configuration modal:
+     - Review dataset summary stats (cohort size, records, attrited count/rate).
+     - Select training budget: **Quick** (fast 1-trial run), **Standard**, or **Full**.
+     - Select model scope: **Champions Only** (GRU, CatBoost, Logistic, RF, LightGBM) or **All Models**.
+     - Read the isolation guarantee: *"Results are saved separately in artifacts/user_dataset/ and do not replace the synthetic benchmark."*
+  6. Click **Confirm & Start Retraining**.
+  7. Watch the live amber progress banner poll every 2 seconds, displaying current pipeline phase, active model name, models done / total, and elapsed runtime. Even if the page is refreshed, polling resumes automatically via `localStorage`.
+  8. Upon completion, review the **Retrained Champion Card** displaying the new champion model, Test ROC-AUC, PR-AUC, F2-score, and early lead time, clearly marked with the provenance badge **"Trained on user-provided data"**.
+* **Demonstration Action 3 (Model Activation, Dynamic Scoring & Rollback)**:
+  1. On the **Retrained Champion Card**, click **"Use this model for scoring"**.
+  2. Observe the dynamic provenance badge in the top navigation bar immediately switch from amber to glowing emerald: `[Active: REAL DATA]`.
+  3. Notice the active scoring banner above the upload zone shows the retrained champion's exact metrics, and `/meta` returns `data_mode: "REAL"` without synthetic disclaimers.
+  4. Perform an inference upload: single-student and batch predictions now execute using the retrained model weights and output `provenance_tag: "REAL"`.
+  5. Click **"Past Retrained Models"** to view all historical runs preserved under `artifacts/user_dataset/`, complete with test metrics, cohort sizes, and activation/deletion controls.
+  6. Click **"Rollback to Synthetic"**: the framework hot-reloads without server restart, returning to the canonical thesis synthetic benchmark with the Navbar badge reverting to `[Active: SYNTHETIC BENCHMARK]`.
 * **Viva Talking Points**:
-  > *"This is our operational deployment interface. When a university administrator uploads student records, the backend verifies schema bounds, forward-fills missing observations, extracts 22 trend velocities, runs CatBoost inference, and compiles TreeSHAP explanations in under 10 ms per student—well within our 2-second NFR1 SLA."*
+  > *"Our console provides a complete, auditable retraining and scoring lifecycle. When an institution uploads historical outcome labels, the system trains an isolated candidate champion without touching thesis benchmarks. Administrators can evaluate candidate metrics and selectively promote the model to live scoring via 'Use this model for scoring'. The entire framework is dynamically reloaded in-process without server restarts, and can be rolled back to canonical thesis benchmarks at any time with a single click."*
 
 ---
 
