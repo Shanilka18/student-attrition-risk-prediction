@@ -214,4 +214,25 @@ Each entry documents:
 - **Proposal Alignment**: Fulfills Specific Objective 2.4, Proposal NFR1 (< 2 s), and Non-Negotiable Rule 3 (honesty about synthetic data).
 - **Implications**: Component tree organized under `frontend/src/pages/`, typed API client in `frontend/src/api/client.ts`, and full-page screenshots preserved in `docs/screenshots/`.
 
+### [DEC-022] 2026-10-29: User Dataset Retraining Engine, Filesystem Isolation, and Leakage Defense (Phase 1)
+- **Context**: Users and institutional partners need the ability to retrain early warning models on their own longitudinal academic records while guaranteeing that the thesis benchmark (`artifacts/models/`, `artifacts/leaderboard/`) is never mutated or overwritten.
+- **Alternatives Considered**:
+  - *Option A*: Overwrite canonical `artifacts/models/` and `artifacts/leaderboard/` with user training results.
+  - *Option B*: Separate standalone script with manual file copying and duplicated pipeline logic.
+  - *Option C*: Modular feature pipeline refactor (`run_feature_pipeline()`), dynamic filesystem isolation context manager (`config.isolated_run(job_id)`), pre-flight inspection with strict leakage defense, background worker thread with 2-second client polling, and complete isolation to `artifacts/user_dataset/<job_id>/`.
+- **Decision**: Option C. The pipeline logic was cleanly refactored so `run.py target_preprocess()` and `retrain.py` share identical feature extraction and preprocessing code without duplication. Pre-flight checks enforce minimum cohort size ($\ge 100$), minimum positive and negative classes ($\ge 20$), and temporal leakage prevention (forbidding observations after documented attrition). Canonical thesis benchmarks remain 100% immutable in `artifacts/models/`.
+- **Proposal Alignment**: Fulfills scientific rigor, prevents lookahead bias, maintains thesis benchmark provenance, and provides realistic institutional extensibility.
+- **Implications**: Added `POST /train/inspect`, `POST /retrain`, `GET /jobs/{id}`, and `GET /train/latest`. Frontend Predict page updated with amber "Retrain on My Data" button, confirmation modal, live progress banner with `localStorage` recovery, and retrained champion result cards.
+
+### [DEC-023] 2026-10-29: Dynamic Champion Loading, In-Process Reloading, and Scoring Rollback Mechanism (Phase 2)
+- **Context**: Once an isolated retraining run completes on real institutional data, users need the ability to activate the retrained champion model for live scoring (single-student simulation and batch prediction) and roll back to the canonical thesis synthetic benchmark on demand, without restarting the FastAPI server.
+- **Alternatives Considered**:
+  - *Option A*: Restart the Uvicorn server process on model switch, causing downtime and breaking active WebSocket/HTTP connections.
+  - *Option B*: Manually copy user weights into `artifacts/models/` and overwrite the thesis baseline.
+  - *Option C*: In-process hot reloading via thread-safe `InferenceService.reload()`, pointer-based scoring routing via `artifacts/active_run.json`, dynamic `/meta` telemetry returning real user metrics and clearing synthetic disclaimers when in REAL mode, and one-click rollback restoring the canonical thesis benchmark.
+- **Decision**: Option C. `InferenceService` was made dynamic: instead of hard-coding CatBoost from `artifacts/models/Category_C/catboost/`, it consults `config.get_active_run()`. When `data_mode == "REAL"`, it loads the retrained preprocessor, champion model, calibrator, and feature columns dynamically from `artifacts/user_dataset/<run_id>/`, passing `provenance_tag: "REAL"` in prediction payloads. A one-click rollback deletes `artifacts/active_run.json` and hot-reloads the service back to canonical synthetic models. The top navigation bar displays a persistent provenance badge (`[Active: REAL DATA]` vs `[Active: SYNTHETIC BENCHMARK]`), and `/train/runs` provides complete registry auditability.
+- **Proposal Alignment**: Fulfills scientific provenance integrity, maintains zero-downtime operational capability, and enables real-world institutional scoring without contaminating the canonical synthetic thesis benchmark.
+- **Implications**: Added endpoints `GET /train/runs`, `POST /train/activate/{job_id}`, `POST /train/rollback`, and `DELETE /train/runs/{job_id}`. Updated `InferenceService` with thread-safe hot reload, Navbar with dynamic provenance badge, and Predict page with scoring activation, rollback, and past runs registry.
+
+
 
