@@ -1,0 +1,347 @@
+# Environmental & Financial Factors Header Mapping Configuration (EF-01)
+# Project: Student Attrition Risk Prediction (KND-CDAP-IT-05)
+# Component: Environmental & Financial Factors (ERI / EFI)
+
+matching_engine:
+  fuzzy_library: "rapidfuzz"
+  threshold: 88
+  mode: "suggest_only"  # Suggest candidate mappings to user/auditor; never silently map below threshold or on ambiguity
+  case_sensitive: false
+  strip_punctuation: true
+  ignore_diacritics: true
+
+canonical_mappings:
+  # ---------------------------------------------------------------------------
+  # Q23: income_band
+  # ---------------------------------------------------------------------------
+  income_band:
+    google_forms_header: "23. Which range best describes your household's total monthly income (combined income of all household members, not just your own)?"
+    accepted_variants:
+      - "23. Which range best describes your household's total monthly income (combined income of all household members, not just your own)?"
+      - "Which range best describes your household's total monthly income (combined income of all household members, not just your own)?"
+      - "Which range best describes your household's total monthly income"
+      - "Household total monthly income"
+      - "household_income_bracket"
+      - "household_income"
+      - "income_bracket"
+      - "monthly_income"
+      - "income_band"
+      - "q23_income"
+      - "q23"
+
+  # ---------------------------------------------------------------------------
+  # Q24: aid_status
+  # ---------------------------------------------------------------------------
+  aid_status:
+    google_forms_header: "24. Do you receive a scholarship, bursary, or other financial aid for your studies?"
+    accepted_variants:
+      - "24. Do you receive a scholarship, bursary, or other financial aid for your studies?"
+      - "Do you receive a scholarship, bursary, or other financial aid for your studies?"
+      - "scholarship_bursary"
+      - "financial_aid"
+      - "aid_status"
+      - "scholarship_status"
+      - "bursary_status"
+      - "q24_aid"
+      - "q24"
+
+  # ---------------------------------------------------------------------------
+  # Q25: family_support_duty
+  # ---------------------------------------------------------------------------
+  family_support_duty:
+    google_forms_header: "25. Are you currently financially responsible for supporting family members (e.g. siblings, parents)?"
+    accepted_variants:
+      - "25. Are you currently financially responsible for supporting family members (e.g. siblings, parents)?"
+      - "Are you currently financially responsible for supporting family members (e.g. siblings, parents)?"
+      - "financially responsible for supporting family members"
+      - "family_support_duty"
+      - "dependents_support"
+      - "supporting_family"
+      - "financial_responsibility_family"
+      - "q25_family"
+      - "q25"
+
+  # ---------------------------------------------------------------------------
+  # Q26: cost_difficulty
+  # ---------------------------------------------------------------------------
+  cost_difficulty:
+    google_forms_header: "26. How often do you find it difficult to pay for your study-related costs (fees, travel, materials)?"
+    accepted_variants:
+      - "26. How often do you find it difficult to pay for your study-related costs (fees, travel, materials)?"
+      - "How often do you find it difficult to pay for your study-related costs (fees, travel, materials)?"
+      - "difficult to pay for your study-related costs"
+      - "cost_difficulty"
+      - "study_cost_difficulty"
+      - "fee_difficulty"
+      - "financial_stress"
+      - "q26_costs"
+      - "q26"
+
+  # ---------------------------------------------------------------------------
+  # Q27: commute_time
+  # ---------------------------------------------------------------------------
+  commute_time:
+    google_forms_header: "27. On a typical day, how long does it take you to travel to campus (one way)?"
+    accepted_variants:
+      - "27. On a typical day, how long does it take you to travel to campus (one way)?"
+      - "On a typical day, how long does it take you to travel to campus (one way)?"
+      - "how long does it take you to travel to campus"
+      - "commute_time_min"
+      - "commute_time"
+      - "travel_time_one_way"
+      - "commute_duration"
+      - "q27_commute"
+      - "q27"
+
+  # ---------------------------------------------------------------------------
+  # Q28: commute_spend
+  # ---------------------------------------------------------------------------
+  commute_spend:
+    google_forms_header: "28. Approximately how much do you spend on travel to campus per month?"
+    accepted_variants:
+      - "28. Approximately how much do you spend on travel to campus per month?"
+      - "Approximately how much do you spend on travel to campus per month?"
+      - "how much do you spend on travel to campus per month"
+      - "commute_cost_lkr_week"
+      - "commute_cost_lkr_month"
+      - "commute_spend"
+      - "travel_cost"
+      - "monthly_travel_spend"
+      - "q28_spend"
+      - "q28"
+
+  # ---------------------------------------------------------------------------
+  # Q29: transport_mode
+  # ---------------------------------------------------------------------------
+  transport_mode:
+    google_forms_header: "29. What is your primary mode of transport to campus?"
+    accepted_variants:
+      - "29. What is your primary mode of transport to campus?"
+      - "What is your primary mode of transport to campus?"
+      - "primary mode of transport to campus"
+      - "primary_transport_mode"
+      - "transport_mode"
+      - "travel_mode"
+      - "mode_of_transport"
+      - "q29_mode"
+      - "q29"
+
+  # ---------------------------------------------------------------------------
+  # Q30: living_situation
+  # ---------------------------------------------------------------------------
+  living_situation:
+    google_forms_header: "30. What is your current living situation during the semester?"
+    accepted_variants:
+      - "30. What is your current living situation during the semester?"
+      - "What is your current living situation during the semester?"
+      - "current living situation during the semester"
+      - "housing_situation"
+      - "housing_type"
+      - "living_situation"
+      - "accommodation_type"
+      - "q30_living"
+      - "q30"
+
+  # ---------------------------------------------------------------------------
+  # Q31: quiet_study_place
+  # ---------------------------------------------------------------------------
+  quiet_study_place:
+    google_forms_header: "31. Do you have a quiet, suitable place to study where you live?"
+    accepted_variants:
+      - "31. Do you have a quiet, suitable place to study where you live?"
+      - "Do you have a quiet, suitable place to study where you live?"
+      - "quiet, suitable place to study where you live"
+      - "quiet_study_space"
+      - "quiet_study_place"
+      - "study_space"
+      - "suitable_study_place"
+      - "q31_quiet"
+      - "q31"
+
+  # ---------------------------------------------------------------------------
+  # Q32: home_internet
+  # ---------------------------------------------------------------------------
+  home_internet:
+    google_forms_header: "32. How would you describe your home internet access?"
+    accepted_variants:
+      - "32. How would you describe your home internet access?"
+      - "How would you describe your home internet access?"
+      - "home internet access"
+      - "internet_reliability"
+      - "internet_quality"
+      - "home_internet"
+      - "internet_access"
+      - "q32_internet"
+      - "q32"
+
+  # ---------------------------------------------------------------------------
+  # Q33: main_device
+  # ---------------------------------------------------------------------------
+  main_device:
+    google_forms_header: "33. What device do you primarily use for coursework?"
+    accepted_variants:
+      - "33. What device do you primarily use for coursework?"
+      - "What device do you primarily use for coursework?"
+      - "device do you primarily use for coursework"
+      - "device_type"
+      - "main_device"
+      - "primary_device"
+      - "coursework_device"
+      - "q33_device"
+      - "q33"
+
+  # ---------------------------------------------------------------------------
+  # Q34: mobile_data_plan
+  # ---------------------------------------------------------------------------
+  mobile_data_plan:
+    google_forms_header: "34. Do you have a mobile data plan you can rely on if home internet is unavailable?"
+    accepted_variants:
+      - "34. Do you have a mobile data plan you can rely on if home internet is unavailable?"
+      - "Do you have a mobile data plan you can rely on if home internet is unavailable?"
+      - "mobile data plan you can rely on if home internet is unavailable"
+      - "mobile_data_plan"
+      - "mobile_data_backup"
+      - "internet_affordability"
+      - "mobile_data"
+      - "q34_data"
+      - "q34"
+
+  # ---------------------------------------------------------------------------
+  # Q35: part_time_job
+  # ---------------------------------------------------------------------------
+  part_time_job:
+    google_forms_header: "35. Are you currently working a part-time or informal job alongside your studies?"
+    accepted_variants:
+      - "35. Are you currently working a part-time or informal job alongside your studies?"
+      - "Are you currently working a part-time or informal job alongside your studies?"
+      - "working a part-time or informal job alongside your studies"
+      - "part_time_employment"
+      - "part_time_job"
+      - "informal_job"
+      - "working_student"
+      - "q35_work"
+      - "q35"
+
+  # ---------------------------------------------------------------------------
+  # Q36: job_hours
+  # ---------------------------------------------------------------------------
+  job_hours:
+    google_forms_header: "36. About how many hours per week do you work in this job?"
+    accepted_variants:
+      - "36. About how many hours per week do you work in this job?"
+      - "About how many hours per week do you work in this job?"
+      - "how many hours per week do you work in this job"
+      - "work_hours_per_week"
+      - "job_hours"
+      - "work_hours"
+      - "part_time_hours"
+      - "q36_hours"
+      - "q36"
+
+  # ---------------------------------------------------------------------------
+  # Q37: financial_shock
+  # ---------------------------------------------------------------------------
+  financial_shock:
+    google_forms_header: "37. During this semester, has your household faced a major unexpected expense or loss of income?"
+    accepted_variants:
+      - "37. During this semester, has your household faced a major unexpected expense or loss of income?"
+      - "During this semester, has your household faced a major unexpected expense or loss of income?"
+      - "household faced a major unexpected expense or loss of income"
+      - "unexpected_expense"
+      - "financial_shock"
+      - "income_loss"
+      - "q37_shock"
+      - "q37"
+
+  # ---------------------------------------------------------------------------
+  # Q38: money_worry
+  # ---------------------------------------------------------------------------
+  money_worry:
+    google_forms_header: "38. I often worry about whether I can afford to continue my studies."
+    accepted_variants:
+      - "38. I often worry about whether I can afford to continue my studies."
+      - "I often worry about whether I can afford to continue my studies."
+      - "worry about whether I can afford to continue my studies"
+      - "money_worry"
+      - "affordability_worry"
+      - "financial_anxiety"
+      - "q38_worry"
+      - "q38"
+
+  # ---------------------------------------------------------------------------
+  # Q39: missed_due_to_barriers
+  # ---------------------------------------------------------------------------
+  missed_due_to_barriers:
+    google_forms_header: "39. In the last month, how often have you missed a class or deadline because of cost, travel or internet problems?"
+    accepted_variants:
+      - "39. In the last month, how often have you missed a class or deadline because of cost, travel or internet problems?"
+      - "In the last month, how often have you missed a class or deadline because of cost, travel or internet problems?"
+      - "missed a class or deadline because of cost, travel or internet problems"
+      - "missed_due_to_barriers"
+      - "missed_classes_barriers"
+      - "cost_travel_internet_missed"
+      - "q39_missed"
+      - "q39"
+
+  # ---------------------------------------------------------------------------
+  # Shared Meta & Outcome Mappings
+  # ---------------------------------------------------------------------------
+  student_id:
+    google_forms_header: "Participant Identifier / Registration Number"
+    accepted_variants:
+      - "Participant Identifier / Registration Number"
+      - "Student Registration ID"
+      - "student_id"
+      - "participant_id"
+      - "registration_no"
+      - "it_number"
+      - "id"
+
+  timestamp:
+    google_forms_header: "Timestamp"
+    accepted_variants:
+      - "Timestamp"
+      - "timestamp"
+      - "submission_time"
+      - "created_at"
+
+  consent:
+    google_forms_header: "Do you consent to participate in this study?"
+    accepted_variants:
+      - "Do you consent to participate in this study?"
+      - "Informed Consent"
+      - "consent"
+      - "consent_given"
+
+  attention_check:
+    google_forms_header: "To confirm that you are reading questions carefully, please select 'Agree'."
+    accepted_variants:
+      - "To confirm that you are reading questions carefully, please select 'Agree'."
+      - "Attention Check"
+      - "attention_check"
+      - "trap_question"
+
+  attrition_intent_score:
+    google_forms_header: "On a scale of 0 to 100, how likely are you to withdraw or defer your studies?"
+    accepted_variants:
+      - "On a scale of 0 to 100, how likely are you to withdraw or defer your studies?"
+      - "attrition_intent_score"
+      - "withdrawal_likelihood"
+      - "dropout_intent"
+
+  at_risk:
+    google_forms_header: "At-Risk Designation (Intent >= 60)"
+    accepted_variants:
+      - "At-Risk Designation (Intent >= 60)"
+      - "at_risk"
+      - "is_at_risk"
+      - "risk_label"
+
+  institutional_attrition:
+    google_forms_header: "Official Academic Outcome (0 = Active, 1 = Withdrawn)"
+    accepted_variants:
+      - "Official Academic Outcome (0 = Active, 1 = Withdrawn)"
+      - "institutional_attrition"
+      - "student_attrition"
+      - "attrition"
+      - "outcome"

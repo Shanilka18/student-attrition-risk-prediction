@@ -1,0 +1,552 @@
+# Environmental & Financial Risk Framework Canonical Schema (EF-01)
+# Project: Student Attrition Risk Prediction (KND-CDAP-IT-05)
+# Component: Environmental & Financial Factors (ERI / EFI)
+
+component:
+  name: "Environmental & Financial Factors"
+  short_code: "envfin"
+  index_name: "Environmental & Financial Index (EFI) / Environmental Risk Index (ERI)"
+  index_range: [0, 100]
+  source_file: "docs/questionnaire_envfin_v2.md"
+
+items:
+  # ---------------------------------------------------------------------------
+  # Q23: Household Income Band
+  # ---------------------------------------------------------------------------
+  income_band:
+    question_number: 23
+    wording: "Which range best describes your household's total monthly income (combined income of all household members, not just your own)?"
+    type: "ordinal"
+    n_levels: 5
+    levels:
+      - code: 0
+        label: "Less than LKR 25,000"
+      - code: 1
+        label: "LKR 25,000 – 50,000"
+      - code: 2
+        label: "LKR 50,001 – 100,000"
+      - code: 3
+        label: "LKR 100,001 – 200,000"
+      - code: 4
+        label: "More than LKR 200,000"
+    pressure_direction: "reversed"  # higher income code = lower financial pressure
+    rescaling: "(4 - code) / 4.0"
+    structural_na: null
+    prefer_not_to_say: null
+    conditional_rule: null
+    role: "feature"
+
+  # ---------------------------------------------------------------------------
+  # Q24: Scholarship / Financial Aid Coverage
+  # ---------------------------------------------------------------------------
+  aid_status:
+    question_number: 24
+    wording: "Do you receive a scholarship, bursary, or other financial aid for your studies?"
+    type: "ordinal"
+    n_levels: 3
+    levels:
+      - code: 0
+        label: "Yes, full coverage"
+      - code: 1
+        label: "Yes, partial coverage"
+      - code: 2
+        label: "No"
+    pressure_direction: "higher"  # code 0=full aid (low pressure), code 2=no aid (high pressure)
+    rescaling: "code / 2.0"
+    structural_na: null
+    prefer_not_to_say: null
+    conditional_rule: null
+    role: "feature"
+
+  # ---------------------------------------------------------------------------
+  # Q25: Family Financial Support Duty
+  # ---------------------------------------------------------------------------
+  family_support_duty:
+    question_number: 25
+    wording: "Are you currently financially responsible for supporting family members (e.g. siblings, parents)?"
+    type: "binary"
+    n_levels: 2
+    levels:
+      - code: 0
+        label: "No"
+      - code: 1
+        label: "Yes"
+    pressure_direction: "higher"  # 1 = Yes = higher pressure
+    rescaling: "float(code)"
+    structural_na: null
+    prefer_not_to_say: null
+    conditional_rule: null
+    role: "feature"
+
+  # ---------------------------------------------------------------------------
+  # Q26: Study-Related Cost Difficulty
+  # ---------------------------------------------------------------------------
+  cost_difficulty:
+    question_number: 26
+    wording: "How often do you find it difficult to pay for your study-related costs (fees, travel, materials)?"
+    type: "ordinal"
+    n_levels: 4
+    levels:
+      - code: 0
+        label: "Never"
+      - code: 1
+        label: "Sometimes"
+      - code: 2
+        label: "Often"
+      - code: 3
+        label: "Always"
+    prefer_not_to_say:
+      code: -1
+      label: "Prefer not to say"
+      treatment: "informative_missing_indicator"
+    structural_na: null
+    pressure_direction: "higher"
+    rescaling: "code / 3.0 if code >= 0 else NaN"
+    conditional_rule: null
+    role: "feature"
+
+  # ---------------------------------------------------------------------------
+  # Q27: Daily Commute Duration
+  # ---------------------------------------------------------------------------
+  commute_time:
+    question_number: 27
+    wording: "On a typical day, how long does it take you to travel to campus (one way)?"
+    type: "ordinal"
+    n_levels: 4
+    levels:
+      - code: 0
+        label: "Less than 30 minutes"
+      - code: 1
+        label: "30 – 59 minutes"
+      - code: 2
+        label: "60 – 120 minutes"
+      - code: 3
+        label: "More than 120 minutes"
+    structural_na:
+      code: -2
+      label: "Not applicable (I study fully online)"
+      treatment: "zero_pressure_state"
+    prefer_not_to_say: null
+    pressure_direction: "higher"
+    rescaling: "0.0 if code == -2 else code / 3.0"
+    conditional_rule: null
+    role: "feature"
+
+  # ---------------------------------------------------------------------------
+  # Q28: Monthly Commute Spend
+  # ---------------------------------------------------------------------------
+  commute_spend:
+    question_number: 28
+    wording: "Approximately how much do you spend on travel to campus per month?"
+    type: "ordinal"
+    n_levels: 4
+    levels:
+      - code: 0
+        label: "Less than LKR 2,500"
+      - code: 1
+        label: "LKR 2,500 – 5,000"
+      - code: 2
+        label: "LKR 5,001 – 10,000"
+      - code: 3
+        label: "More than LKR 10,000"
+    structural_na:
+      code: -2
+      label: "Not applicable"
+      treatment: "zero_pressure_state"
+    prefer_not_to_say: null
+    pressure_direction: "higher"
+    rescaling: "0.0 if code == -2 else code / 3.0"
+    conditional_rule: null
+    role: "feature"
+
+  # ---------------------------------------------------------------------------
+  # Q29: Primary Transport Mode
+  # ---------------------------------------------------------------------------
+  transport_mode:
+    question_number: 29
+    wording: "What is your primary mode of transport to campus?"
+    type: "nominal"
+    n_levels: 5
+    levels:
+      - code: 0
+        label: "Walking"
+      - code: 1
+        label: "Public transportation"
+      - code: 2
+        label: "Private vehicle (own/family)"
+      - code: 3
+        label: "Hired vehicle (three-wheeler / taxi / PickMe / Uber)"
+      - code: 4
+        label: "Other"
+    structural_na:
+      code: -2
+      label: "Not applicable (I study fully online)"
+      treatment: "zero_pressure_state"
+    prefer_not_to_say: null
+    pressure_direction: "nominal_mapped"
+    pressure_map:
+      walking: 0.1
+      public_transport: 0.7
+      private_vehicle: 0.3
+      hired_vehicle: 0.8
+      other: 0.5
+      not_applicable: 0.0
+      _note: "design assumption, confirm with supervisor"
+    conditional_rule: null
+    role: "feature"
+
+  # ---------------------------------------------------------------------------
+  # Q30: Current Semester Living Situation
+  # ---------------------------------------------------------------------------
+  living_situation:
+    question_number: 30
+    wording: "What is your current living situation during the semester?"
+    type: "nominal"
+    n_levels: 4
+    levels:
+      - code: 0
+        label: "Living with family"
+      - code: 1
+        label: "Hostel / boarding house"
+      - code: 2
+        label: "Rented accommodation"
+      - code: 3
+        label: "Other"
+    structural_na: null
+    prefer_not_to_say: null
+    pressure_direction: "nominal_mapped"
+    pressure_map:
+      family: 0.2
+      hostel: 0.6
+      rented: 0.7
+      other: 0.5
+      _note: "design assumption, confirm with supervisor"
+    conditional_rule: null
+    role: "feature"
+
+  # ---------------------------------------------------------------------------
+  # Q31: Quiet Study Place
+  # ---------------------------------------------------------------------------
+  quiet_study_place:
+    question_number: 31
+    wording: "Do you have a quiet, suitable place to study where you live?"
+    type: "ordinal"
+    n_levels: 3
+    levels:
+      - code: 0
+        label: "Yes, always"
+      - code: 1
+        label: "Sometimes"
+      - code: 2
+        label: "No"
+    pressure_direction: "higher"  # 0=always quiet, 2=no quiet place -> higher code = higher pressure
+    rescaling: "code / 2.0"
+    structural_na: null
+    prefer_not_to_say: null
+    conditional_rule: null
+    role: "feature"
+
+  # ---------------------------------------------------------------------------
+  # Q32: Home Internet Access
+  # ---------------------------------------------------------------------------
+  home_internet:
+    question_number: 32
+    wording: "How would you describe your home internet access?"
+    type: "ordinal"
+    n_levels: 4
+    levels:
+      - code: 0
+        label: "Reliable, high-speed"
+      - code: 1
+        label: "Reliable, but slow/limited"
+      - code: 2
+        label: "Unstable / frequently unavailable"
+      - code: 3
+        label: "No home internet access"
+    pressure_direction: "higher"
+    rescaling: "code / 3.0"
+    structural_na: null
+    prefer_not_to_say: null
+    conditional_rule: null
+    role: "feature"
+
+  # ---------------------------------------------------------------------------
+  # Q33: Main Coursework Device
+  # ---------------------------------------------------------------------------
+  main_device:
+    question_number: 33
+    wording: "What device do you primarily use for coursework?"
+    type: "nominal"
+    n_levels: 4
+    levels:
+      - code: 0
+        label: "Personal laptop / computer"
+      - code: 1
+        label: "Smartphone only"
+      - code: 2
+        label: "Shared/family device"
+      - code: 3
+        label: "University/library device only"
+    structural_na: null
+    prefer_not_to_say: null
+    pressure_direction: "nominal_mapped"
+    pressure_map:
+      laptop: 0.1
+      smartphone_only: 0.9
+      shared_device: 0.6
+      university_device: 0.5
+      _note: "design assumption, confirm with supervisor"
+    conditional_rule: null
+    role: "feature"
+
+  # ---------------------------------------------------------------------------
+  # Q34: Backup Mobile Data Plan
+  # ---------------------------------------------------------------------------
+  mobile_data_plan:
+    question_number: 34
+    wording: "Do you have a mobile data plan you can rely on if home internet is unavailable?"
+    type: "ordinal"
+    n_levels: 3
+    levels:
+      - code: 0
+        label: "Yes, sufficient for coursework"
+      - code: 1
+        label: "Yes, but limited/insufficient"
+      - code: 2
+        label: "No"
+    pressure_direction: "higher"  # 0=sufficient, 2=no -> higher code = higher pressure
+    rescaling: "code / 2.0"
+    structural_na: null
+    prefer_not_to_say: null
+    conditional_rule: null
+    role: "feature"
+
+  # ---------------------------------------------------------------------------
+  # Q35: Part-Time Job Status (Gate for Q36)
+  # ---------------------------------------------------------------------------
+  part_time_job:
+    question_number: 35
+    wording: "Are you currently working a part-time or informal job alongside your studies?"
+    type: "ordinal"
+    n_levels: 3
+    levels:
+      - code: 0
+        label: "No"
+      - code: 1
+        label: "Occasionally"
+      - code: 2
+        label: "Yes"
+    pressure_direction: "higher"
+    rescaling: "code / 2.0"
+    structural_na: null
+    prefer_not_to_say: null
+    conditional_rule: "gates job_hours: Q36 shown only if code >= 1"
+    role: "feature"
+
+  # ---------------------------------------------------------------------------
+  # Q36: Job Hours per Week (Conditional on Q35)
+  # ---------------------------------------------------------------------------
+  job_hours:
+    question_number: 36
+    wording: "About how many hours per week do you work in this job?"
+    type: "ordinal"
+    n_levels: 5
+    levels:
+      - code: 0
+        label: "None"
+      - code: 1
+        label: "Less than 10"
+      - code: 2
+        label: "10–20"
+      - code: 3
+        label: "21–30"
+      - code: 4
+        label: "More than 30"
+    structural_na:
+      code: 0
+      label: "None (not employed)"
+      treatment: "zero_hours_baseline"
+    prefer_not_to_say: null
+    pressure_direction: "higher"
+    rescaling: "code / 4.0"
+    conditional_rule: "shown only if part_time_job is Yes or Occasionally (code >= 1); default 0 if part_time_job is No"
+    role: "feature"
+
+  # ---------------------------------------------------------------------------
+  # Q37: Semester Financial Shock
+  # ---------------------------------------------------------------------------
+  financial_shock:
+    question_number: 37
+    wording: "During this semester, has your household faced a major unexpected expense or loss of income?"
+    type: "ordinal"
+    n_levels: 3
+    levels:
+      - code: 0
+        label: "No"
+      - code: 1
+        label: "Yes, a minor one"
+      - code: 2
+        label: "Yes, a major one"
+    pressure_direction: "higher"
+    rescaling: "code / 2.0"
+    structural_na: null
+    prefer_not_to_say: null
+    conditional_rule: null
+    role: "feature"
+
+  # ---------------------------------------------------------------------------
+  # Q38: Subjective Affordability Worry
+  # ---------------------------------------------------------------------------
+  money_worry:
+    question_number: 38
+    wording: "I often worry about whether I can afford to continue my studies."
+    type: "ordinal"
+    n_levels: 5
+    levels:
+      - code: 0
+        label: "Strongly disagree"
+      - code: 1
+        label: "Disagree"
+      - code: 2
+        label: "Neutral"
+      - code: 3
+        label: "Agree"
+      - code: 4
+        label: "Strongly agree"
+    pressure_direction: "higher"
+    rescaling: "code / 4.0"
+    structural_na: null
+    prefer_not_to_say: null
+    conditional_rule: null
+    role: "feature"
+
+  # ---------------------------------------------------------------------------
+  # Q39: Class or Deadline Missed Due to Environmental/Financial Barriers
+  # ---------------------------------------------------------------------------
+  missed_due_to_barriers:
+    question_number: 39
+    wording: "In the last month, how often have you missed a class or deadline because of cost, travel or internet problems?"
+    type: "ordinal"
+    n_levels: 4
+    levels:
+      - code: 0
+        label: "Never"
+      - code: 1
+        label: "Once or twice"
+      - code: 2
+        label: "Several times"
+      - code: 3
+        label: "Very often"
+    pressure_direction: "higher"
+    rescaling: "code / 3.0"
+    structural_na: null
+    prefer_not_to_say: null
+    conditional_rule: null
+    role: "feature"
+
+# -----------------------------------------------------------------------------
+# Shared Metadata & Quality Control Columns (Never Features)
+# -----------------------------------------------------------------------------
+shared_meta:
+  student_id:
+    wording: "Student Registration / Participant Identifier"
+    type: "string"
+    role: "metadata"
+    pseudonym_format: "^P-[0-9]{5}$"
+
+  timestamp:
+    wording: "Survey Submission Timestamp"
+    type: "datetime"
+    role: "metadata"
+
+  consent:
+    wording: "I consent to having my anonymized answers used for academic research."
+    type: "binary"
+    role: "metadata"
+    levels:
+      - code: 0
+        label: "No / I decline"
+      - code: 1
+        label: "Yes / I agree"
+
+  attention_check:
+    wording: "To confirm that you are reading questions carefully, please select 'Agree'."
+    type: "ordinal"
+    role: "quality_control"
+    pass_condition: "code == 3"  # code for Agree in 5-point Likert
+
+# -----------------------------------------------------------------------------
+# Shared Outcome & Evaluation Columns (Strictly Outcomes, Never Features)
+# -----------------------------------------------------------------------------
+outcomes:
+  attrition_intent_score:
+    wording: "Self-Reported Likelihood of Degree Discontinuation (0–100)"
+    type: "continuous"
+    range: [0.0, 100.0]
+    role: "outcome"
+
+  at_risk:
+    wording: "Binary High-Risk Designation (Attrition Intent Score >= 60)"
+    type: "binary"
+    role: "outcome"
+    threshold: 60.0
+    levels:
+      - code: 0
+        label: "Persisting / Low Risk"
+      - code: 1
+        label: "At-Risk of Withdrawal"
+
+  institutional_attrition:
+    wording: "Official Institutional Departure Status (Registry ground truth when available)"
+    type: "binary"
+    role: "outcome"
+    levels:
+      - code: 0
+        label: "Active Enrolled"
+      - code: 1
+        label: "Officially Withdrawn / Dropped Out"
+
+# -----------------------------------------------------------------------------
+# Derived Indices Specification (0–1 scale; higher = higher pressure)
+# Computed in Phase EF-6 from available rescaled item values.
+# -----------------------------------------------------------------------------
+derived_indices:
+  financial_stress:
+    description: "Composite index of household economic deprivation, liquidity strain, and work interference."
+    scale: [0.0, 1.0]
+    items:
+      - income_band           # reversed: (4 - code)/4
+      - aid_status            # code/2
+      - family_support_duty   # float(code)
+      - cost_difficulty       # code/3 (NaN if -1)
+      - financial_shock       # code/2
+      - money_worry           # code/4
+      - job_hours             # code/4 (0 if not working)
+    aggregation: "mean(available_rescaled_items)"
+
+  commute_burden:
+    description: "Physical and financial transit friction; strictly 0 for fully online students."
+    scale: [0.0, 1.0]
+    items:
+      - commute_time          # code/3 (0 if online)
+      - commute_spend         # code/3 (0 if online)
+      - transport_mode        # pressure_map[mode] (0 if online)
+    online_override: 0.0
+    aggregation: "mean(available_rescaled_items) if not online else 0.0"
+
+  digital_access_gap:
+    description: "Connectivity deficits, device inadequacy, and lack of mobile backup."
+    scale: [0.0, 1.0]
+    items:
+      - home_internet         # code/3
+      - main_device           # pressure_map[device]
+      - mobile_data_plan      # code/2 (reversed: 0=sufficient, 2=no)
+    aggregation: "mean(available_rescaled_items)"
+
+  study_environment_pressure:
+    description: "Domestic study disruption, absence of quiet space, and housing instability."
+    scale: [0.0, 1.0]
+    items:
+      - quiet_study_place     # code/2 (0=always quiet, 2=no)
+      - living_situation      # pressure_map[situation]
+    aggregation: "mean(available_rescaled_items)"
