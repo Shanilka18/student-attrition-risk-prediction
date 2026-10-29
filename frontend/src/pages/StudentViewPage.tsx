@@ -1,7 +1,16 @@
 import React, { useState, useMemo } from 'react';
-import { useCohort } from '../context/CohortContext';
-import { StudentPrediction } from '../types/api';
-import { UserCheck, Sparkles, AlertTriangle, ArrowRight, Shield, Users, ChevronLeft, ChevronRight, Filter, Layers } from 'lucide-react';
+import {
+  UserCheck,
+  Sparkles,
+  AlertTriangle,
+  ArrowRight,
+  Shield,
+  Users,
+  ChevronLeft,
+  ChevronRight,
+  Filter,
+  Layers,
+} from 'lucide-react';
 import {
   RadarChart,
   PolarGrid,
@@ -18,6 +27,8 @@ import {
 } from 'recharts';
 import { SyntheticBadge } from '../components/common/Badges';
 import { ChartCard } from '../components/common/ChartCard';
+import { useCohort } from '../context/CohortContext';
+import { StudentPrediction } from '../types/api';
 
 export const StudentViewPage: React.FC = () => {
   const { predictionResult, fileName, selectedStudent, setSelectedStudent } = useCohort();
@@ -39,13 +50,13 @@ export const StudentViewPage: React.FC = () => {
     high: {
       study_id: 'SLIIT_01986',
       pri_score: 84.5,
-      risk_category: 'High',
+      risk_category: 'High' as const,
       factors: { stress: 4.67, motivation: 1.67, belongingness: 2.0, self_efficacy: 2.33, peer_support: 2.0 },
       shap_decomposition: [
-        { feature: 'High Stress (S1-S3)', val: 18.2, direction: 'risk_increasing' },
-        { feature: 'Low Belonging (B1-B3)', val: 12.4, direction: 'risk_increasing' },
-        { feature: 'Low Motivation (M1-M3)', val: 9.8, direction: 'risk_increasing' },
-        { feature: 'Peer Support (PS1-PS3)', val: -3.2, direction: 'risk_decreasing' },
+        { feature: 'STRESS', val: 18.2, direction: 'risk_increasing' },
+        { feature: 'BELONGING', val: 12.4, direction: 'risk_increasing' },
+        { feature: 'MOTIVATION', val: 9.8, direction: 'risk_increasing' },
+        { feature: 'PEER SUPPORT', val: -3.2, direction: 'risk_decreasing' },
       ],
       headline: 'Psychosocial risk is HIGH primarily driven by severe academic stress and alienation.',
       guidance: 'Actionable Outreach: Academic advising meeting recommended within 5 days; peer mentoring connection advised.',
@@ -53,12 +64,12 @@ export const StudentViewPage: React.FC = () => {
     moderate: {
       study_id: 'SLIIT_00514',
       pri_score: 51.2,
-      risk_category: 'Moderate',
+      risk_category: 'Moderate' as const,
       factors: { stress: 3.33, motivation: 3.0, belongingness: 3.0, self_efficacy: 3.67, peer_support: 3.33 },
       shap_decomposition: [
-        { feature: 'Moderate Stress', val: 5.4, direction: 'risk_increasing' },
-        { feature: 'Self-Efficacy Buffer', val: -6.8, direction: 'risk_decreasing' },
-        { feature: 'Peer Support Buffer', val: -4.1, direction: 'risk_decreasing' },
+        { feature: 'STRESS', val: 5.4, direction: 'risk_increasing' },
+        { feature: 'SELF-EFFICACY', val: -6.8, direction: 'risk_decreasing' },
+        { feature: 'PEER SUPPORT', val: -4.1, direction: 'risk_decreasing' },
       ],
       headline: 'Psychosocial risk is MODERATE with strong internal self-efficacy acting as a buffer.',
       guidance: 'Routine Follow-up: Mid-semester check-in via faculty advisor; maintain peer study group participation.',
@@ -66,13 +77,13 @@ export const StudentViewPage: React.FC = () => {
     low: {
       study_id: 'SLIIT_02946',
       pri_score: 18.7,
-      risk_category: 'Low',
+      risk_category: 'Low' as const,
       factors: { stress: 1.67, motivation: 4.67, belongingness: 4.33, self_efficacy: 4.67, peer_support: 4.67 },
       shap_decomposition: [
-        { feature: 'High Motivation', val: -14.2, direction: 'risk_decreasing' },
-        { feature: 'High Belongingness', val: -11.5, direction: 'risk_decreasing' },
-        { feature: 'Robust Peer Network', val: -10.8, direction: 'risk_decreasing' },
-        { feature: 'Mild Stress', val: 2.1, direction: 'risk_increasing' },
+        { feature: 'MOTIVATION', val: -14.2, direction: 'risk_decreasing' },
+        { feature: 'BELONGINGNESS', val: -11.5, direction: 'risk_decreasing' },
+        { feature: 'PEER NETWORK', val: -10.8, direction: 'risk_decreasing' },
+        { feature: 'STRESS', val: 2.1, direction: 'risk_increasing' },
       ],
       headline: 'Psychosocial risk is LOW. Strong protective factors across all psychological domains.',
       guidance: 'Standard Academic Track: Student displays high resilience and strong institutional connection.',
@@ -172,34 +183,162 @@ export const StudentViewPage: React.FC = () => {
           </p>
         </div>
 
-        {/* Preset Selector */}
-        <div className="flex items-center p-1 bg-navy-900 border border-navy-700 rounded-lg text-xs font-semibold">
-          <button
-            onClick={() => setSelectedPreset('high')}
-            className={`px-3 py-1.5 rounded-md transition-all ${
-              selectedPreset === 'high' ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30' : 'text-slate-400'
-            }`}
-          >
-            High Risk Case
-          </button>
-          <button
-            onClick={() => setSelectedPreset('moderate')}
-            className={`px-3 py-1.5 rounded-md transition-all ${
-              selectedPreset === 'moderate' ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30' : 'text-slate-400'
-            }`}
-          >
-            Moderate Risk Case
-          </button>
-          <button
-            onClick={() => setSelectedPreset('low')}
-            className={`px-3 py-1.5 rounded-md transition-all ${
-              selectedPreset === 'low' ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'text-slate-400'
-            }`}
-          >
-            Low Risk Case
-          </button>
+        {/* View Mode Switcher (Uploaded Cohort vs Research Presets) */}
+        <div className="flex items-center gap-2">
+          {hasUploadedCohort ? (
+            <div className="flex items-center p-1 bg-navy-900 border border-navy-700 rounded-lg text-xs font-semibold">
+              <button
+                onClick={() => setViewMode('uploaded')}
+                className={`px-3 py-1.5 rounded-md transition-all flex items-center gap-1.5 ${
+                  viewMode === 'uploaded'
+                    ? 'bg-indigo-600 text-white shadow-sm'
+                    : 'text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                <Users className="w-3.5 h-3.5" />
+                Uploaded Cohort ({predictionResult?.students?.length})
+              </button>
+              <button
+                onClick={() => setViewMode('preset')}
+                className={`px-3 py-1.5 rounded-md transition-all flex items-center gap-1.5 ${
+                  viewMode === 'preset'
+                    ? 'bg-indigo-600 text-white shadow-sm'
+                    : 'text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                <Layers className="w-3.5 h-3.5" />
+                Research Presets
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center p-1 bg-navy-900 border border-navy-700 rounded-lg text-xs font-semibold">
+              <button
+                onClick={() => setSelectedPreset('high')}
+                className={`px-3 py-1.5 rounded-md transition-all ${
+                  selectedPreset === 'high' ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30' : 'text-slate-400'
+                }`}
+              >
+                High Risk Case
+              </button>
+              <button
+                onClick={() => setSelectedPreset('moderate')}
+                className={`px-3 py-1.5 rounded-md transition-all ${
+                  selectedPreset === 'moderate' ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30' : 'text-slate-400'
+                }`}
+              >
+                Moderate Risk Case
+              </button>
+              <button
+                onClick={() => setSelectedPreset('low')}
+                className={`px-3 py-1.5 rounded-md transition-all ${
+                  selectedPreset === 'low' ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'text-slate-400'
+                }`}
+              >
+                Low Risk Case
+              </button>
+            </div>
+          )}
         </div>
       </div>
+
+      {/* Cohort Student Selector Bar (When viewing uploaded cohort) */}
+      {viewMode === 'uploaded' && hasUploadedCohort && (
+        <div className="p-3 bg-navy-900 border border-navy-800 rounded-xl flex flex-wrap items-center justify-between gap-3 text-xs">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-slate-400 font-medium flex items-center gap-1">
+              <Filter className="w-3.5 h-3.5 text-indigo-400" /> Filter:
+            </span>
+            {(['All', 'High', 'Moderate', 'Low'] as const).map((tier) => (
+              <button
+                key={tier}
+                onClick={() => setRiskFilter(tier)}
+                className={`px-2.5 py-1 rounded text-xs transition-colors ${
+                  riskFilter === tier
+                    ? 'bg-indigo-600 text-white font-medium'
+                    : 'bg-navy-800 text-slate-300 hover:bg-navy-750'
+                }`}
+              >
+                {tier}
+              </button>
+            ))}
+
+            {/* Student Dropdown Selector */}
+            <div className="ml-2 flex items-center gap-2">
+              <span className="text-slate-400">Select Student:</span>
+              <select
+                value={activeUploadedStudent?.study_id || ''}
+                onChange={(e) => {
+                  const found = predictionResult?.students?.find((s) => s.study_id === e.target.value);
+                  if (found) setSelectedStudent(found);
+                }}
+                className="bg-navy-850 text-slate-100 border border-navy-700 rounded px-2.5 py-1 text-xs font-mono focus:border-indigo-500 focus:outline-none"
+              >
+                {filteredUploadedStudents.map((s) => (
+                  <option key={s.study_id} value={s.study_id}>
+                    {s.study_id} — PRI: {s.pri_score.toFixed(1)} ({s.risk_category})
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {/* Stepper Controls */}
+          <div className="flex items-center gap-2">
+            <span className="text-slate-400 font-mono text-[11px]">
+              {filteredUploadedStudents.length > 0 ? `${currentStudentIndex + 1} of ${filteredUploadedStudents.length}` : '0 of 0'}
+            </span>
+            <button
+              onClick={() => handleStepStudent(-1)}
+              disabled={filteredUploadedStudents.length <= 1}
+              className="p-1 rounded bg-navy-800 hover:bg-navy-750 text-slate-300 hover:text-white border border-navy-700 disabled:opacity-40"
+              title="Previous Student"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => handleStepStudent(1)}
+              disabled={filteredUploadedStudents.length <= 1}
+              className="p-1 rounded bg-navy-800 hover:bg-navy-750 text-slate-300 hover:text-white border border-navy-700 disabled:opacity-40"
+              title="Next Student"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Preset Sub-selector (When viewing preset mode while an uploaded cohort exists) */}
+      {viewMode === 'preset' && hasUploadedCohort && (
+        <div className="flex items-center justify-between p-3 bg-navy-900 border border-navy-800 rounded-xl text-xs">
+          <span className="text-slate-400 font-medium">Demonstration Benchmark Presets:</span>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setSelectedPreset('high')}
+              className={`px-3 py-1 rounded transition-all ${
+                selectedPreset === 'high' ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30' : 'bg-navy-800 text-slate-400'
+              }`}
+            >
+              High Risk Case
+            </button>
+            <button
+              onClick={() => setSelectedPreset('moderate')}
+              className={`px-3 py-1 rounded transition-all ${
+                selectedPreset === 'moderate' ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30' : 'bg-navy-800 text-slate-400'
+              }`}
+            >
+              Moderate Risk Case
+            </button>
+            <button
+              onClick={() => setSelectedPreset('low')}
+              className={`px-3 py-1 rounded transition-all ${
+                selectedPreset === 'low' ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'bg-navy-800 text-slate-400'
+              }`}
+            >
+              Low Risk Case
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Main Student Console */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -260,6 +399,12 @@ export const StudentViewPage: React.FC = () => {
           </div>
 
           <div className="pt-6 border-t border-navy-800 text-xs text-slate-400 space-y-1.5 font-mono">
+            <div className="flex justify-between">
+              <span>Source:</span>
+              <span className="text-slate-200">
+                {viewMode === 'uploaded' ? (fileName || 'Uploaded Cohort') : 'Benchmark Preset'}
+              </span>
+            </div>
             <div className="flex justify-between">
               <span>Instrument:</span>
               <span className="text-slate-200">15-Item Psychometric</span>
