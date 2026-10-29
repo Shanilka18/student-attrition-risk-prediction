@@ -50,11 +50,21 @@ COLUMN_SYNONYMS: Dict[str, List[str]] = {
     ],
 }
 
+# Synonyms for outcome & cohort metadata columns in retraining datasets
+OUTCOME_SYNONYMS: Dict[str, List[str]] = {
+    "attrited": ["attrited", "attrition", "dropout", "dropped_out", "withdrawn", "label", "target", "is_attrited"],
+    "attrition_semester": ["attrition_semester", "drop_semester", "dropout_semester", "attrited_semester"],
+    "cohort_year": ["cohort_year", "cohort", "year_of_entry", "admission_year", "intake_year"],
+}
+
 
 def normalize_column_name(col: str) -> str:
     """Normalize raw column names to canonical schema keys using synonym matching."""
     cleaned = re.sub(r"[^a-z0-9]", "_", str(col).strip().lower()).strip("_")
     for canonical, syns in COLUMN_SYNONYMS.items():
+        if cleaned == canonical or cleaned in syns:
+            return canonical
+    for canonical, syns in OUTCOME_SYNONYMS.items():
         if cleaned == canonical or cleaned in syns:
             return canonical
     return cleaned
@@ -128,6 +138,13 @@ def convert_wide_to_long(df_wide: pd.DataFrame) -> Tuple[pd.DataFrame, List[str]
     if not col_mapping:
         raise ValueError("Could not identify any valid wide-format semester columns (e.g. gpa_sem1, attendance_pct_sem1).")
 
+    # Identify any student-level metadata columns (e.g. outcomes/cohort)
+    extra_meta_cols: Dict[str, str] = {}
+    for c in df_wide.columns:
+        norm = normalize_column_name(c)
+        if norm in OUTCOME_SYNONYMS and c != id_col:
+            extra_meta_cols[norm] = c
+
     rows: List[Dict[str, Any]] = []
     for _, row in df_wide.iterrows():
         sid = str(row[id_col]).strip() if pd.notna(row[id_col]) else None
@@ -150,6 +167,8 @@ def convert_wide_to_long(df_wide: pd.DataFrame) -> Tuple[pd.DataFrame, List[str]
                 "assignment_delay_days": row.get(metrics_dict.get("assignment_delay_days")),
                 "late_assignments_count": row.get(metrics_dict.get("late_assignments_count")),
             }
+            for norm_key, orig_col in extra_meta_cols.items():
+                long_row[norm_key] = row.get(orig_col)
             rows.append(long_row)
 
     df_long = pd.DataFrame(rows)
