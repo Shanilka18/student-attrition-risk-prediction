@@ -33,7 +33,7 @@ interface SidebarProps {
 const navItems: Array<{ id: PageId; label: string; icon: React.FC<{ className?: string }>; badge?: string }> = [
   { id: 'overview', label: 'Overview', icon: LayoutDashboard },
   { id: 'reliability', label: 'Data & Reliability', icon: Database },
-  { id: 'leaderboard', label: 'Leaderboard', icon: Trophy, badge: 'Key' },
+  { id: 'leaderboard', label: 'Leaderboard', icon: Trophy },
   { id: 'champion', label: 'Champion & Evaluation', icon: Award },
   { id: 'explainability', label: 'Explainability (SHAP)', icon: Network },
   { id: 'score', label: 'Score My Data', icon: UploadCloud },

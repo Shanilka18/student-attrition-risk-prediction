@@ -766,7 +766,12 @@ def list_documentation() -> List[Dict[str, str]]:
     docs_dir = Path("docs")
     if not docs_dir.exists():
         return []
-    doc_files = sorted(docs_dir.glob("*.md"))
+    # Only serve public technical pipeline documentation (00 to 14)
+    # Private viva prep and personal scripts (15+) are excluded from public UI
+    doc_files = [
+        f for f in sorted(docs_dir.glob("*.md"))
+        if not any(f.name.startswith(f"{prefix:02d}_") for prefix in range(15, 30))
+    ]
     return [
         {
             "filename": f.name,
@@ -780,6 +785,8 @@ def list_documentation() -> List[Dict[str, str]]:
 @app.get("/api/docs/{doc_name}", tags=["Methodology"])
 def get_documentation_content(doc_name: str) -> Dict[str, str]:
     """Retrieve raw markdown content of a specific documentation file."""
+    if any(doc_name.startswith(f"{prefix:02d}_") for prefix in range(15, 30)):
+        raise HTTPException(status_code=403, detail="Access denied to private documentation.")
     doc_path = Path("docs") / doc_name
     if not doc_path.exists() or not doc_path.suffix == ".md":
         raise HTTPException(status_code=404, detail=f"Document '{doc_name}' not found.")

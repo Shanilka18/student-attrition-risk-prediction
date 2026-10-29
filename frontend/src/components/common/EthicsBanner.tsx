@@ -13,7 +13,7 @@ export const EthicsBanner: React.FC<EthicsBannerProps> = ({
   return (
     <div className="bg-amber-950/40 border-b border-amber-500/30 text-amber-200 px-4 py-2 text-xs flex flex-wrap items-center justify-between gap-2 shadow-inner no-print">
       <div className="flex items-center gap-2">
-        <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0 animate-pulse" />
+        <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0" />
         <span className="font-semibold text-amber-300 uppercase tracking-wider">Research Indicator Only:</span>
         <span className="text-amber-200/90">{disclaimer}</span>
       </div>
