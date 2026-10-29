@@ -11,6 +11,8 @@ from mei.registry.retrain import (
     SmallDataGuards,
     activate_pipeline_run,
     compare_pipeline_runs,
+    get_retrain_regression_specs,
+    get_retrain_specs,
     run_full_pipeline,
     validate_retrain_dataset,
 )
@@ -101,6 +103,23 @@ def test_small_data_guards_imbalance_directive():
     assert any("class imbalance" in w.lower() for w in guards["warnings"])
 
 
+def test_quick_retraining_selects_registered_specs():
+    """Quick retraining filters model spec objects rather than registry keys."""
+    guards = {"disabled_models": ["gru", "gru_regressor"]}
+
+    classification = get_retrain_specs("quick", guards)
+    regression = get_retrain_regression_specs("quick", guards)
+
+    assert {spec.id for spec in classification} >= {
+        "majority_dummy",
+        "logistic_regression_l2",
+        "random_forest",
+    }
+    assert {spec.id for spec in regression} >= {"ridge_regressor", "lasso_regressor"}
+    assert "gru" not in {spec.id for spec in classification}
+    assert "gru_regressor" not in {spec.id for spec in regression}
+
+
 def test_validation_endpoint_logic(tmp_path):
     """Validates real spreadsheet on disk and returns correct summary stats."""
     sample_df = make_test_survey_df(n_students=180, seed=123)
@@ -176,9 +195,9 @@ def test_quick_retraining_and_governance(tmp_path):
         if active_file.exists()
         else "none"
     )
-    assert current_active == initial_active_run, (
-        "Active run was mutated before explicit activation!"
-    )
+    assert (
+        current_active == initial_active_run
+    ), "Active run was mutated before explicit activation!"
 
     # 3. Side-by-side run comparison
     if initial_active_run != "none" and (RUNS_DIR / initial_active_run).exists():

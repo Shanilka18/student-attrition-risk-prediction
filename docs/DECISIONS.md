@@ -756,3 +756,19 @@ Every design, architectural, and methodological decision is recorded here chrono
 - **Alternatives Rejected**:
   - Keeping test-derived rankings because they were already exposed by the API.
   - Replacing them with validation values while still labeling them as test results.
+
+### D-082: Match Retraining Inputs to Registry and Evaluator Contracts
+- **Date**: 2026-10-29
+- **Decision**: Retraining resolves model specifications from registry values, uses registered model IDs, converts saved tuple CV splits to the evaluator's named-index format, and supplies the sequence feature matrix and deep-model evaluator when a selected model requires them.
+- **Reason**: The release test exposed mismatches between the registry, fold generator, and model evaluator. Those mismatches caused every selected model to fail instead of completing retraining.
+- **Alternatives Rejected**:
+  - Swallowing per-model failures and reporting an apparently successful partial run.
+  - Removing the deep and sequence model families from retraining to avoid wiring the required inputs.
+
+### D-083: Ship Blank Survey Templates as Reusable Project Inputs
+- **Date**: 2026-10-29
+- **Decision**: Track the empty CSV and XLSX questionnaire templates generated from the schema so the API and tests work immediately after checkout.
+- **Reason**: The template download endpoint and schema tests require these non-sensitive, header-only files; requiring a developer to discover and run a separate generator left a clean checkout incomplete.
+- **Alternatives Rejected**:
+  - Committing survey responses or generated labels alongside the blank templates.
+  - Returning a successful response with no template when generated files are absent.

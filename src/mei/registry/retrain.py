@@ -145,13 +145,15 @@ class SmallDataGuards:
             "cv_folds_count": 25 if is_small else 15,
             "is_imbalanced": is_imbalanced,
             "use_class_weights": is_imbalanced,
-            "disabled_models": [
-                "tiny_transformer",
-                "stacking_classifier",
-                "stacking_regressor",
-            ]
-            if is_small
-            else [],
+            "disabled_models": (
+                [
+                    "tiny_transformer",
+                    "stacking_classifier",
+                    "stacking_regressor",
+                ]
+                if is_small
+                else []
+            ),
             "warnings": warnings,
         }
 
@@ -190,9 +192,7 @@ def validate_retrain_dataset(
     # Check outcome questions
     required_outcomes = ["intent_leave", "intent_defer", "intent_not_continue"]
     detected_canonical = set(mapping_res.mapped_columns.values())
-    missing_outcomes = [
-        c for c in required_outcomes if c not in detected_canonical
-    ]
+    missing_outcomes = [c for c in required_outcomes if c not in detected_canonical]
 
     has_default_outcomes = len(missing_outcomes) == 0
     has_custom_label = bool(
@@ -302,21 +302,25 @@ def get_retrain_specs(mode: str, guards: Dict[str, Any]) -> List[ModelSpec]:
     if mode == "quick":
         # Representative, fast models across main categories
         quick_ids = {
-            "majority_class",
-            "logistic_regression",
-            "elastic_net",
+            "majority_dummy",
+            "logistic_regression_l2",
+            "logistic_regression_elasticnet",
             "random_forest",
             "extra_trees",
             "knn",
             "lightgbm",
             "xgboost_hybrid",
-            "catboost_classifier",
+            "catboost",
             "gru",
-            "voting_ensemble",
+            "voting_soft",
         }
-        specs = [s for s in all_specs if s.id in quick_ids and s.id not in disabled_ids]
+        specs = [
+            spec
+            for spec in all_specs.values()
+            if spec.id in quick_ids and spec.id not in disabled_ids
+        ]
     else:
-        specs = [s for s in all_specs if s.id not in disabled_ids]
+        specs = [spec for spec in all_specs.values() if spec.id not in disabled_ids]
 
     # Adjust class weights if imbalanced
     if guards.get("use_class_weights"):
@@ -343,16 +347,20 @@ def get_retrain_regression_specs(
 
     if mode == "quick":
         quick_ids = {
-            "ridge",
-            "lasso",
+            "ridge_regressor",
+            "lasso_regressor",
             "random_forest_regressor",
             "lightgbm_regressor",
             "catboost_regressor",
             "gru_regressor",
         }
-        specs = [s for s in all_specs if s.id in quick_ids and s.id not in disabled_ids]
+        specs = [
+            spec
+            for spec in all_specs.values()
+            if spec.id in quick_ids and spec.id not in disabled_ids
+        ]
     else:
-        specs = [s for s in all_specs if s.id not in disabled_ids]
+        specs = [spec for spec in all_specs.values() if spec.id not in disabled_ids]
 
     return specs
 
@@ -620,14 +628,18 @@ def run_full_pipeline(
     save_splits(splits_dir, clean_df, train_idx, val_idx, test_idx)
 
     # CV Folds
-    cv_folds = create_cv_folds(
+    cv_fold_pairs = create_cv_folds(
         clean_df.iloc[np.concatenate([train_idx, val_idx])],
         stratify_col="at_risk",
         n_splits=5,
         n_repeats=5 if guards["is_small_cohort"] else 3,
         seed=seed,
     )
-    save_cv_folds(splits_dir, cv_folds)
+    save_cv_folds(splits_dir, cv_fold_pairs)
+    cv_folds = [
+        {"train_idx": train_fold, "val_idx": val_fold}
+        for train_fold, val_fold in cv_fold_pairs
+    ]
 
     # Feature transformation inside Train split
     train_df = clean_df.iloc[train_idx].reset_index(drop=True)
@@ -654,6 +666,13 @@ def run_full_pipeline(
     X_tr_single = pipe_single.fit_transform(train_df[raw_28])
     X_va_single = pipe_single.transform(val_df[raw_28])
     X_te_single = pipe_single.transform(test_df[raw_28])
+
+    pipe_sequence = build_feature_pipeline(
+        feature_set="sequence", scale=False, imputer_method="median"
+    )
+    X_tr_sequence = pipe_sequence.fit_transform(train_df[raw_28])
+    X_va_sequence = pipe_sequence.transform(val_df[raw_28])
+    X_te_sequence = pipe_sequence.transform(test_df[raw_28])
 
     X_tr_agg.to_parquet(features_dir / "train_agg.parquet", engine="fastparquet")
     X_va_agg.to_parquet(features_dir / "val_agg.parquet", engine="fastparquet")
@@ -744,6 +763,7 @@ def run_full_pipeline(
         if "X_tr_states" in locals()
         else train_val_agg
     )
+    train_val_sequence = np.concatenate([X_tr_sequence, X_va_sequence], axis=0)
 
     X_dict = {
         "agg": train_val_agg,
@@ -751,6 +771,7 @@ def run_full_pipeline(
         "single_signal": train_val_single,
         "agg_states": train_val_agg_states,
         "states_only": train_val_states,
+        "sequence": train_val_sequence,
     }
 
     train_val_idx_combined = np.concatenate([train_idx, val_idx])
@@ -771,15 +792,27 @@ def run_full_pipeline(
             f"Training classifier [{i + 1}/{total_specs}]: {spec.display_name}...",
         )
         try:
-            m_res = evaluate_single_model(
-                spec=spec,
-                X_dict=X_dict,
-                y=y_train_val,
-                cv_folds=cv_folds,
-                seed=seed,
-                enable_tuning=(mode == "full" and not guards["is_small_cohort"]),
-                time_budget_seconds=120 if mode == "quick" else 300,
-            )
+            if spec.category == "deep":
+                from mei.models.deep.engine import evaluate_single_deep_model
+
+                m_res = evaluate_single_deep_model(
+                    spec=spec,
+                    X_dict=X_dict,
+                    y=y_train_val,
+                    cv_folds=cv_folds,
+                    seed=seed,
+                    quick=mode == "quick",
+                )
+            else:
+                m_res = evaluate_single_model(
+                    spec=spec,
+                    X_dict=X_dict,
+                    y=y_train_val,
+                    cv_folds=cv_folds,
+                    seed=seed,
+                    enable_tuning=(mode == "full" and not guards["is_small_cohort"]),
+                    time_budget_seconds=120 if mode == "quick" else 300,
+                )
             # Save artifacts
             m_dir = models_dir / spec.id
             m_dir.mkdir(parents=True, exist_ok=True)
