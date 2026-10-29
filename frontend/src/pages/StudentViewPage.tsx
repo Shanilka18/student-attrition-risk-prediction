@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
-import { UserCheck, Sparkles, AlertTriangle, ArrowRight, Shield } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import { useCohort } from '../context/CohortContext';
+import { StudentPrediction } from '../types/api';
+import { UserCheck, Sparkles, AlertTriangle, ArrowRight, Shield, Users, ChevronLeft, ChevronRight, Filter, Layers } from 'lucide-react';
 import {
   RadarChart,
   PolarGrid,
@@ -18,6 +20,18 @@ import { SyntheticBadge } from '../components/common/Badges';
 import { ChartCard } from '../components/common/ChartCard';
 
 export const StudentViewPage: React.FC = () => {
+  const { predictionResult, fileName, selectedStudent, setSelectedStudent } = useCohort();
+
+  const hasUploadedCohort = Boolean(predictionResult?.students && predictionResult.students.length > 0);
+
+  // Active viewing mode: 'uploaded' vs 'preset'
+  const [viewMode, setViewMode] = useState<'uploaded' | 'preset'>(() => {
+    return hasUploadedCohort ? 'uploaded' : 'preset';
+  });
+
+  // Filter for uploaded cohort
+  const [riskFilter, setRiskFilter] = useState<'All' | 'High' | 'Moderate' | 'Low'>('All');
+
   // Preset synthetic sample students for demonstration
   const [selectedPreset, setSelectedPreset] = useState<'high' | 'moderate' | 'low'>('high');
 
