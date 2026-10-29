@@ -125,6 +125,22 @@ class EnvFinCodec:
                 # Common shorthand for structural N/A
                 self._label_to_code[name]["n/a"] = sna_code
                 self._label_to_code[name]["not applicable"] = sna_code
+                self._label_to_code[name]["not_applicable"] = sna_code
+
+            # Pressure map keys (for nominal items, e.g. 'hired_vehicle' -> code)
+            pmap = meta.get("pressure_map", {})
+            for pkey in pmap.keys():
+                if pkey == "_note":
+                    continue
+                norm_pkey = self.normalize_text(pkey.replace("_", " "))
+                # find matching level
+                for lvl in levels:
+                    if norm_pkey in self.normalize_text(lvl["label"]) or self.normalize_text(lvl["label"]).startswith(norm_pkey):
+                        self._label_to_code[name][self.normalize_text(pkey)] = lvl["code"]
+                        self._label_to_code[name][norm_pkey] = lvl["code"]
+                        break
+                if sna and pkey == "not_applicable":
+                    self._label_to_code[name][pkey] = sna["code"]
 
     def encode(self, item_name: str, value: Any) -> int:
         """Encodes a survey response string, float or integer into canonical integer code.
