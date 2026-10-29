@@ -31,6 +31,7 @@ def client():
 # 1. System Health & Metadata Tests
 # ---------------------------------------------------------------------------
 
+
 def test_get_health(client):
     response = client.get("/health")
     assert response.status_code == 200
@@ -53,6 +54,7 @@ def test_get_metadata_banner_flag(client):
 # ---------------------------------------------------------------------------
 # 2. Leaderboard & Model Inspection Tests
 # ---------------------------------------------------------------------------
+
 
 def test_get_leaderboard_c(client):
     response = client.get("/leaderboard?track=C")
@@ -100,6 +102,7 @@ def test_get_all_splits_metrics(client):
 # 3. Explainability (SHAP) Tests
 # ---------------------------------------------------------------------------
 
+
 def test_get_shap_global(client):
     response = client.get("/shap/global")
     assert response.status_code == 200
@@ -139,6 +142,7 @@ def test_get_shap_stability(client):
 # ---------------------------------------------------------------------------
 # 4. Causal Inference & DAG Tests
 # ---------------------------------------------------------------------------
+
 
 def test_get_causal_summary(client):
     response = client.get("/causal/summary")
@@ -192,6 +196,7 @@ def test_get_dag_structure_and_image(client):
 # 5. Fusion Framework Integration Tests
 # ---------------------------------------------------------------------------
 
+
 def test_fusion_score_lookup_by_ids(client):
     payload = {"participant_ids": ["P-00002", "P-00003"]}
     response = client.post("/fusion/score", json=payload)
@@ -238,8 +243,9 @@ def test_fusion_score_inline_students(client):
 # 6. Batch File Upload & Download Tests
 # ---------------------------------------------------------------------------
 
+
 def test_upload_and_predict_csv_bundle(client):
-    csv_sample_path = Path("data/samples/sample_upload.csv")
+    csv_sample_path = Path("data/legacy/samples/sample_upload.csv")
     assert csv_sample_path.exists(), "Sample upload CSV must exist"
 
     with open(csv_sample_path, "rb") as f:
@@ -294,10 +300,11 @@ def test_upload_unsupported_file_extension(client):
 # 7. Privacy & PII Scrubbing in Upload
 # ---------------------------------------------------------------------------
 
+
 def test_upload_with_pii_strictly_stripped(client):
     # CSV containing forbidden direct identifiers: name, nic, phone, email
     dirty_csv = (
-        'full_name,student_nic,contact_phone,email_address,household_income_bracket,financial_stress\n'
+        "full_name,student_nic,contact_phone,email_address,household_income_bracket,financial_stress\n"
         'Kasun Perera,982341234V,0771234567,kasun@sliit.lk,"Below 50,000",4\n'
         'Amali Silva,995431234V,0719876543,amali@sliit.lk,"150,000 - 250,000",1\n'
     )
@@ -323,6 +330,7 @@ def test_upload_with_pii_strictly_stripped(client):
 # ---------------------------------------------------------------------------
 # 8. Retraining & Background Job Status Tests
 # ---------------------------------------------------------------------------
+
 
 def test_trigger_retraining_and_check_job_status(client):
     payload = {
@@ -353,15 +361,15 @@ def test_job_not_found(client):
 def test_rate_limit_enforced_after_burst(client):
     import time
     from src.api.main import IP_REQUEST_LOGS, RATE_LIMIT_PER_MINUTE
-    
+
     # Pre-populate bucket with RATE_LIMIT_PER_MINUTE timestamps for testclient
     IP_REQUEST_LOGS["testclient"] = [time.time()] * (RATE_LIMIT_PER_MINUTE + 5)
-    
+
     # Next request should be rate limited
     res = client.get("/health")
     assert res.status_code == 429
     assert "rate limit" in res.json()["detail"].lower()
-    
+
     # Reset bucket
     IP_REQUEST_LOGS["testclient"] = []
 
