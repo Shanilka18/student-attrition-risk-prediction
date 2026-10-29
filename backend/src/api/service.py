@@ -17,6 +17,7 @@ from __future__ import annotations
 import io
 import json
 import logging
+import threading
 import time
 import uuid
 from datetime import datetime, timezone
@@ -48,7 +49,13 @@ class InferenceService:
     _instance: Optional["InferenceService"] = None
 
     def __init__(self):
+        self._lock = threading.Lock()
         self._is_initialized = False
+        self.data_mode: str = "SYNTHETIC"
+        self.active_run_id: Optional[str] = None
+        self.model_key: str = "catboost"
+        self.model_label: str = "CatBoost"
+        self.active_metrics: Dict[str, Any] = {}
         self.model_champ: Any = None
         self.calibrator: Any = None
         self.preprocessor: Any = None
@@ -67,42 +74,184 @@ class InferenceService:
         return cls._instance
 
     def initialize(self) -> None:
-        """Loads preprocessor, champion model, calibrator, and SHAP explainer."""
-        if self._is_initialized:
-            return
+        """Loads preprocessor, champion model, calibrator, and SHAP explainer based on active run."""
+        with self._lock:
+            if self._is_initialized:
+                return
 
-        logger.info("Initializing Academic Intelligence Inference Service...")
-        t0 = time.perf_counter()
+            t0 = time.perf_counter()
+            active_run = config.get_active_run()
+            mode = active_run.get("data_mode", "SYNTHETIC")
+            run_id = active_run.get("run_id")
 
-        # 1. Load Preprocessor
-        preproc_path = config.models_dir / "preprocessor.joblib"
-        if not preproc_path.exists():
-            raise FileNotFoundError(f"Preprocessor artifact not found at {preproc_path}")
-        self.preprocessor = joblib.load(preproc_path)
+            if mode == "REAL" and run_id:
+                run_dir = config.root_dir / "artifacts" / "user_dataset" / run_id
+                if not run_dir.exists():
+                    logger.warning(
+                        f"Active run directory {run_dir} not found. Rolling back to SYNTHETIC benchmark."
+                    )
+                    config.clear_active_run()
+                    mode = "SYNTHETIC"
+                    run_id = None
 
-        # 2. Load Champion Model (CatBoost)
-        catboost_dir = config.models_dir / "Category_C" / "catboost"
-        if not catboost_dir.exists():
-            raise FileNotFoundError(f"Champion model directory not found at {catboost_dir}")
-        self.model_champ = ModelRegistry.load_model("catboost", catboost_dir)
+            if mode == "REAL" and run_id:
+                logger.info(f"Initializing Inference Service with REAL DATA retrained model (run_id={run_id})...")
+                run_dir = config.root_dir / "artifacts" / "user_dataset" / run_id
 
-        # 3. Load Calibrator
-        calibrator_path = catboost_dir / "calibrator.joblib"
-        if not calibrator_path.exists():
-            raise FileNotFoundError(f"Calibrator not found at {calibrator_path}")
-        self.calibrator = joblib.load(calibrator_path)
+                # 1. Preprocessor
+                preproc_path = run_dir / "models" / "preprocessor.joblib"
+                if not preproc_path.exists():
+                    preproc_path = config.models_dir / "preprocessor.joblib"
+                if not preproc_path.exists():
+                    raise FileNotFoundError(f"Preprocessor not found for run {run_id}")
+                self.preprocessor = joblib.load(preproc_path)
 
-        # 4. Feature Columns Specification
-        df_tab = pd.read_csv(config.processed_data_dir / "tabular_features.csv", nrows=5)
-        meta_cols = ["sample_id", "student_id", "window_t", "target"]
-        self.feature_cols = [c for c in df_tab.columns if c not in meta_cols]
+                # 2. Champion Model Discovery from champion.json or summary.json
+                champ_key = active_run.get("champion")
+                champ_label = active_run.get("champion_label")
+                category = active_run.get("category", "C")
+                champ_metrics = {}
 
-        # 5. Initialize TreeSHAP Explainer
-        self.explainer = TabularTreeSHAPExplainer(self.model_champ, self.feature_cols)
+                champ_json = run_dir / "leaderboard" / "champion.json"
+                summary_json = run_dir / "summary.json"
 
-        self._is_initialized = True
-        elapsed = (time.perf_counter() - t0) * 1000.0
-        logger.info(f"Inference Service successfully initialized in {elapsed:.2f} ms")
+                if champ_json.exists():
+                    try:
+                        with open(champ_json, "r", encoding="utf-8") as f:
+                            c_data = json.load(f)
+                            champ_key = c_data.get("model_key", champ_key)
+                            category = c_data.get("category", category)
+                            champ_label = c_data.get("label", champ_label or champ_key)
+                            champ_metrics = c_data.get("test_metrics", {})
+                    except Exception as e:
+                        logger.warning(f"Failed to read champion.json for {run_id}: {e}")
+
+                if not champ_key and summary_json.exists():
+                    try:
+                        with open(summary_json, "r", encoding="utf-8") as f:
+                            s_data = json.load(f)
+                            champ_key = s_data.get("champion", "catboost")
+                            champ_label = s_data.get("champion_label", champ_key)
+                            category = s_data.get("category", category)
+                    except Exception as e:
+                        logger.warning(f"Failed to read summary.json for {run_id}: {e}")
+
+                champ_key = champ_key or "catboost"
+                champ_label = champ_label or champ_key.capitalize()
+
+                # Find model directory
+                cat_folder = category if str(category).startswith("Category_") else f"Category_{category}"
+                model_dir = run_dir / "models" / cat_folder / champ_key
+                if not model_dir.exists():
+                    found = list((run_dir / "models").rglob(champ_key))
+                    if found:
+                        model_dir = found[0]
+                    else:
+                        raise FileNotFoundError(f"Champion model directory not found for {champ_key} in {run_dir}")
+
+                self.model_champ = ModelRegistry.load_model(champ_key, model_dir)
+
+                # 3. Calibrator
+                calibrator_path = model_dir / "calibrator.joblib"
+                if calibrator_path.exists():
+                    self.calibrator = joblib.load(calibrator_path)
+                else:
+                    self.calibrator = None
+
+                # 4. Feature Columns Specification
+                feat_path = run_dir / "processed" / "tabular_features.csv"
+                if not feat_path.exists():
+                    feat_path = config.processed_data_dir / "tabular_features.csv"
+                df_tab = pd.read_csv(feat_path, nrows=5)
+                meta_cols = ["sample_id", "student_id", "window_t", "target"]
+                self.feature_cols = [c for c in df_tab.columns if c not in meta_cols]
+
+                self.data_mode = "REAL"
+                self.active_run_id = run_id
+                self.model_key = champ_key
+                self.model_label = champ_label
+                self.active_metrics = champ_metrics
+
+            else:
+                logger.info("Initializing Inference Service with CANONICAL SYNTHETIC thesis benchmark...")
+                canon_models = getattr(config, "_canonical_models_dir", config.root_dir / "artifacts" / "models")
+                canon_lb = getattr(config, "_canonical_leaderboard_dir", config.root_dir / "artifacts" / "leaderboard")
+                canon_proc = getattr(config, "_canonical_processed_data_dir", config.root_dir / "data" / "processed")
+
+                # 1. Load Preprocessor
+                preproc_path = canon_models / "preprocessor.joblib"
+                if not preproc_path.exists():
+                    raise FileNotFoundError(f"Preprocessor artifact not found at {preproc_path}")
+                self.preprocessor = joblib.load(preproc_path)
+
+                # 2. Dynamic Champion Discovery from canonical leaderboard/champion.json
+                champ_path = canon_lb / "champion.json"
+                champ_key = "catboost"
+                cat_folder = "Category_C"
+                champ_label = "CatBoost"
+                champ_metrics = {}
+
+                if champ_path.exists():
+                    try:
+                        with open(champ_path, "r", encoding="utf-8") as f:
+                            c_data = json.load(f)
+                            champ_key = c_data.get("model_key", "catboost")
+                            cat = c_data.get("category", "C")
+                            cat_folder = cat if str(cat).startswith("Category_") else f"Category_{cat}"
+                            champ_label = c_data.get("label", "CatBoost")
+                            champ_metrics = c_data.get("test_metrics", {})
+                    except Exception as e:
+                        logger.warning(f"Could not read canonical champion.json: {e}")
+
+                model_dir = canon_models / cat_folder / champ_key
+                if not model_dir.exists():
+                    # Fallback to catboost
+                    model_dir = canon_models / "Category_C" / "catboost"
+                    champ_key = "catboost"
+                    champ_label = "CatBoost"
+
+                if not model_dir.exists():
+                    raise FileNotFoundError(f"Champion model directory not found at {model_dir}")
+
+                self.model_champ = ModelRegistry.load_model(champ_key, model_dir)
+
+                # 3. Load Calibrator
+                calibrator_path = model_dir / "calibrator.joblib"
+                if calibrator_path.exists():
+                    self.calibrator = joblib.load(calibrator_path)
+                else:
+                    self.calibrator = None
+
+                # 4. Feature Columns Specification
+                df_tab = pd.read_csv(canon_proc / "tabular_features.csv", nrows=5)
+                meta_cols = ["sample_id", "student_id", "window_t", "target"]
+                self.feature_cols = [c for c in df_tab.columns if c not in meta_cols]
+
+                self.data_mode = "SYNTHETIC"
+                self.active_run_id = None
+                self.model_key = champ_key
+                self.model_label = champ_label
+                self.active_metrics = champ_metrics
+
+            # 5. Initialize TreeSHAP Explainer (graceful fallback if model is non-tree or missing explainer)
+            try:
+                self.explainer = TabularTreeSHAPExplainer(self.model_champ, self.feature_cols)
+            except Exception as e:
+                logger.warning(f"TreeSHAP initialization skipped or fell back ({e}).")
+                self.explainer = None
+
+            self._is_initialized = True
+            elapsed = (time.perf_counter() - t0) * 1000.0
+            logger.info(
+                f"Inference Service successfully initialized in {elapsed:.2f} ms | "
+                f"Mode: {self.data_mode} | Champion: {self.model_key} ({self.model_label})"
+            )
+
+    def reload(self) -> None:
+        """Thread-safe reload of champion model and preprocessor without server restart."""
+        with self._lock:
+            self._is_initialized = False
+        self.initialize()
 
     # ── Single Student Prediction ─────────────────────────────────────────────
 
@@ -152,7 +301,10 @@ class InferenceService:
 
         # Predict raw & calibrated probability
         raw_prob = float(self.model_champ.predict_proba(X)[0])
-        cal_prob = float(self.calibrator.transform(np.array([raw_prob]))[0])
+        if self.calibrator is not None:
+            cal_prob = float(self.calibrator.transform(np.array([raw_prob]))[0])
+        else:
+            cal_prob = raw_prob
 
         # Compute Academic Risk Index & Clinical Band
         ari = float(self.risk_engine.compute_risk_index(np.array([cal_prob]))[0])
@@ -160,28 +312,34 @@ class InferenceService:
         band_name = bands[0].name
 
         # SHAP local attribution
-        self.explainer.explain(X)
-        local_exp = self.explainer.get_local_explanation(sample_idx=0, top_k=3)
-
-        factors = [
-            FactorContribution(
-                name=f["name"],
-                display_name=f["display_name"],
-                direction=f["direction"],
-                contribution=f["contribution"],
-                feature_value=f["feature_value"],
-                unit=f["unit"],
-                narrative=f["display_name"]
-            )
-            for f in local_exp["top_factors"]
-        ]
+        factors = []
+        top_factors_raw = []
+        if self.explainer is not None:
+            try:
+                self.explainer.explain(X)
+                local_exp = self.explainer.get_local_explanation(sample_idx=0, top_k=3)
+                top_factors_raw = local_exp.get("top_factors", [])
+                factors = [
+                    FactorContribution(
+                        name=f["name"],
+                        display_name=f["display_name"],
+                        direction=f["direction"],
+                        contribution=f["contribution"],
+                        feature_value=f["feature_value"],
+                        unit=f["unit"],
+                        narrative=f["display_name"]
+                    )
+                    for f in top_factors_raw
+                ]
+            except Exception as e:
+                logger.warning(f"Error computing TreeSHAP local attribution: {e}")
 
         # Plain language diagnostic narrative
         raw_feat_dict = df_feat.iloc[0].to_dict()
         narrative = generate_explanation_narrative(
             ari,
             band_name,
-            local_exp["top_factors"],
+            top_factors_raw,
             raw_feat_dict
         )
 
@@ -193,11 +351,11 @@ class InferenceService:
             academic_risk_index=round(ari, 2),
             risk_band=band_name,
             top_factors=factors,
-            model_name="catboost",
+            model_name=self.model_key,
             model_version="1.0.0",
-            calibrated=True,
+            calibrated=self.calibrator is not None,
             explanation_text=narrative,
-            provenance_tag="SYNTHETIC"
+            provenance_tag=self.data_mode
         )
 
         elapsed_ms = (time.perf_counter() - t0) * 1000.0
@@ -250,12 +408,19 @@ class InferenceService:
 
         # Batch predict & calibrate
         raw_probs = self.model_champ.predict_proba(X)
-        cal_probs = self.calibrator.transform(raw_probs)
+        if self.calibrator is not None:
+            cal_probs = self.calibrator.transform(raw_probs)
+        else:
+            cal_probs = raw_probs
         ari_scores = self.risk_engine.compute_risk_index(cal_probs)
         bands = self.risk_engine.batch_assign_bands(ari_scores)
 
         # Batch TreeSHAP attributions
-        self.explainer.explain(X)
+        if self.explainer is not None:
+            try:
+                self.explainer.explain(X)
+            except Exception as e:
+                logger.warning(f"Error computing batch SHAP attributions: {e}")
 
         predictions: List[Dict[str, Any]] = []
         band_counts = {"Low": 0, "Moderate": 0, "High": 0, "Critical": 0}
@@ -265,25 +430,32 @@ class InferenceService:
             band_name = bands[idx].name
             band_counts[band_name] = band_counts.get(band_name, 0) + 1
 
-            local_exp = self.explainer.get_local_explanation(sample_idx=idx, top_k=3)
-            factors = [
-                FactorContribution(
-                    name=f["name"],
-                    display_name=f["display_name"],
-                    direction=f["direction"],
-                    contribution=f["contribution"],
-                    feature_value=f["feature_value"],
-                    unit=f["unit"],
-                    narrative=f["display_name"]
-                )
-                for f in local_exp["top_factors"]
-            ]
+            factors = []
+            top_factors_raw = []
+            if self.explainer is not None:
+                try:
+                    local_exp = self.explainer.get_local_explanation(sample_idx=idx, top_k=3)
+                    top_factors_raw = local_exp.get("top_factors", [])
+                    factors = [
+                        FactorContribution(
+                            name=f["name"],
+                            display_name=f["display_name"],
+                            direction=f["direction"],
+                            contribution=f["contribution"],
+                            feature_value=f["feature_value"],
+                            unit=f["unit"],
+                            narrative=f["display_name"]
+                        )
+                        for f in top_factors_raw
+                    ]
+                except Exception:
+                    pass
 
             raw_feat_dict = df_feat.iloc[idx].to_dict()
             narrative = generate_explanation_narrative(
                 ari,
                 band_name,
-                local_exp["top_factors"],
+                top_factors_raw,
                 raw_feat_dict
             )
 
@@ -297,11 +469,11 @@ class InferenceService:
                 academic_risk_index=round(ari, 2),
                 risk_band=band_name,
                 top_factors=factors,
-                model_name="catboost",
+                model_name=self.model_key,
                 model_version="1.0.0",
-                calibrated=True,
+                calibrated=self.calibrator is not None,
                 explanation_text=narrative,
-                provenance_tag="SYNTHETIC"
+                provenance_tag=self.data_mode
             )
 
             predictions.append({
@@ -407,14 +579,28 @@ class InferenceService:
         return lb_data
 
     def get_model_details(self, model_key: str) -> Optional[Dict[str, Any]]:
-        """Finds and compiles full model details from artifacts/models/*/{model_key}."""
+        """Finds and compiles full model details from active or canonical models directory."""
         target_dir = None
-        for cat_dir in config.models_dir.iterdir():
-            if cat_dir.is_dir() and cat_dir.name.startswith("Category_"):
-                candidate = cat_dir / model_key
-                if candidate.is_dir():
-                    target_dir = candidate
-                    break
+
+        # Check isolated run models directory first if active
+        if self.data_mode == "REAL" and self.active_run_id:
+            user_models = config.root_dir / "artifacts" / "user_dataset" / self.active_run_id / "models"
+            if user_models.exists():
+                for cat_dir in user_models.iterdir():
+                    if cat_dir.is_dir():
+                        candidate = cat_dir / model_key
+                        if candidate.is_dir():
+                            target_dir = candidate
+                            break
+
+        # Fallback to canonical models directory
+        if not target_dir and config.models_dir.exists():
+            for cat_dir in config.models_dir.iterdir():
+                if cat_dir.is_dir() and cat_dir.name.startswith("Category_"):
+                    candidate = cat_dir / model_key
+                    if candidate.is_dir():
+                        target_dir = candidate
+                        break
 
         if not target_dir:
             return None
@@ -587,9 +773,9 @@ class InferenceService:
                     "risk_band": res["risk_band"],
                     "top_factors": res["top_factors"],
                     "explanation_text": res["explanation_text"],
-                    "model_name": "catboost",
-                    "calibrated": True,
-                    "provenance_tag": "SYNTHETIC",
+                    "model_name": self.model_key,
+                    "calibrated": self.calibrator is not None,
+                    "provenance_tag": self.data_mode,
                     "timestamp_utc": datetime.now(timezone.utc).isoformat()
                 }
 
