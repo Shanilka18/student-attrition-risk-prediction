@@ -79,7 +79,76 @@ export const StudentViewPage: React.FC = () => {
     },
   };
 
-  const student = presets[selectedPreset];
+  // Filtered list of uploaded students
+  const filteredUploadedStudents = useMemo(() => {
+    if (!predictionResult?.students) return [];
+    if (riskFilter === 'All') return predictionResult.students;
+    return predictionResult.students.filter((s) => s.risk_category === riskFilter);
+  }, [predictionResult?.students, riskFilter]);
+
+  // Active student resolution
+  const activeUploadedStudent: StudentPrediction | null = useMemo(() => {
+    if (!filteredUploadedStudents.length) {
+      return predictionResult?.students?.[0] || null;
+    }
+    if (selectedStudent && filteredUploadedStudents.some((s) => s.study_id === selectedStudent.study_id)) {
+      return selectedStudent;
+    }
+    return filteredUploadedStudents[0];
+  }, [filteredUploadedStudents, selectedStudent, predictionResult]);
+
+  // Navigate next/prev in filtered cohort
+  const currentStudentIndex = useMemo(() => {
+    if (!activeUploadedStudent || !filteredUploadedStudents.length) return 0;
+    const idx = filteredUploadedStudents.findIndex((s) => s.study_id === activeUploadedStudent.study_id);
+    return idx >= 0 ? idx : 0;
+  }, [activeUploadedStudent, filteredUploadedStudents]);
+
+  const handleStepStudent = (delta: number) => {
+    if (!filteredUploadedStudents.length) return;
+    const newIdx = (currentStudentIndex + delta + filteredUploadedStudents.length) % filteredUploadedStudents.length;
+    setSelectedStudent(filteredUploadedStudents[newIdx]);
+  };
+
+  // Resolve active student model depending on viewMode
+  const student = useMemo(() => {
+    if (viewMode === 'uploaded' && activeUploadedStudent) {
+      const stu = activeUploadedStudent;
+      const riskContribs = (stu.top_risk_contributors || []).map((c) => ({
+        feature: (c.factor || c.feature || 'Stress').replace('factor_', '').toUpperCase(),
+        val: Number(Math.abs(c.shap_value).toFixed(2)),
+        direction: 'risk_increasing',
+      }));
+      const protContribs = (stu.top_protective_contributors || []).map((c) => ({
+        feature: (c.factor || c.feature || 'Protective').replace('factor_', '').toUpperCase(),
+        val: -Number(Math.abs(c.shap_value).toFixed(2)),
+        direction: 'risk_decreasing',
+      }));
+
+      const combinedShap = [...riskContribs, ...protContribs];
+
+      // Fallback decomposition if contributors list is empty
+      const shapDecomp = combinedShap.length > 0
+        ? combinedShap
+        : [
+            { feature: 'STRESS', val: Number(((stu.factor_scores.stress - 3.0) * 4).toFixed(2)), direction: 'risk_increasing' },
+            { feature: 'MOTIVATION', val: Number(((3.0 - stu.factor_scores.motivation) * 3).toFixed(2)), direction: 'risk_decreasing' },
+            { feature: 'BELONGING', val: Number(((3.0 - stu.factor_scores.belongingness) * 3).toFixed(2)), direction: 'risk_decreasing' },
+            { feature: 'PEER SUPPORT', val: Number(((3.0 - stu.factor_scores.peer_support) * 2).toFixed(2)), direction: 'risk_decreasing' },
+          ];
+
+      return {
+        study_id: stu.study_id,
+        pri_score: stu.pri_score,
+        risk_category: stu.risk_category,
+        factors: stu.factor_scores,
+        shap_decomposition: shapDecomp,
+        headline: stu.narrative_headline || `Student ${stu.study_id} classified under ${stu.risk_category} risk tier.`,
+        guidance: stu.narrative_actionable_advice || stu.narrative_drivers || 'Standard institutional follow-up recommended.',
+      };
+    }
+    return presets[selectedPreset];
+  }, [viewMode, activeUploadedStudent, selectedPreset]);
 
   const radarData = [
     { subject: 'Stress', val: student.factors.stress },
