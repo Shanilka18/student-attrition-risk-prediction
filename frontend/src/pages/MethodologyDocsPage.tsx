@@ -1,5 +1,5 @@
 import React from 'react';
-import { Layers, ArrowDown, Network, Database, Cpu, ShieldCheck, FileJson, CheckCircle2 } from 'lucide-react';
+import { Layers, ArrowDown, Network, Database, Cpu, ShieldCheck, FileJson, CheckCircle2, Shield, Lock, Activity } from 'lucide-react';
 
 export const MethodologyDocsPage: React.FC = () => {
   return (
@@ -236,6 +236,39 @@ export const MethodologyDocsPage: React.FC = () => {
             <CheckCircle2 className="w-3.5 h-3.5" />
             <span>Strict Pydantic schema validation enforced on all exports</span>
           </div>
+        </div>
+      </div>
+
+      {/* Component Responsibility & Governance Matrix */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="bg-navy-900 border border-navy-800 rounded-xl p-4">
+          <div className="flex items-center gap-2 mb-2 text-indigo-400 font-semibold text-xs">
+            <Activity className="w-4 h-4" />
+            <h4>Input Invariance Guarantee</h4>
+          </div>
+          <p className="text-xs text-slate-300 leading-relaxed">
+            Standard 15-item questionnaire on a 5-point Likert scale. Protective factors (Motivation, Belonging, Efficacy, Peer) undergo automatic inverted transformation so higher values consistently reflect higher attrition risk.
+          </p>
+        </div>
+
+        <div className="bg-navy-900 border border-navy-800 rounded-xl p-4">
+          <div className="flex items-center gap-2 mb-2 text-emerald-400 font-semibold text-xs">
+            <ShieldCheck className="w-4 h-4" />
+            <h4>Methodological Integrity</h4>
+          </div>
+          <p className="text-xs text-slate-300 leading-relaxed">
+            Absolute zero data leakage policy. Scalers and imputers fitted strictly on training folds. Independent holdout test set remained sealed until final champion verification (R² = 0.9908).
+          </p>
+        </div>
+
+        <div className="bg-navy-900 border border-navy-800 rounded-xl p-4">
+          <div className="flex items-center gap-2 mb-2 text-amber-400 font-semibold text-xs">
+            <Lock className="w-4 h-4" />
+            <h4>Ethical Governance Boundary</h4>
+          </div>
+          <p className="text-xs text-slate-300 leading-relaxed">
+            PRI is an academic decision-support index, not a clinical psychiatric diagnosis. All telemetry strictly uses pseudonymized Study IDs with zero personal identifiable information (PII) stored.
+          </p>
         </div>
       </div>
     </div>
