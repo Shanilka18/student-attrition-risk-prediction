@@ -93,5 +93,7 @@ npm run build
 - [x] **Chart Export:** Camera button on chart cards downloads high-resolution PNG image snapshots.
 - [x] **Upload & Scoring Flow:** Dropping a questionnaire file validates headers and populates fuzzy mappings.
 - [x] **Exports:** Download Scored CSV and Download Fusion JSON buttons trigger valid file downloads.
+- [x] **Cohort State Persistence:** Scored survey cohorts are preserved across sidebar tab navigation with sessionStorage synchronization.
+- [x] **Cross-Tab Student Inspection:** Dedicated inspection navigation seamlessly transitions from cohort tables into individual student diagnostic gauges, factor radars, and local SHAP waterfalls.
 - [x] **Methodology Viewer:** Clicking document titles renders viva-ready markdown with GitHub Flavored Markdown tables.
 - [x] **Presentation Mode:** Clicking "Presentation Mode" optimizes typography for projector display.
