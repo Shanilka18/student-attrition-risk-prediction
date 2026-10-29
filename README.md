@@ -69,6 +69,15 @@ python -m pytest backend/tests -v
 2. Open the portal at `http://localhost:5173` → **Predict** page
 3. Drag-and-drop the CSV → view per-student ARI scores and explanations
 
+### Step 8 — Retrain on User Data, Scoring Promotion & Rollback
+1. Download template with outcomes: `GET http://localhost:8000/predict/template?with_outcomes=true`
+2. Drop the CSV with outcome labels (`attrited`, `attrition_semester`) into the **Predict** page
+3. An amber **"Retrain on My Data"** button appears with live dataset feasibility validation
+4. Click to start a background training run: all models and benchmarks are saved in an isolated directory (`artifacts/user_dataset/<job_id>/`), ensuring the thesis synthetic benchmark is never overwritten.
+5. Review the new champion model's metrics on the Retrained Champion Card and click **"Use this model for scoring"** to switch the live scoring engine in real-time (hot-reload without server restart).
+6. The Navbar displays `[Active: REAL DATA]` and predictions report `provenance_tag: "REAL"`.
+7. Click **"Rollback to Synthetic"** at any time to restore the canonical thesis synthetic benchmark.
+
 ---
 
 ## Individual Pipeline Targets
