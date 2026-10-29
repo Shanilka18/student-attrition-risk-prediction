@@ -8,10 +8,23 @@ from pathlib import Path
 import pytest
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-ACTIVE_ROOTS = ("src", "mei", "tests", "config", "configs")
+ACTIVE_ROOTS = ("src", "mei", "tests", "config", "configs", "scripts", "frontend")
 ACTIVE_FILES = ("Makefile", "tasks.ps1")
-SCAN_EXTENSIONS = {".py", ".yaml", ".yml", ".ps1", ".mk"}
+SCAN_EXTENSIONS = {
+    ".js",
+    ".jsx",
+    ".json",
+    ".mk",
+    ".py",
+    ".ps1",
+    ".toml",
+    ".ts",
+    ".tsx",
+    ".yaml",
+    ".yml",
+}
 LEGACY_DIRECTORY = "legacy"
+IGNORED_DIRECTORIES = {".venv", "__pycache__", "build", "dist", "node_modules"}
 SELF = Path(__file__).resolve()
 
 FORBIDDEN_PATTERNS: list[tuple[str, str]] = [
@@ -37,10 +50,11 @@ def _active_files() -> list[Path]:
             for path in root.rglob("*")
             if path.is_file()
             and path.suffix.lower() in SCAN_EXTENSIONS
-            and LEGACY_DIRECTORY not in path.parts
+            and not any(part.lower() == LEGACY_DIRECTORY for part in path.parts)
             and path.resolve() != SELF
             and not any(
-                part.startswith(".") or part == "__pycache__" for part in path.parts
+                part.startswith(".") or part in IGNORED_DIRECTORIES
+                for part in path.parts
             )
         )
     return [path for path in files if path.is_file()]
