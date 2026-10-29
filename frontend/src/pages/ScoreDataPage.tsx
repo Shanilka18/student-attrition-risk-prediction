@@ -11,6 +11,7 @@ import {
   Eye,
   X,
   Sparkles,
+  ArrowRight,
   PlusCircle,
 } from 'lucide-react';
 import {
@@ -63,10 +64,12 @@ export const ScoreDataPage: React.FC = () => {
 
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
+
+  // Prediction execution
   const [predicting, setPredicting] = useState(false);
 
-  // Single student detail drawer
-  const [selectedStudent, setSelectedStudent] = useState<StudentPrediction | null>(null);
+  // Drawer student state for inspection side-panel
+  const [drawerStudent, setDrawerStudent] = useState<StudentPrediction | null>(null);
 
   // Retraining state
   const [retrainingJob, setRetrainingJob] = useState<JobStatusResponse | null>(null);
@@ -75,7 +78,9 @@ export const ScoreDataPage: React.FC = () => {
   // Drag and drop handlers
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setFile(e.target.files[0]);
+      const selected = e.target.files[0];
+      setFile(selected);
+      setFileName(selected.name);
     }
   };
 
@@ -130,6 +135,12 @@ export const ScoreDataPage: React.FC = () => {
     }
   };
 
+  // Open full Individual Student View
+  const handleOpenStudentView = (stu: StudentPrediction) => {
+    setSelectedStudent(stu);
+    setCurrentPage('student');
+  };
+
   // Pie chart data
   const distributionData = predictionResult?.cohort_summary?.risk_distribution
     ? Object.entries(predictionResult.cohort_summary.risk_distribution).map(([tier, count]) => ({
@@ -159,7 +170,7 @@ export const ScoreDataPage: React.FC = () => {
         )}
       </div>
 
-      {/* Step 1: Upload Card */}
+      {/* Step 1: Upload Card (only shown when no uploadResult and no predictionResult) */}
       {!uploadResult && !predictionResult && (
         <div className="bg-navy-900 border border-navy-800 rounded-xl p-6 shadow-lg text-center">
           <div className="max-w-md mx-auto space-y-4">
@@ -184,7 +195,7 @@ export const ScoreDataPage: React.FC = () => {
               htmlFor="survey-upload"
               className="inline-block px-4 py-2 rounded-lg bg-navy-800 border border-navy-700 text-xs font-semibold text-slate-200 hover:bg-navy-750 cursor-pointer transition-colors"
             >
-              {file ? file.name : 'Select File from Device'}
+              {file ? file.name : (fileName || 'Select File from Device')}
             </label>
 
             {file && (
@@ -338,6 +349,7 @@ export const ScoreDataPage: React.FC = () => {
               >
                 <Users className="w-3.5 h-3.5" />
                 View in Individual Student Tab
+                <ArrowRight className="w-3 h-3" />
               </button>
             </div>
           </div>
@@ -436,7 +448,7 @@ export const ScoreDataPage: React.FC = () => {
               <div className="flex items-center justify-between mb-3">
                 <div>
                   <h3 className="font-semibold text-sm text-slate-100">Scored Student Cohort</h3>
-                  <p className="text-xs text-slate-400">Click a student to view their 5-factor radar and local SHAP decomposition.</p>
+                  <p className="text-xs text-slate-400">Click a student to inspect locally or open in the Individual Student View.</p>
                 </div>
               </div>
 
@@ -448,7 +460,7 @@ export const ScoreDataPage: React.FC = () => {
                       <th className="py-2.5 px-3 font-mono">PRI Score</th>
                       <th className="py-2.5 px-3">Risk Tier</th>
                       <th className="py-2.5 px-3">Top Risk Indicator</th>
-                      <th className="py-2.5 px-3 text-right">Action</th>
+                      <th className="py-2.5 px-3 text-right">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-navy-800">
@@ -457,7 +469,7 @@ export const ScoreDataPage: React.FC = () => {
                       return (
                         <tr
                           key={stu.study_id}
-                          onClick={() => setSelectedStudent(stu)}
+                          onClick={() => setDrawerStudent(stu)}
                           className="hover:bg-navy-800/60 cursor-pointer transition-colors"
                         >
                           <td className="py-2.5 px-3 font-mono font-semibold text-slate-200">
@@ -481,15 +493,28 @@ export const ScoreDataPage: React.FC = () => {
                           </td>
                           <td className="py-2.5 px-3 text-slate-400 capitalize">{topDriver}</td>
                           <td className="py-2.5 px-3 text-right">
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setSelectedStudent(stu);
-                              }}
-                              className="px-2 py-1 rounded text-[11px] bg-navy-800 hover:bg-navy-750 text-slate-300 border border-navy-700"
-                            >
-                              Inspect
-                            </button>
+                            <div className="flex items-center justify-end gap-1.5">
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setDrawerStudent(stu);
+                                }}
+                                className="px-2 py-1 rounded text-[11px] bg-navy-800 hover:bg-navy-750 text-slate-300 border border-navy-700"
+                              >
+                                Quick View
+                              </button>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleOpenStudentView(stu);
+                                }}
+                                className="px-2 py-1 rounded text-[11px] bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-300 border border-indigo-500/30 flex items-center gap-1"
+                                title="Open in Individual Student View page"
+                              >
+                                <Eye className="w-3 h-3" />
+                                Inspect
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       );
@@ -503,15 +528,15 @@ export const ScoreDataPage: React.FC = () => {
       )}
 
       {/* Per-Student Detail Drawer */}
-      {selectedStudent && (
+      {drawerStudent && (
         <div className="fixed inset-y-0 right-0 w-full max-w-xl bg-navy-900 border-l border-navy-700 shadow-2xl z-50 p-6 overflow-y-auto no-print">
           <div className="flex items-center justify-between pb-4 border-b border-navy-700">
             <div>
               <span className="text-[10px] font-mono text-slate-400 uppercase tracking-widest">Student Diagnostic</span>
-              <h3 className="text-lg font-bold text-white font-mono">{selectedStudent.study_id}</h3>
+              <h3 className="text-lg font-bold text-white font-mono">{drawerStudent.study_id}</h3>
             </div>
             <button
-              onClick={() => setSelectedStudent(null)}
+              onClick={() => setDrawerStudent(null)}
               className="p-1 rounded-md text-slate-400 hover:text-white hover:bg-navy-800"
             >
               <X className="w-5 h-5" />
@@ -524,21 +549,35 @@ export const ScoreDataPage: React.FC = () => {
               <div>
                 <span className="text-slate-400 text-[11px]">Psychosocial Risk Index</span>
                 <div className="text-3xl font-extrabold text-white font-mono mt-0.5">
-                  {selectedStudent.pri_score.toFixed(1)} <span className="text-xs text-slate-400 font-normal">/ 100</span>
+                  {drawerStudent.pri_score.toFixed(1)} <span className="text-xs text-slate-400 font-normal">/ 100</span>
                 </div>
               </div>
               <span
                 className={`px-3 py-1.5 rounded-lg text-xs font-bold border ${
-                  selectedStudent.risk_category === 'High'
+                  drawerStudent.risk_category === 'High'
                     ? 'bg-rose-500/20 text-rose-300 border-rose-500/40'
-                    : selectedStudent.risk_category === 'Moderate'
+                    : drawerStudent.risk_category === 'Moderate'
                     ? 'bg-amber-500/20 text-amber-300 border-amber-500/40'
                     : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
                 }`}
               >
-                {selectedStudent.risk_category} Risk
+                {drawerStudent.risk_category} Risk
               </span>
             </div>
+
+            {/* Quick Action to open full student page */}
+            <button
+              onClick={() => {
+                const stu = drawerStudent;
+                setDrawerStudent(null);
+                handleOpenStudentView(stu);
+              }}
+              className="w-full py-2.5 px-4 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs flex items-center justify-center gap-2 transition-all shadow-md shadow-indigo-600/30"
+            >
+              <Users className="w-4 h-4" />
+              Open in Dedicated Individual Student Tab
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
 
             {/* Plain-Language Narrative Box */}
             <div className="p-4 bg-indigo-950/30 border border-indigo-500/30 rounded-xl space-y-2">
@@ -546,12 +585,12 @@ export const ScoreDataPage: React.FC = () => {
                 <Sparkles className="w-4 h-4 text-indigo-400" />
                 Plain-Language Narrative Explanation
               </h4>
-              <p className="text-slate-200 leading-relaxed">{selectedStudent.narrative_headline}</p>
-              {selectedStudent.narrative_drivers && (
-                <p className="text-slate-300 text-[11px]"><strong>Risk Drivers:</strong> {selectedStudent.narrative_drivers}</p>
+              <p className="text-slate-200 leading-relaxed">{drawerStudent.narrative_headline}</p>
+              {drawerStudent.narrative_drivers && (
+                <p className="text-slate-300 text-[11px]"><strong>Risk Drivers:</strong> {drawerStudent.narrative_drivers}</p>
               )}
-              {selectedStudent.narrative_buffers && (
-                <p className="text-slate-300 text-[11px]"><strong>Protective Buffers:</strong> {selectedStudent.narrative_buffers}</p>
+              {drawerStudent.narrative_buffers && (
+                <p className="text-slate-300 text-[11px]"><strong>Protective Buffers:</strong> {drawerStudent.narrative_buffers}</p>
               )}
             </div>
 
@@ -562,11 +601,11 @@ export const ScoreDataPage: React.FC = () => {
                 <ResponsiveContainer width="100%" height="100%">
                   <RadarChart
                     data={[
-                      { subject: 'Stress', val: selectedStudent.factor_scores.stress },
-                      { subject: 'Motivation', val: selectedStudent.factor_scores.motivation },
-                      { subject: 'Belonging', val: selectedStudent.factor_scores.belongingness },
-                      { subject: 'Self-Efficacy', val: selectedStudent.factor_scores.self_efficacy },
-                      { subject: 'Peer Support', val: selectedStudent.factor_scores.peer_support },
+                      { subject: 'Stress', val: drawerStudent.factor_scores.stress },
+                      { subject: 'Motivation', val: drawerStudent.factor_scores.motivation },
+                      { subject: 'Belonging', val: drawerStudent.factor_scores.belongingness },
+                      { subject: 'Self-Efficacy', val: drawerStudent.factor_scores.self_efficacy },
+                      { subject: 'Peer Support', val: drawerStudent.factor_scores.peer_support },
                     ]}
                   >
                     <PolarGrid stroke="#334155" />
