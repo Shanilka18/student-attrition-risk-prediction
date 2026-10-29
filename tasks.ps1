@@ -1,6 +1,7 @@
 # PowerShell Task Runner for Windows (SLIIT CDAP Project KND-CDAP-IT-05)
+# Component: Environmental & Financial Factors — Study Conditions Index
 # Usage: .\tasks.ps1 <target>
-# Valid targets: setup, data, clean, train, leaderboard, explain, causal, api, frontend, test, all
+# Valid targets: setup, data, clean, train, leaderboard, explain, causal, profiles, api, frontend, test, all
 
 param(
     [Parameter(Position=0)]
@@ -54,7 +55,7 @@ switch ($Target) {
         Write-Host "[TASK: causal] Phase 7 Causal Inference pipeline completed successfully." -ForegroundColor Green
     }
     "predict" {
-        param([string]$File = "data/samples/sample_upload.csv")
+        param([string]$File = "data/legacy/samples/sample_upload.csv")
         Write-Host "[TASK: predict] Scoring input survey questionnaire: $File" -ForegroundColor Cyan
         & $VenvPython -m src.inference.predict --file $File --output_dir artifacts/predictions
         Write-Host "[TASK: predict] Inference completed. Deliverables in artifacts/predictions." -ForegroundColor Green
@@ -71,6 +72,10 @@ switch ($Target) {
         } finally {
             Pop-Location
         }
+    }
+    "profiles" {
+        Write-Host "[TASK: profiles] Showing latent risk profile configuration..." -ForegroundColor Cyan
+        & $VenvPython -m mei.cli profiles
     }
     "test" {
         Write-Host "[TASK: test] Executing automated test suite..." -ForegroundColor Cyan
@@ -90,7 +95,7 @@ switch ($Target) {
     }
     Default {
         Write-Host "Error: Target '$Target' not recognized." -ForegroundColor Red
-        Write-Host "Available targets: setup, data, clean, train, leaderboard, explain, causal, api, frontend, test, all."
+        Write-Host "Available targets: setup, data, clean, train, leaderboard, explain, causal, profiles, api, frontend, test, all."
         exit 1
     }
 }

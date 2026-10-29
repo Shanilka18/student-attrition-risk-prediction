@@ -1,0 +1,62 @@
+# config/project.yaml — Environmental & Financial Component Configuration
+# Project: KND-CDAP-IT-05  Component: Environmental & Financial Factors
+# data_source must be set to 'sample' or 'survey' in every run.
+
+project:
+  id: KND-CDAP-IT-05
+  component: "Environmental & Financial Factors"
+  index_name: "Environmental & Financial Index"
+  index_abbr: EFI
+  website_product_name: "Study Conditions Index"
+  data_source: sample          # toggle: sample | survey
+
+# ── Cross-sectional design ─────────────────────────────────────────────────────
+design:
+  cross_sectional: true
+  profile_method: gmm          # options: gmm | kmeans | latent_class
+  n_profiles: 4                # selected within CV folds
+
+# ── Targets ───────────────────────────────────────────────────────────────────
+targets:
+  continuous: attrition_intent_score
+  binary: at_risk
+  at_risk_threshold: 60        # at_risk = 1 if attrition_intent_score >= 60
+
+# ── EFI Score ─────────────────────────────────────────────────────────────────
+efi:
+  formula: "round(100 * calibrated_P(at_risk))"
+  bands:
+    low:      [0,  34]
+    moderate: [35, 64]
+    high:     [65, 100]
+  ece_relabel_threshold: 0.15  # above this, score is 'normalised model-risk score'
+
+# ── Leaderboard weights ───────────────────────────────────────────────────────
+leaderboard:
+  weights:
+    pr_auc:            0.35
+    roc_auc:           0.25
+    calibration:       0.20   # 1 - Brier Score
+    balanced_accuracy: 0.10
+    macro_f1:          0.10
+  overfit_tolerance: 0.04     # val_composite - cv_composite must not exceed this
+
+# ── Schema & mapping paths ────────────────────────────────────────────────────
+schema:
+  envfin: config/schema_envfin.yaml
+  mapping: config/mapping_envfin.yaml
+
+# ── Website ───────────────────────────────────────────────────────────────────
+website:
+  pages:
+    - overview
+    - leaderboard
+    - profiles
+    - what_drives_risk
+    - score_students
+    - train_new_data
+  synthetic_banner: true       # set false only after real survey data is loaded
+  colour:
+    predictive: emerald
+    shap: purple
+    causal: amber

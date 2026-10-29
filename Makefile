@@ -1,6 +1,7 @@
 # Makefile for ERI Research Repository (SLIIT CDAP Project KND-CDAP-IT-05)
+# Component: Environmental & Financial Factors — Study Conditions Index
 # Cross-Platform / POSIX & Windows nmake/gnu-make compatibility
-# Usage: make <target> (e.g., make all, make data, make train, make test)
+# Usage: make <target>  (e.g., make all, make data, make train, make test)
 
 PYTHON = ./.venv/bin/python
 PYTEST = ./.venv/bin/pytest
@@ -11,7 +12,7 @@ ifeq ($(OS),Windows_NT)
     PYTEST = ./.venv/Scripts/pytest.exe
 endif
 
-.PHONY: setup data clean train leaderboard explain causal api frontend test all help
+.PHONY: setup data clean train leaderboard explain causal profiles api frontend test all help
 
 help:
 	@echo "Available targets:"
@@ -22,6 +23,7 @@ help:
 	@echo "  leaderboard - Compute validation metrics, significance tests, calibration, and audit"
 	@echo "  explain     - Compute SHAP values, waterfall plots, and fold stability diagnostics"
 	@echo "  causal      - Estimate causal risk differences with sIPW, AIPW, and refutations"
+	@echo "  profiles    - Show latent risk profile configuration"
 	@echo "  api         - Start FastAPI backend microservice on port 8000"
 	@echo "  frontend    - Start React dashboard development server on port 5173"
 	@echo "  test        - Execute automated pytest test suite"
@@ -50,6 +52,9 @@ explain:
 
 causal:
 	$(PYTHON) -m src.causal.run_phase7
+
+profiles:
+	$(PYTHON) -m mei.cli profiles
 
 api:
 	$(PYTHON) -m uvicorn src.api.main:app --host 0.0.0.0 --port 8000 --reload
