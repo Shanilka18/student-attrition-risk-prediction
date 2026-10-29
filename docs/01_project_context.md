@@ -47,7 +47,8 @@ Latent profiles are discovered using cross-sectional clustering approaches
 such as Gaussian mixture modeling or latent-class methods. Profile fitting
 must occur inside validation folds to prevent leakage. Profiles describe
 patterns in study conditions and are not features in the main classifier.
-Temporal periods, sequence models, and hidden Markov models are outside scope.
+The analysis uses one questionnaire response per participant and does not
+construct temporal features.
 
 The two model tracks, validation leaderboard, overfit rule, and one-time
 held-out test protocol are specified in `PROJECT_BRIEF.md` and
@@ -75,3 +76,5 @@ confirmed.
 `config/project.yaml` provides operational settings, while
 `docs/DECISIONS.md` records active design choices. Shared consent, outcome
 coding, identifiers, and export procedures are governed by the team agreement.
+The CLI is invoked as `python -m efi.cli`, with `profiles` as the
+profile-discovery command.

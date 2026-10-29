@@ -9,8 +9,8 @@ No model results are reported here.
 
 The component uses one anonymous, closed-ended questionnaire covering the
 17 Environmental & Financial items and shared team outcome items. It is
-cross-sectional: temporal periods, sequence models, and hidden Markov models
-are out of scope.
+cross-sectional, with one response per participant and no temporal feature
+construction.
 
 ## Decision 2: Sample and survey data sources
 
@@ -81,6 +81,12 @@ allow respondents to decline disclosure. Data storage and sharing follow the
 approved ethics and team data-sharing arrangements. The ethics approval
 status must not be claimed until confirmed. The EFI is for research and
 aggregate support planning; it is not for individual student decisions.
+
+## Decision 11: EFI command-line package
+
+The Python command-line package is named `efi`, matching the Environmental &
+Financial Index and the component's current scope. This avoids carrying a
+module namespace from a different component into the active package.
 
 ## Pending confirmation
 

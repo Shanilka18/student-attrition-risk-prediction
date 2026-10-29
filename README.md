@@ -56,6 +56,9 @@ On Windows, provision the project environment and validate the survey schema:
 .\.venv\Scripts\python.exe -m efi.cli profiles
 ```
 
+The CLI package is named `efi` to align the Python module namespace with the
+Environmental & Financial component.
+
 Run the tests with:
 
 ```powershell
@@ -79,9 +82,9 @@ profiles, API, and frontend tasks.
 - `frontend/` — website implementation.
 - `docs/` — research context, decisions, questionnaire, ethics, and technical
   documentation.
-- `data/legacy/` and `docs/legacy/` — archived engagement-era data and
-  documents; these are not active inputs to the Environmental & Financial
-  design.
+- `data/raw/` and `data/samples/` — generated survey exports and feature-only
+  upload examples.
+- `data/real/` — local real-survey storage, excluded from version control.
 
 See `docs/01_project_context.md` for the concise project context and
 `docs/DECISIONS.md` for active design decisions.
