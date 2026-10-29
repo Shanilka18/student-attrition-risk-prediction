@@ -49,6 +49,8 @@ class MetaResponse(BaseModel):
     categories: Dict[str, str]
     n_registered_models: int
     nfr1_latency_sla_seconds: float = 2.0
+    active_run_id: Optional[str] = None
+    active_run_meta: Optional[Dict[str, Any]] = None
 
 
 # ── Leaderboard & Research Answer ─────────────────────────────────────────────
@@ -258,3 +260,89 @@ class BatchUploadResponse(BaseModel):
     inference_time_per_student_ms: float
     nfr1_compliant: bool
     warnings: List[str]
+
+
+# ── Retraining & Isolation Schemas ───────────────────────────────────────────
+
+class RetrainInspectResponse(BaseModel):
+    has_outcomes: bool
+    n_students: int
+    n_records: int
+    n_attrited: int
+    attrition_rate: float
+    can_retrain: bool
+    blocking_issues: List[str] = Field(default_factory=list)
+    warnings: List[str] = Field(default_factory=list)
+
+
+class RetrainJobSubmitResponse(BaseModel):
+    job_id: str
+    message: str = "Retraining job queued successfully."
+
+
+class RetrainJobStatusResponse(BaseModel):
+    job_id: str
+    state: Literal["queued", "running", "succeeded", "failed"]
+    phase: Optional[Literal["validate", "splits", "features", "training", "evaluation", "explainability"]] = None
+    progress_pct: int = 0
+    message: str = ""
+    current_model: Optional[str] = None
+    models_done: int = 0
+    models_total: int = 0
+    elapsed_s: float = 0.0
+    result: Optional[Dict[str, Any]] = None
+    error: Optional[str] = None
+
+
+class LatestRetrainResponse(BaseModel):
+    job_id: str
+    trained_at: str
+    n_students: int
+    n_attrited: int
+    champion: str
+    sequence_champion: Optional[str] = None
+    test_roc_auc: float
+    test_pr_auc: float
+    test_f2_score: float
+    lead_time_semesters: float
+    budget: str
+    scope: str
+    data_mode: str = "REAL"
+
+
+class RetrainRunItem(BaseModel):
+    job_id: str
+    trained_at: str
+    n_students: int
+    n_attrited: int
+    champion: str
+    champion_label: str
+    sequence_champion: Optional[str] = None
+    test_roc_auc: float
+    test_pr_auc: float
+    test_f2_score: float
+    lead_time_semesters: float
+    budget: str
+    scope: str
+    is_active: bool = False
+
+
+class RetrainRunsResponse(BaseModel):
+    runs: List[RetrainRunItem]
+    active_run_id: Optional[str] = None
+    data_mode: Literal["SYNTHETIC", "REAL"] = "SYNTHETIC"
+
+
+class ActivateRunResponse(BaseModel):
+    message: str
+    job_id: str
+    data_mode: Literal["SYNTHETIC", "REAL"] = "REAL"
+    champion: str
+    champion_label: str
+    metrics: Dict[str, Any]
+
+
+class RollbackRunResponse(BaseModel):
+    message: str
+    data_mode: Literal["SYNTHETIC", "REAL"] = "SYNTHETIC"
+    active_model: str = "catboost"
