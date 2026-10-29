@@ -2,12 +2,21 @@
 
 from __future__ import annotations
 
+import os
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any
 
 import numpy as np
 import pandas as pd
+from sklearn.base import clone
+from sklearn.compose import ColumnTransformer
+from sklearn.impute import SimpleImputer
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import roc_auc_score
+from sklearn.model_selection import StratifiedKFold, cross_val_predict
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
 from src.utils.config_loader import load_yaml
 from src.utils.paths import get_project_root
@@ -18,6 +27,7 @@ FACTOR_NAMES = (
     "digital_gap",
     "home_pressure",
 )
+_LIGHTGBM_DLL_DIRECTORY_HANDLES: list[object] = []
 
 
 def load_sample_configuration() -> (
@@ -378,3 +388,195 @@ def sample_output_path(settings: dict[str, Any], key: str) -> Path:
     """Resolve a configured sample output path under the repository root."""
     relative = Path(settings["outputs"][key])
     return get_project_root() / relative
+
+
+def _encode_item_codes(
+    generator: EnvironmentalFinancialSampleGenerator, raw: pd.DataFrame
+) -> pd.DataFrame:
+    """Encode questionnaire labels with their schema codes for model validation."""
+    features = generator.canonical_feature_frame(raw)
+    encoded = pd.DataFrame(index=features.index)
+    for item, metadata in generator.schema["items"].items():
+        label_codes = {
+            str(level["label"]): int(level["code"]) for level in metadata["levels"]
+        }
+        structural = metadata.get("structural_na")
+        if structural:
+            label_codes[str(structural["label"])] = int(structural["code"])
+        pns = metadata.get("prefer_not_to_say")
+        if pns:
+            label_codes[str(pns["label"])] = int(pns["code"])
+        encoded[item] = features[item].map(label_codes)
+    return encoded
+
+
+def _calibration_models(
+    generator: EnvironmentalFinancialSampleGenerator,
+) -> tuple[Pipeline, Pipeline]:
+    """Create fold-fitted LightGBM and logistic pipelines from survey features."""
+    if os.name == "nt":
+        import sklearn
+
+        sklearn_dll_directory = Path(sklearn.__file__).resolve().parent / ".libs"
+        if sklearn_dll_directory.is_dir():
+            _LIGHTGBM_DLL_DIRECTORY_HANDLES.append(
+                os.add_dll_directory(str(sklearn_dll_directory))
+            )
+    from lightgbm import LGBMClassifier
+
+    schema_items = generator.schema["items"]
+    numeric_columns = [
+        item for item, metadata in schema_items.items() if metadata["type"] != "nominal"
+    ]
+    nominal_columns = [
+        item for item, metadata in schema_items.items() if metadata["type"] == "nominal"
+    ]
+    preprocessor = ColumnTransformer(
+        transformers=[
+            (
+                "numeric",
+                Pipeline(
+                    steps=[
+                        ("impute", SimpleImputer(strategy="most_frequent")),
+                        ("scale", StandardScaler()),
+                    ]
+                ),
+                numeric_columns,
+            ),
+            (
+                "nominal",
+                Pipeline(
+                    steps=[
+                        ("impute", SimpleImputer(strategy="most_frequent")),
+                        (
+                            "one_hot",
+                            OneHotEncoder(handle_unknown="ignore", sparse_output=False),
+                        ),
+                    ]
+                ),
+                nominal_columns,
+            ),
+        ],
+        remainder="drop",
+    )
+    calibration = generator.settings["calibration"]
+    lgbm_settings = calibration["lightgbm"]
+    lightgbm_model = Pipeline(
+        steps=[
+            ("preprocess", clone(preprocessor)),
+            (
+                "classifier",
+                LGBMClassifier(
+                    **lgbm_settings,
+                    random_state=int(calibration["random_state"]),
+                ),
+            ),
+        ]
+    )
+    logistic_settings = calibration["logistic_regression"]
+    logistic_model = Pipeline(
+        steps=[
+            ("preprocess", clone(preprocessor)),
+            (
+                "classifier",
+                LogisticRegression(
+                    C=float(logistic_settings["c_value"]),
+                    max_iter=int(logistic_settings["max_iter"]),
+                    random_state=int(calibration["random_state"]),
+                ),
+            ),
+        ]
+    )
+    return lightgbm_model, logistic_model
+
+
+def calibrate_signal_strength(
+    generator: EnvironmentalFinancialSampleGenerator,
+    n: int | None = None,
+    seed: int | None = None,
+) -> dict[str, Any]:
+    """Tune signal strength against configured prevalence and five-fold AUC gates."""
+    settings = generator.settings
+    sizes = settings["sizes"]
+    n_rows = int(sizes["full"] if n is None else n)
+    seed_value = int(settings["seed"] if seed is None else seed)
+    outcome_settings = settings["outcomes"]
+    signal_settings = outcome_settings["signal_strength"]
+    calibration_settings = settings["calibration"]
+    lower_auc, upper_auc = map(float, outcome_settings["lightgbm_auc_range"])
+    lower_prevalence, upper_prevalence = map(
+        float, outcome_settings["prevalence_range"]
+    )
+    history: list[dict[str, float | int | bool]] = []
+    lightgbm_model, logistic_model = _calibration_models(generator)
+
+    for iteration in range(int(signal_settings["maximum_iterations"])):
+        strength = float(signal_settings["initial"]) + (
+            iteration * float(signal_settings["increment"])
+        )
+        raw, _ = generator.generate(n_rows, seed=seed_value, signal_strength=strength)
+        encoded = _encode_item_codes(generator, raw)
+        target_column = generator.mappings["attrition_intent_score"][
+            "google_forms_header"
+        ]
+        y = (
+            raw[target_column].astype(float)
+            >= float(outcome_settings["at_risk_threshold"])
+        ).astype(int)
+        prevalence = float(y.mean())
+        if y.nunique() != 2:
+            raise ValueError(
+                f"Calibration at signal_strength={strength:.3f} produced one class"
+            )
+        folds = StratifiedKFold(
+            n_splits=int(calibration_settings["folds"]),
+            shuffle=True,
+            random_state=int(calibration_settings["random_state"]),
+        )
+        lightgbm_probabilities = cross_val_predict(
+            lightgbm_model,
+            encoded,
+            y,
+            cv=folds,
+            method="predict_proba",
+            n_jobs=1,
+        )[:, 1]
+        logistic_probabilities = cross_val_predict(
+            logistic_model,
+            encoded,
+            y,
+            cv=folds,
+            method="predict_proba",
+            n_jobs=1,
+        )[:, 1]
+        lightgbm_auc = float(roc_auc_score(y, lightgbm_probabilities))
+        logistic_auc = float(roc_auc_score(y, logistic_probabilities))
+        in_range = lower_auc <= lightgbm_auc <= upper_auc
+        prevalence_in_range = lower_prevalence <= prevalence <= upper_prevalence
+        lr_gap_ok = logistic_auc <= lightgbm_auc + float(
+            outcome_settings["max_logistic_auc_delta"]
+        )
+        history.append(
+            {
+                "iteration": iteration + 1,
+                "signal_strength": strength,
+                "at_risk_prevalence": prevalence,
+                "lightgbm_auc": lightgbm_auc,
+                "logistic_auc": logistic_auc,
+                "lightgbm_auc_in_range": in_range,
+                "prevalence_in_range": prevalence_in_range,
+                "logistic_gap_ok": lr_gap_ok,
+            }
+        )
+        if in_range and prevalence_in_range and lr_gap_ok:
+            return {
+                "signal_strength": strength,
+                "metrics": history[-1],
+                "history": history,
+                "raw": raw,
+            }
+
+    raise RuntimeError(
+        "Calibration did not meet configured at-risk prevalence and CV AUC "
+        f"requirements after {len(history)} iterations: {history}"
+    )

@@ -143,10 +143,10 @@ sample_data:
       noise_sd: 0.72
   outcomes:
     at_risk_threshold: 60
-    intercept: -1.80
+    intercept: -2.25
     signal_strength:
-      initial: 2.50
-      increment: 0.50
+      initial: 3.00
+      increment: 0.10
       maximum_iterations: 8
     factor_weights:
       financial_strain: 0.34
@@ -190,6 +190,10 @@ sample_data:
       min_child_samples: 24
       reg_lambda: 2.0
       n_jobs: 1
+      verbosity: -1
+    logistic_regression:
+      c_value: 1.0
+      max_iter: 500
   outputs:
     raw_full: data/raw/survey_raw_sample.csv
     raw_small: data/raw/survey_raw_sample_300.csv

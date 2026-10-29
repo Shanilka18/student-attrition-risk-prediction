@@ -5,6 +5,7 @@ import pytest
 
 from src.data_gen.sample_survey import (
     EnvironmentalFinancialSampleGenerator,
+    calibrate_signal_strength,
     load_sample_configuration,
 )
 
@@ -97,3 +98,22 @@ def test_response_quality_is_reproducible(sample_generator):
     right = sample_generator.add_response_quality_effects(raw, seed=42)
 
     pd.testing.assert_frame_equal(left, right)
+
+
+def test_five_fold_calibration_meets_prevalence_and_auc_gates(sample_generator):
+    settings = sample_generator.settings
+    result = calibrate_signal_strength(sample_generator)
+    metrics = result["metrics"]
+    auc_lower, auc_upper = settings["outcomes"]["lightgbm_auc_range"]
+    prevalence_lower, prevalence_upper = settings["outcomes"]["prevalence_range"]
+
+    assert (
+        len(result["history"])
+        <= settings["outcomes"]["signal_strength"]["maximum_iterations"]
+    )
+    assert auc_lower <= metrics["lightgbm_auc"] <= auc_upper
+    assert prevalence_lower <= metrics["at_risk_prevalence"] <= prevalence_upper
+    assert (
+        metrics["logistic_auc"]
+        <= metrics["lightgbm_auc"] + settings["outcomes"]["max_logistic_auc_delta"]
+    )
