@@ -9,9 +9,10 @@ import { ExplainabilityPage } from './pages/ExplainabilityPage';
 import { ScoreDataPage } from './pages/ScoreDataPage';
 import { StudentViewPage } from './pages/StudentViewPage';
 import { MethodologyDocsPage } from './pages/MethodologyDocsPage';
+import { CohortProvider, useCohort } from './context/CohortContext';
 
-export function App() {
-  const [currentPage, setCurrentPage] = useState<PageId>('overview');
+function AppContent() {
+  const { currentPage, setCurrentPage } = useCohort();
   const [presentationMode, setPresentationMode] = useState<boolean>(false);
 
   const renderPage = () => {
@@ -58,6 +59,14 @@ export function App() {
         </main>
       </div>
     </div>
+  );
+}
+
+export function App() {
+  return (
+    <CohortProvider>
+      <AppContent />
+    </CohortProvider>
   );
 }
 
