@@ -26,6 +26,7 @@ data/uploads/*
 !data/**/.gitkeep
 
 # Artifacts (large binary models/checkpoints)
+artifacts/user_dataset/
 artifacts/models/**/*.pt
 artifacts/models/**/*.bin
 artifacts/models/**/*.joblib
