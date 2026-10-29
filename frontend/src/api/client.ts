@@ -47,6 +47,7 @@ export interface MetaResponse {
   categories: Record<string, string>;
   n_registered_models: number;
   nfr1_latency_sla_seconds: number;
+  active_run_id?: string | null;
 }
 
 export interface LeaderboardModel {
@@ -268,6 +269,115 @@ export interface ValidationErrorDetail {
   message: string;
 }
 
+// ── Retraining & Isolation Interfaces ────────────────────────────────────────
+
+export interface RetrainInspectResponse {
+  has_outcomes: boolean;
+  n_students: number;
+  n_records: number;
+  n_attrited: number;
+  attrition_rate: number;
+  can_retrain: boolean;
+  blocking_issues: string[];
+  warnings: string[];
+}
+
+export interface RetrainJobSubmitResponse {
+  job_id: string;
+  message: string;
+}
+
+export interface RetrainJobResult {
+  job_id: string;
+  trained_at: string;
+  n_students: number;
+  n_attrited: number;
+  champion: string;
+  champion_label: string;
+  sequence_champion?: string;
+  test_roc_auc: number;
+  test_pr_auc: number;
+  test_f2_score: number;
+  lead_time_semesters: number;
+  budget: string;
+  scope: string;
+  data_mode: string;
+}
+
+export interface RetrainJobStatusResponse {
+  job_id: string;
+  state: 'queued' | 'running' | 'succeeded' | 'failed';
+  phase?: 'validate' | 'splits' | 'features' | 'training' | 'evaluation' | 'explainability' | null;
+  progress_pct: number;
+  message: string;
+  current_model?: string | null;
+  models_done: number;
+  models_total: number;
+  elapsed_s: number;
+  result?: RetrainJobResult | null;
+  error?: string | null;
+}
+
+export interface LatestRetrainResponse {
+  job_id: string;
+  trained_at: string;
+  n_students: number;
+  n_attrited: number;
+  champion: string;
+  champion_label?: string;
+  sequence_champion?: string;
+  test_roc_auc: number;
+  test_pr_auc: number;
+  test_f2_score: number;
+  lead_time_semesters: number;
+  budget: string;
+  scope: string;
+  data_mode: string;
+}
+
+export interface RetrainRunItem {
+  job_id: string;
+  trained_at: string;
+  n_students: number;
+  n_attrited: number;
+  champion: string;
+  champion_label: string;
+  sequence_champion?: string | null;
+  test_roc_auc: number;
+  test_pr_auc: number;
+  test_f2_score: number;
+  lead_time_semesters: number;
+  budget: string;
+  scope: string;
+  is_active: boolean;
+}
+
+export interface RetrainRunsResponse {
+  runs: RetrainRunItem[];
+  active_run_id?: string | null;
+  data_mode: 'SYNTHETIC' | 'REAL';
+}
+
+export interface ActivateRunResponse {
+  message: string;
+  job_id: string;
+  data_mode: 'SYNTHETIC' | 'REAL';
+  champion: string;
+  champion_label: string;
+  metrics: {
+    test_roc_auc?: number;
+    test_pr_auc?: number;
+    test_f2_score?: number;
+    lead_time_semesters?: number;
+  };
+}
+
+export interface RollbackRunResponse {
+  message: string;
+  data_mode: 'SYNTHETIC' | 'REAL';
+  active_model: string;
+}
+
 // ── Generic Fetch Helper ─────────────────────────────────────────────────────
 
 async function apiFetch<T>(endpoint: string, options?: RequestInit): Promise<T> {
@@ -310,7 +420,99 @@ export const api = {
   getGlobalExplain: () => apiFetch<GlobalExplainResponse>('/explain/global'),
   getStudentExplain: (id: string) => apiFetch<StudentExplainResponse>(`/explain/student/${encodeURIComponent(id)}`),
   
-  getTemplateUrl: () => `${BASE_URL}/predict/template`,
+  getTemplateUrl: (withOutcomes: boolean = false) =>
+    `${BASE_URL}/predict/template${withOutcomes ? '?with_outcomes=true' : ''}`,
+
+  inspectDataset: async (file: File): Promise<RetrainInspectResponse> => {
+    const formData = new FormData();
+    formData.append('file', file);
+    const url = `${BASE_URL}/train/inspect`;
+
+    const res = await fetch(url, {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!res.ok) {
+      let errorBody: any = null;
+      try {
+        const text = await res.text();
+        try {
+          errorBody = JSON.parse(text);
+        } catch {
+          errorBody = text;
+        }
+      } catch {
+        errorBody = res.statusText;
+      }
+      throw {
+        status: res.status,
+        detail: errorBody?.detail || errorBody || 'File inspection failed',
+      };
+    }
+    return res.json();
+  },
+
+  startRetrain: async (
+    file: File,
+    budget: 'quick' | 'standard' | 'full' = 'quick',
+    scope: 'champions' | 'full' = 'champions'
+  ): Promise<RetrainJobSubmitResponse> => {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('budget', budget);
+    formData.append('scope', scope);
+    const url = `${BASE_URL}/retrain`;
+
+    const res = await fetch(url, {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!res.ok) {
+      let errorBody: any = null;
+      try {
+        const text = await res.text();
+        try {
+          errorBody = JSON.parse(text);
+        } catch {
+          errorBody = text;
+        }
+      } catch {
+        errorBody = res.statusText;
+      }
+      throw {
+        status: res.status,
+        detail: errorBody?.detail || errorBody || 'Failed to submit retraining job',
+      };
+    }
+    return res.json();
+  },
+
+  getJobStatus: (jobId: string) =>
+    apiFetch<RetrainJobStatusResponse>(`/jobs/${encodeURIComponent(jobId)}`),
+
+  getLatestRetrain: () =>
+    apiFetch<LatestRetrainResponse>('/train/latest'),
+
+  getRetrainRuns: () =>
+    apiFetch<RetrainRunsResponse>('/train/runs'),
+
+  activateRun: (jobId: string) =>
+    apiFetch<ActivateRunResponse>(`/train/activate/${encodeURIComponent(jobId)}`, {
+      method: 'POST',
+    }),
+
+  rollbackRun: () =>
+    apiFetch<RollbackRunResponse>('/train/rollback', {
+      method: 'POST',
+    }),
+
+  deleteRetrainRun: (jobId: string) =>
+    apiFetch<{ message: string; job_id: string; rolled_back: boolean }>(
+      `/train/runs/${encodeURIComponent(jobId)}`,
+      { method: 'DELETE' }
+    ),
   
   predictStudent: (payload: {
     student_id: string;
