@@ -10,6 +10,191 @@ project:
   website_product_name: "Study Conditions Index"
   data_source: sample          # toggle: sample | survey
 
+sample_data:
+  seed: 42
+  sizes:
+    full: 1200
+    small: 300
+    upload: 200
+  identifiers:
+    prefix: "P-"
+    digits: 5
+  timestamps:
+    start: "2026-01-05T08:00:00+05:30"
+    interval_minutes: 7
+  student_types:
+    proportions:
+      stable_supported: 0.34
+      financially_strained: 0.18
+      commute_burdened: 0.14
+      digitally_limited: 0.12
+      working_student: 0.12
+      multi_pressure: 0.10
+  latent_factors:
+    names: [financial_strain, access_burden, digital_gap, home_pressure]
+    type_means:
+      stable_supported: [0.20, 0.20, 0.20, 0.20]
+      financially_strained: [0.78, 0.32, 0.32, 0.48]
+      commute_burdened: [0.38, 0.82, 0.36, 0.38]
+      digitally_limited: [0.40, 0.30, 0.84, 0.62]
+      working_student: [0.66, 0.36, 0.32, 0.42]
+      multi_pressure: [0.84, 0.78, 0.78, 0.82]
+    correlation:
+      - [1.00, 0.28, 0.22, 0.26]
+      - [0.28, 1.00, 0.18, 0.24]
+      - [0.22, 0.18, 1.00, 0.30]
+      - [0.26, 0.24, 0.30, 1.00]
+    standard_deviation: 0.24
+  response_generation:
+    online_rate: 0.10
+    income_band:
+      factor: financial_strain
+      pressure_order: [4, 3, 2, 1, 0]
+      cutpoints: [-1.05, -0.35, 0.35, 1.05]
+      noise_sd: 0.60
+    aid_status:
+      factor: financial_strain
+      pressure_order: [0, 1, 2]
+      cutpoints: [-0.20, 0.65]
+      noise_sd: 0.56
+    family_support_duty:
+      factor: financial_strain
+      pressure_order: [0, 1]
+      threshold: 0.62
+      noise_sd: 0.60
+    cost_difficulty:
+      factor: financial_strain
+      pressure_order: [0, 1, 2, 3]
+      cutpoints: [-0.58, 0.12, 0.80]
+      noise_sd: 0.57
+    commute_time:
+      factor: access_burden
+      pressure_order: [0, 1, 2, 3]
+      cutpoints: [-0.55, 0.15, 0.85]
+      noise_sd: 0.58
+    commute_spend:
+      factor: access_burden
+      pressure_order: [0, 1, 2, 3]
+      cutpoints: [-0.55, 0.15, 0.85]
+      noise_sd: 0.62
+    transport_mode:
+      factor: access_burden
+      pressure_order: [0, 2, 1, 3, 4]
+      cutpoints: [-0.75, -0.05, 0.60, 1.20]
+      noise_sd: 0.72
+    living_situation:
+      factor: home_pressure
+      pressure_order: [0, 1, 2, 3]
+      cutpoints: [-0.55, 0.15, 0.85]
+      noise_sd: 0.70
+    quiet_study_place:
+      factor: home_pressure
+      pressure_order: [0, 1, 2]
+      cutpoints: [-0.10, 0.50]
+      noise_sd: 0.55
+    home_internet:
+      factor: digital_gap
+      pressure_order: [0, 1, 2, 3]
+      cutpoints: [-0.55, 0.15, 0.85]
+      noise_sd: 0.58
+    main_device:
+      factor: digital_gap
+      pressure_order: [0, 3, 2, 1]
+      cutpoints: [-0.55, 0.15, 0.85]
+      noise_sd: 0.66
+    mobile_data_plan:
+      factor: digital_gap
+      pressure_order: [0, 1, 2]
+      cutpoints: [-0.40, 0.42]
+      noise_sd: 0.58
+    part_time_job:
+      factor: financial_strain
+      pressure_order: [0, 1, 2]
+      cutpoints: [-0.35, 0.45]
+      noise_sd: 0.66
+      status_probabilities:
+        stable_supported: [0.65, 0.25, 0.10]
+        financially_strained: [0.40, 0.38, 0.22]
+        commute_burdened: [0.60, 0.28, 0.12]
+        digitally_limited: [0.60, 0.27, 0.13]
+        working_student: [0.00, 0.20, 0.80]
+        multi_pressure: [0.25, 0.40, 0.35]
+    job_hours:
+      factor: financial_strain
+      pressure_order: [0, 1, 2, 3, 4]
+      cutpoints: [-0.90, -0.20, 0.45, 1.10]
+      noise_sd: 0.62
+    financial_shock:
+      factor: financial_strain
+      pressure_order: [0, 1, 2]
+      cutpoints: [0.02, 0.90]
+      noise_sd: 0.88
+    money_worry:
+      factor: financial_strain
+      pressure_order: [0, 1, 2, 3, 4]
+      cutpoints: [-0.95, -0.35, 0.35, 0.95]
+      noise_sd: 0.62
+    missed_due_to_barriers:
+      factor: home_pressure
+      secondary_factor: access_burden
+      secondary_weight: 0.48
+      pressure_order: [0, 1, 2, 3]
+      cutpoints: [-0.60, 0.12, 0.85]
+      noise_sd: 0.72
+  outcomes:
+    at_risk_threshold: 60
+    intercept: -1.80
+    signal_strength:
+      initial: 2.50
+      increment: 0.50
+      maximum_iterations: 8
+    factor_weights:
+      financial_strain: 0.34
+      access_burden: 0.24
+      digital_gap: 0.22
+      home_pressure: 0.20
+    interaction_weight: 0.70
+    latent_noise_sd: 0.80
+    score_noise_sd: 8.0
+    prevalence_range: [0.24, 0.32]
+    lightgbm_auc_range: [0.78, 0.88]
+    max_logistic_auc_delta: 0.04
+  response_quality:
+    prefer_not_to_say_rate: 0.05
+    response_style_rates:
+      acquiescence_money_worry: 0.04
+      midpoint: 0.04
+      extreme: 0.04
+    straight_liner_rate: 0.02
+    attention_fail_rate: 0.02
+    random_missing_rate: 0.02
+    no_consent_rate: 0.01
+    duplicate_rate: 0.005
+    typo_rate: 0.003
+    random_state: 42
+  messy_upload:
+    blank_rate: 0.03
+    invalid_value_rate: 0.01
+    unknown_column_name: "legacy_extra_field"
+  calibration:
+    folds: 5
+    random_state: 42
+    lightgbm:
+      n_estimators: 110
+      learning_rate: 0.045
+      max_depth: 3
+      num_leaves: 7
+      min_child_samples: 24
+      reg_lambda: 2.0
+      n_jobs: 1
+  outputs:
+    raw_full: data/raw/survey_raw_sample.csv
+    raw_small: data/raw/survey_raw_sample_300.csv
+    hidden_truth: data/raw/ground_truth_hidden.csv
+    clean_upload: data/samples/sample_upload_clean.xlsx
+    messy_upload: data/samples/sample_upload_messy.csv
+    figures_dir: docs/figures
+
 # ── Cross-sectional design ─────────────────────────────────────────────────────
 design:
   cross_sectional: true

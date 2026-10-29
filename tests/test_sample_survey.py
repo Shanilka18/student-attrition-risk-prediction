@@ -1,0 +1,67 @@
+"""Tests for the configuration-driven Environmental & Financial sample core."""
+
+import pandas as pd
+import pytest
+
+from src.data_gen.sample_survey import (
+    EnvironmentalFinancialSampleGenerator,
+    load_sample_configuration,
+)
+
+
+@pytest.fixture(scope="module")
+def sample_generator():
+    settings, schema, mappings = load_sample_configuration()
+    return EnvironmentalFinancialSampleGenerator(settings, schema, mappings)
+
+
+def test_core_generates_canonical_feature_columns_and_isolated_truth(sample_generator):
+    settings = sample_generator.settings
+    raw, hidden = sample_generator.generate(settings["sizes"]["full"])
+    features = sample_generator.canonical_feature_frame(raw)
+
+    assert len(raw) == settings["sizes"]["full"]
+    assert list(features.columns) == list(sample_generator.schema["items"])
+    assert list(hidden.columns) == ["type", "F", "A", "D", "H", "latent_risk"]
+    assert not set(hidden.columns).intersection(features.columns)
+    assert all(
+        sample_generator.mappings[column]["google_forms_header"] in raw.columns
+        for column in features.columns
+    )
+
+
+def test_core_generation_is_reproducible(sample_generator):
+    left_raw, left_truth = sample_generator.generate(300, seed=42)
+    right_raw, right_truth = sample_generator.generate(300, seed=42)
+
+    pd.testing.assert_frame_equal(left_raw, right_raw)
+    pd.testing.assert_frame_equal(left_truth, right_truth)
+
+
+def test_online_commute_responses_are_consistent(sample_generator):
+    raw, _ = sample_generator.generate(1200)
+    features = sample_generator.canonical_feature_frame(raw)
+    online = features["commute_time"].str.startswith("Not applicable")
+
+    assert online.mean() == pytest.approx(
+        sample_generator.settings["response_generation"]["online_rate"], abs=0.035
+    )
+    assert features.loc[online, "commute_spend"].str.startswith("Not applicable").all()
+    assert features.loc[online, "transport_mode"].str.startswith("Not applicable").all()
+    assert (
+        features.loc[
+            online, ["commute_time", "commute_spend", "transport_mode"]
+        ].nunique()
+        == 1
+    ).all()
+
+
+def test_nonbinary_item_levels_are_not_dominated(sample_generator):
+    raw, _ = sample_generator.generate(1200)
+    features = sample_generator.canonical_feature_frame(raw)
+
+    for item, metadata in sample_generator.schema["items"].items():
+        if metadata["type"] == "binary":
+            continue
+        largest_level = features[item].value_counts(normalize=True).max()
+        assert largest_level <= 0.50, f"{item} level share is {largest_level:.3f}"
