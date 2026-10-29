@@ -9,7 +9,8 @@ from typing import Any
 import numpy as np
 import pandas as pd
 from sklearn.base import BaseEstimator, TransformerMixin
-from sklearn.preprocessing import OneHotEncoder
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
 from src.preprocessing.codec import EnvFinCodec
 from src.utils.config_loader import load_yaml
@@ -474,3 +475,269 @@ class IndexBuilder(BaseEstimator, TransformerMixin):
             [column for column in input_names if column not in dropped] + added,
             dtype=object,
         )
+
+
+class ProfileFeatureEncoder(BaseEstimator, TransformerMixin):
+    """Fit profile memberships on the current training partition only."""
+
+    def __init__(
+        self,
+        n_profiles: int = 4,
+        random_state: int = 42,
+        index_columns: tuple[str, ...] = (
+            "financial_stress_index",
+            "commute_burden_index",
+            "digital_access_gap_index",
+            "study_environment_pressure_index",
+        ),
+    ) -> None:
+        self.n_profiles = n_profiles
+        self.random_state = random_state
+        self.index_columns = index_columns
+
+    def fit(self, X: pd.DataFrame, y: Any = None) -> ProfileFeatureEncoder:
+        missing = set(self.index_columns) - set(X.columns)
+        if missing:
+            raise ValueError(f"Profile inputs are missing indices: {sorted(missing)}")
+        if len(X) < self.n_profiles:
+            raise ValueError(
+                f"At least {self.n_profiles} rows are required to fit profile groups"
+            )
+        self.feature_names_in_ = np.asarray(X.columns, dtype=object)
+        self.clusterer_ = KMeans(
+            n_clusters=self.n_profiles,
+            random_state=self.random_state,
+            n_init=10,
+        ).fit(X.loc[:, self.index_columns])
+        self.profile_feature_names_ = tuple(
+            f"profile_cluster_{index}" for index in range(self.n_profiles)
+        )
+        return self
+
+    def transform(self, X: pd.DataFrame) -> pd.DataFrame:
+        if not hasattr(self, "clusterer_"):
+            raise RuntimeError("ProfileFeatureEncoder must be fitted before transform")
+        labels = self.clusterer_.predict(X.loc[:, self.index_columns])
+        membership = pd.DataFrame(
+            np.eye(self.n_profiles, dtype=np.int8)[labels],
+            index=X.index,
+            columns=self.profile_feature_names_,
+        )
+        return pd.concat([X.copy(), membership], axis=1)
+
+    def get_feature_names_out(self, input_features=None) -> np.ndarray:
+        if not hasattr(self, "profile_feature_names_"):
+            raise RuntimeError(
+                "ProfileFeatureEncoder must be fitted before requesting feature names"
+            )
+        input_names = (
+            self.feature_names_in_ if input_features is None else input_features
+        )
+        return np.asarray(
+            [*input_names, *self.profile_feature_names_],
+            dtype=object,
+        )
+
+
+class FeatureSetSelector(BaseEstimator, TransformerMixin):
+    """Select configured raw, aggregated, profile, or income-only columns."""
+
+    def __init__(
+        self,
+        feature_set: str,
+        model_zoo_path: str | None = None,
+    ) -> None:
+        self.feature_set = feature_set
+        self.model_zoo_path = model_zoo_path
+
+    def _load_model_zoo(self) -> dict[str, Any]:
+        path = (
+            Path(self.model_zoo_path)
+            if self.model_zoo_path is not None
+            else get_project_root() / "config" / "model_zoo.yaml"
+        )
+        return load_yaml(path)
+
+    def fit(self, X: pd.DataFrame, y: Any = None) -> FeatureSetSelector:
+        if not isinstance(X, pd.DataFrame):
+            raise TypeError("FeatureSetSelector requires a pandas DataFrame")
+        self.feature_names_in_ = np.asarray(X.columns, dtype=object)
+        self.model_zoo_ = self._load_model_zoo()
+        sets = self.model_zoo_.get("feature_sets", {})
+        if self.feature_set not in sets:
+            raise ValueError(f"Unknown feature set: {self.feature_set}")
+        specification = sets[self.feature_set]
+        if self.feature_set == "single_signal":
+            selected = specification["features"]
+        else:
+            raw = sets["raw"]
+            prefixes = tuple(raw["nominal_prefixes"] + raw["flag_prefixes"])
+            selected = [
+                column
+                for column in X.columns
+                if column.endswith(raw["pressure_suffix"])
+                or column.startswith(prefixes)
+            ]
+            if self.feature_set in {"agg", "agg_profiles"}:
+                selected.extend(sets["agg"]["engineered_features"])
+            if self.feature_set == "agg_profiles":
+                profile_prefix = specification["profile_prefix"]
+                selected.extend(
+                    column for column in X.columns if column.startswith(profile_prefix)
+                )
+        missing = set(selected) - set(X.columns)
+        if missing:
+            raise ValueError(
+                f"Feature set {self.feature_set} requests missing columns: "
+                f"{sorted(missing)}"
+            )
+        self.selected_features_ = tuple(dict.fromkeys(selected))
+        if not self.selected_features_:
+            raise ValueError(f"Feature set {self.feature_set} selected no columns")
+        return self
+
+    def transform(self, X: pd.DataFrame) -> pd.DataFrame:
+        if not hasattr(self, "selected_features_"):
+            raise RuntimeError("FeatureSetSelector must be fitted before transform")
+        missing = set(self.selected_features_) - set(X.columns)
+        if missing:
+            raise ValueError(f"Transform input is missing columns: {sorted(missing)}")
+        return X.loc[:, self.selected_features_].copy()
+
+    def get_feature_names_out(self, input_features=None) -> np.ndarray:
+        if not hasattr(self, "selected_features_"):
+            raise RuntimeError(
+                "FeatureSetSelector must be fitted before requesting feature names"
+            )
+        return np.asarray(self.selected_features_, dtype=object)
+
+
+class NearConstantFeatureRemover(BaseEstimator, TransformerMixin):
+    """Remove features with training-partition variance at or below a threshold."""
+
+    def __init__(self, variance_threshold: float = 0.005) -> None:
+        self.variance_threshold = variance_threshold
+
+    def fit(self, X: pd.DataFrame, y: Any = None) -> NearConstantFeatureRemover:
+        if self.variance_threshold < 0:
+            raise ValueError("variance_threshold must be non-negative")
+        self.feature_names_in_ = np.asarray(X.columns, dtype=object)
+        variances = X.astype(float).var(axis=0, ddof=0)
+        self.selected_features_ = tuple(
+            variances[variances > self.variance_threshold].index
+        )
+        self.removed_features_ = tuple(
+            variances[variances <= self.variance_threshold].index
+        )
+        if not self.selected_features_:
+            raise ValueError(
+                "Near-constant removal would eliminate every selected feature"
+            )
+        return self
+
+    def transform(self, X: pd.DataFrame) -> pd.DataFrame:
+        if not hasattr(self, "selected_features_"):
+            raise RuntimeError(
+                "NearConstantFeatureRemover must be fitted before transform"
+            )
+        return X.loc[:, self.selected_features_].copy()
+
+    def get_feature_names_out(self, input_features=None) -> np.ndarray:
+        if not hasattr(self, "selected_features_"):
+            raise RuntimeError(
+                "NearConstantFeatureRemover must be fitted before requesting feature names"
+            )
+        return np.asarray(self.selected_features_, dtype=object)
+
+
+class FeatureScaler(BaseEstimator, TransformerMixin):
+    """Apply a training-fitted standard scaler while retaining data-frame columns."""
+
+    def __init__(self, method: str = "standard") -> None:
+        self.method = method
+
+    def fit(self, X: pd.DataFrame, y: Any = None) -> FeatureScaler:
+        if self.method != "standard":
+            raise ValueError(f"Unsupported feature scaling method: {self.method}")
+        self.feature_names_in_ = np.asarray(X.columns, dtype=object)
+        self.scaler_ = StandardScaler()
+        self.scaler_.fit(X.astype(float))
+        return self
+
+    def transform(self, X: pd.DataFrame) -> pd.DataFrame:
+        if not hasattr(self, "scaler_"):
+            raise RuntimeError("FeatureScaler must be fitted before transform")
+        transformed = self.scaler_.transform(
+            X.loc[:, self.feature_names_in_].astype(float)
+        )
+        return pd.DataFrame(
+            transformed,
+            index=X.index,
+            columns=self.feature_names_in_,
+        )
+
+    def get_feature_names_out(self, input_features=None) -> np.ndarray:
+        if not hasattr(self, "feature_names_in_"):
+            raise RuntimeError(
+                "FeatureScaler must be fitted before requesting feature names"
+            )
+        return np.asarray(self.feature_names_in_, dtype=object)
+
+
+def build_feature_pipeline(
+    feature_set: str,
+    model_name: str,
+    codec: EnvFinCodec | None = None,
+    model_zoo_path: str | None = None,
+) -> Any:
+    """Build the complete fold-fitted sklearn pipeline for a registered model."""
+    from sklearn.pipeline import Pipeline
+
+    config_path = (
+        Path(model_zoo_path)
+        if model_zoo_path is not None
+        else get_project_root() / "config" / "model_zoo.yaml"
+    )
+    model_zoo = load_yaml(config_path)
+    registry = model_zoo.get("model_registry", {})
+    if model_name not in registry:
+        raise ValueError(f"Unknown model registry name: {model_name}")
+    model_config = registry[model_name]
+    preprocessing = model_zoo.get("preprocessing", {})
+    steps = [
+        ("imputer", ItemImputer(codec=codec)),
+        ("encoder", ItemEncoder(codec=codec)),
+        ("indices", IndexBuilder(codec=codec)),
+    ]
+    feature_set_config = model_zoo["feature_sets"].get(feature_set)
+    if feature_set_config is None:
+        raise ValueError(f"Unknown feature set: {feature_set}")
+    if feature_set == "agg_profiles":
+        steps.append(
+            (
+                "profiles",
+                ProfileFeatureEncoder(
+                    n_profiles=int(feature_set_config["profile_count"]),
+                    random_state=42,
+                ),
+            )
+        )
+    steps.extend(
+        [
+            ("select", FeatureSetSelector(feature_set, str(config_path))),
+            (
+                "near_constant",
+                NearConstantFeatureRemover(
+                    float(preprocessing["near_constant_variance_threshold"])
+                ),
+            ),
+        ]
+    )
+    if model_config["family"] in preprocessing["scaled_model_families"]:
+        steps.append(
+            (
+                "scale",
+                FeatureScaler(method=preprocessing["scaling_method"]),
+            )
+        )
+    return Pipeline(steps)

@@ -246,6 +246,12 @@ feature_engineering:
   weak_internet_min_code: 2
   smartphone_only_code: 1
 
+feature_pipeline:
+  inputs:
+    sample: data/raw/survey_raw_sample.csv
+    survey: data/raw/survey_raw.csv
+  split_seed: 42
+
 # ── Cross-sectional design ─────────────────────────────────────────────────────
 design:
   cross_sectional: true

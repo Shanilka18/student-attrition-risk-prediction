@@ -1,0 +1,75 @@
+feature_sets:
+  raw:
+    pressure_suffix: "__pressure"
+    nominal_prefixes:
+      - "transport_mode_"
+      - "living_situation_"
+      - "main_device_"
+    flag_prefixes:
+      - "is_"
+      - "pns_"
+      - "flag_"
+      - "missing__"
+  agg:
+    engineered_features:
+      - financial_stress_index
+      - commute_burden_index
+      - digital_access_gap_index
+      - study_environment_pressure_index
+      - overall_pressure_index
+      - indices_above_066_count
+      - travel_spend_to_income_ratio
+      - low_income_no_aid
+      - working_over_20h_long_commute
+      - weak_internet_smartphone_only
+  agg_profiles:
+    profile_prefix: "profile_cluster_"
+    profile_method: "kmeans"
+    profile_count: 4
+  single_signal:
+    features:
+      - income_band__pressure
+
+preprocessing:
+  near_constant_variance_threshold: 0.005
+  scaling_method: "standard"
+  scaled_model_families:
+    - linear
+    - neural
+    - svm
+    - knn
+
+model_registry:
+  logistic_regression:
+    family: linear
+    estimator: LogisticRegression
+    class_weight: balanced
+    max_iter: 1000
+  lightgbm:
+    family: tree
+    estimator: LGBMClassifier
+    class_weight: balanced
+    n_estimators: 120
+    learning_rate: 0.05
+    max_depth: 3
+    num_leaves: 7
+    min_child_samples: 20
+    verbosity: -1
+  random_forest:
+    family: tree
+    estimator: RandomForestClassifier
+    class_weight: balanced
+  xgboost:
+    family: tree
+    estimator: XGBClassifier
+    class_weight: balanced
+  svm:
+    family: svm
+    estimator: SVC
+    class_weight: balanced
+  knn:
+    family: knn
+    estimator: KNeighborsClassifier
+  mlp:
+    family: neural
+    estimator: MLPClassifier

@@ -164,6 +164,40 @@ def cmd_clean(args):
         print(f"Warning: {warning}")
 
 
+def cmd_features(args):
+    """Create guarded splits, fold-fitted feature tables, and diagnostics."""
+    from src.preprocessing.feature_workflow import run_feature_workflow
+
+    summary = run_feature_workflow(
+        input_path=args.input,
+        run_id=args.run_id,
+        output_root=Path(args.output_root) if args.output_root else None,
+        seed=args.seed,
+    )
+    print(f"Feature run: {summary['run_id']} (data source: {summary['data_source']})")
+    print(f"Split artifact: {summary['splits_path']}")
+    print("Feature-table shapes:")
+    for feature_set, shape_info in summary["feature_shapes"].items():
+        print(
+            f"  {feature_set}: train={tuple(shape_info['train'])}, "
+            f"validation={tuple(shape_info['validation'])}"
+        )
+    for comparison in summary["model_comparison"]:
+        print(
+            f"  CV {comparison['feature_set']} / {comparison['model']}: "
+            f"ROC-AUC={comparison['mean']:.3f} "
+            f"[{comparison['ci_95_low']:.3f}, {comparison['ci_95_high']:.3f}]"
+        )
+    for model, error in summary["model_errors"].items():
+        print(f"Model unavailable ({model}): {error}")
+    print(
+        f"Leakage audit: {'passed' if summary['leakage_audit']['passed'] else 'failed'}"
+    )
+    if summary["warning"]:
+        print(f"Warning: {summary['warning']}")
+    print(f"Feature summary: {summary['summary_path']}")
+
+
 def main():
     parser = argparse.ArgumentParser(
         prog="python -m efi.cli",
@@ -208,6 +242,24 @@ def main():
         "--output-root",
         help="Optional project root for parquet and JSON output (primarily for tests)",
     )
+    features_parser = subparsers.add_parser(
+        "features",
+        help="Create guarded splits, engineered feature tables, and diagnostics",
+    )
+    features_parser.add_argument(
+        "--input",
+        help="Optional CSV/XLSX/XLS override; otherwise uses the configured data source",
+    )
+    features_parser.add_argument("--run-id", help="Unique feature-run identifier")
+    features_parser.add_argument(
+        "--output-root",
+        help="Optional project root for run artifacts (primarily for tests)",
+    )
+    features_parser.add_argument(
+        "--seed",
+        type=int,
+        help="Optional override for the configured split seed",
+    )
 
     args = parser.parse_args()
 
@@ -217,6 +269,7 @@ def main():
         "info": cmd_info,
         "make-sample-data": cmd_make_sample_data,
         "clean": cmd_clean,
+        "features": cmd_features,
     }
 
     if args.command in dispatch:
