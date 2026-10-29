@@ -133,7 +133,7 @@ export metadata, not real collection dates or identifiers.
 | `docs/figures/06_configured_vs_achieved.png` | Configured response rates versus achieved sample rates |
 
 All six figures use the configured brand palette and 300 DPI. Regenerate
-everything with `python -m mei.cli make-sample-data`; the CLI prints the chosen
+everything with `python -m efi.cli make-sample-data`; the CLI prints the chosen
 signal and calibration metrics. Run settings belong in `config/project.yaml`,
 including `project.data_source` (`sample` now, `survey` after approved real
 survey import). Never add `ground_truth_hidden.csv` to upload or model feature

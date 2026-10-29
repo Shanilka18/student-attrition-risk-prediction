@@ -1,4 +1,4 @@
-"""CLI interface for Environmental & Financial Framework (mei compatibility layer).
+"""CLI interface for the Environmental & Financial Index.
 
 Commands
 --------
@@ -166,7 +166,7 @@ def cmd_clean(args):
 
 def main():
     parser = argparse.ArgumentParser(
-        prog="python -m mei.cli",
+        prog="python -m efi.cli",
         description="Environmental & Financial Intelligence CLI",
     )
     subparsers = parser.add_subparsers(dest="command", help="Sub-commands")

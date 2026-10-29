@@ -16,7 +16,7 @@ stale preprocessed files.
 Run the generated sample end to end:
 
 ```powershell
-python -m mei.cli clean --input data/raw/survey_raw_sample.csv --mode training
+python -m efi.cli clean --input data/raw/survey_raw_sample.csv --mode training
 ```
 
 Each run writes `data/interim/clean_<run_id>.parquet` and

@@ -112,7 +112,7 @@ privacy guarantee.
 
 ## Maintenance
 
-Regenerate with `python -m mei.cli make-sample-data`. Keep all numeric
+Regenerate with `python -m efi.cli make-sample-data`. Keep all numeric
 generation and quality settings in `config/project.yaml` under `sample_data`.
 When real survey data becomes available, use configuration-driven source
 selection and keep it outside this synthetic sample card and repository

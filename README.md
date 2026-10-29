@@ -51,9 +51,9 @@ On Windows, provision the project environment and validate the survey schema:
 
 ```powershell
 .\tasks.ps1 setup
-.\.venv\Scripts\python.exe -m mei.cli --help
-.\.venv\Scripts\python.exe -m mei.cli setup
-.\.venv\Scripts\python.exe -m mei.cli profiles
+.\.venv\Scripts\python.exe -m efi.cli --help
+.\.venv\Scripts\python.exe -m efi.cli setup
+.\.venv\Scripts\python.exe -m efi.cli profiles
 ```
 
 Run the tests with:
@@ -75,7 +75,7 @@ profiles, API, and frontend tasks.
   schema and response mappings.
 - `src/` — data generation, cleaning, preprocessing, modeling, evaluation,
   explanation, inference, API, and related pipeline modules.
-- `mei/cli.py` — setup, profiles, and project information commands.
+- `efi/cli.py` — setup, profiles, and project information commands.
 - `frontend/` — website implementation.
 - `docs/` — research context, decisions, questionnaire, ethics, and technical
   documentation.

@@ -8,7 +8,7 @@ from pathlib import Path
 import pytest
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-ACTIVE_ROOTS = ("src", "mei", "tests", "config", "configs", "scripts", "frontend")
+ACTIVE_ROOTS = ("src", "efi", "tests", "config", "configs", "scripts", "frontend")
 ACTIVE_FILES = ("Makefile", "tasks.ps1")
 SCAN_EXTENSIONS = {
     ".js",

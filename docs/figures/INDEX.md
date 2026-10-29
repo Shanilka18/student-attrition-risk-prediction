@@ -10,6 +10,6 @@
 | [06_configured_vs_achieved.png](./06_configured_vs_achieved.png) | Configured response-quality targets compared with achieved rates | Integer sample counts may differ slightly from target percentages |
 
 All six figures are generated at 300 DPI with the configured brand palette by
-`python -m mei.cli make-sample-data`. See
+`python -m efi.cli make-sample-data`. See
 [`03_sample_data.md`](../03_sample_data.md) for generation settings,
 calibration decisions, output definitions, and limitations.

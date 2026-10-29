@@ -1,4 +1,4 @@
-"""MEI / Environmental & Financial package module."""
+"""Environmental & Financial Index package module."""
 
 from src.preprocessing.codec import EnvFinCodec
 

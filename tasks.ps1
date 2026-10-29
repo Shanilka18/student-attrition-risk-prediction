@@ -75,7 +75,7 @@ switch ($Target) {
     }
     "profiles" {
         Write-Host "[TASK: profiles] Showing latent risk profile configuration..." -ForegroundColor Cyan
-        & $VenvPython -m mei.cli profiles
+        & $VenvPython -m efi.cli profiles
     }
     "test" {
         Write-Host "[TASK: test] Executing automated test suite..." -ForegroundColor Cyan

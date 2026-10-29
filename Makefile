@@ -54,7 +54,7 @@ causal:
 	$(PYTHON) -m src.causal.run_phase7
 
 profiles:
-	$(PYTHON) -m mei.cli profiles
+	$(PYTHON) -m efi.cli profiles
 
 api:
 	$(PYTHON) -m uvicorn src.api.main:app --host 0.0.0.0 --port 8000 --reload

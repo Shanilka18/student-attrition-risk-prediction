@@ -254,7 +254,7 @@ def test_generated_export_removal_counts_match_quality_injection(cleaner):
 
 
 def test_cli_clean_writes_outputs_and_prints_suggestions(tmp_path, monkeypatch, capsys):
-    from mei.cli import main
+    from efi.cli import main
 
     input_path = tmp_path / "messy.csv"
     pd.DataFrame(
@@ -269,7 +269,7 @@ def test_cli_clean_writes_outputs_and_prints_suggestions(tmp_path, monkeypatch, 
         sys,
         "argv",
         [
-            "python -m mei.cli",
+            "python -m efi.cli",
             "clean",
             "--input",
             str(input_path),
