@@ -1,0 +1,45 @@
+# Production Dockerfile for FastAPI Backend Microservice
+# SLIIT CDAP Project KND-CDAP-IT-05 (Environmental Risk Intelligence)
+
+FROM python:3.11-slim as builder
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir --user -r requirements.txt
+
+# Final runtime image
+FROM python:3.11-slim as runner
+
+WORKDIR /app
+
+# Non-root security user
+RUN groupadd -r eri && useradd -r -g eri -s /bin/bash eri
+
+# Copy installed wheels from builder
+COPY --from=builder /root/.local /home/eri/.local
+ENV PATH=/home/eri/.local/bin:$PATH
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
+
+# Copy project code and artifacts
+COPY configs/ ./configs/
+COPY src/ ./src/
+COPY data/ ./data/
+COPY artifacts/ ./artifacts/
+COPY reports/ ./reports/
+
+RUN chown -R eri:eri /app
+USER eri
+
+EXPOSE 8000
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
+  CMD curl -f http://localhost:8000/health || exit 1
+
+CMD ["uvicorn", "src.api.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "2"]

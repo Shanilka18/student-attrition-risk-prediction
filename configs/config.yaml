@@ -1,0 +1,128 @@
+# Environmental & Financial Causal Risk Intelligence Framework
+# Configuration File (SLIIT CDAP Project KND-CDAP-IT-05)
+
+project:
+  name: "Environmental & Financial Causal Risk Intelligence Framework"
+  short_name: "ERI_Project"
+  project_id: "KND-CDAP-IT-05"
+  version: "1.0.0"
+  author_id: "IT23445154"
+  description: "Component 4 of Multi-Factor Student Attrition Risk Prediction System"
+
+reproducibility:
+  seed: 42
+  deterministic_algorithms: true
+  python_hash_seed: "42"
+
+paths:
+  raw_data: "data/raw"
+  interim_data: "data/interim"
+  processed_data: "data/processed"
+  synthetic_data: "data/synthetic"
+  artifacts: "artifacts"
+  models: "artifacts/models"
+  scalers: "artifacts/scalers"
+  calibrators: "artifacts/calibrators"
+  leaderboard: "artifacts/leaderboard"
+  metrics: "artifacts/metrics"
+  curves: "artifacts/curves"
+  reports: "reports/figures"
+  docs: "docs"
+  configs: "configs"
+
+data:
+  synthetic:
+    n_samples: 2000
+    default_n_samples: 2000
+    target_attrition_rate: 0.16
+    min_prevalence: 0.12
+    max_prevalence: 0.20
+    roc_auc_target_min: 0.72
+    roc_auc_target_max: 0.88
+    label_watermark: "SYNTHETIC - pipeline validation only"
+  corruption:
+    missing_rate_min: 0.03
+    missing_rate_max: 0.08
+    income_mnar_rate: 0.12
+    duplicate_rate: 0.01
+    impossible_value_rate: 0.015
+    logic_contradiction_rate: 0.02
+    string_casing_rate: 0.04
+    dtype_str_corruption_rate: 0.025
+
+derived_exposures:
+  financial_hardship:
+    max_income_bracket: 2
+    min_financial_stress: 4
+  long_commute:
+    threshold_min: 120.0
+  inadequate_digital_access:
+    max_internet_reliability: 2
+    restricted_device_types: ["phone only", "none"]
+  heavy_part_time_work:
+    threshold_hours: 15.0
+
+causal:
+  planted_ground_truth:
+    ate_financial_hardship: 0.10
+    ate_long_commute: 0.06
+    ate_inadequate_digital_access: 0.07
+    ate_heavy_part_time_work: 0.05
+    heterogeneity:
+      exposure: "financial_hardship"
+      moderators: ["year_of_study", "district_type"]
+      cate_senior_rural: 0.16
+      cate_junior_urban: 0.07
+  conditional_causal_forest:
+    min_events: 60
+    min_sample_size: 300
+    evaluate_overlap: true
+  bootstrap:
+    n_iterations: 1000
+    confidence_level: 0.95
+
+split:
+  test_size: 0.20
+  cv_folds: 5
+  cv_repeats: 3
+  stratify_column: "attrition"
+  group_column: "participant_id"
+  random_state: 42
+
+outcomes:
+  primary: "attrition"
+  proxy: "intention_to_withdraw"
+  continuous_score: "latent_risk_score"
+
+eri_scale:
+  min: 0.0
+  max: 100.0
+  scaling_factor: 100.0
+  fallback_label: "normalised model-risk score"
+  calibrated_label: "Environmental & Financial Index (EFI)"
+  risk_bands:
+    - band: "Low"
+      min: 0.0
+      max: 25.0
+      action: "Standard student support services"
+    - band: "Moderate"
+      min: 25.0
+      max: 50.0
+      action: "Advisory check-in & financial aid information"
+    - band: "High"
+      min: 50.0
+      max: 75.0
+      action: "Proactive bursary outreach & commute/housing counseling"
+    - band: "Critical"
+      min: 75.0
+      max: 100.0
+      action: "Immediate emergency assistance & flexible study accommodations"
+
+leakage_control:
+  strict_pipeline: true
+  impute_inside_cv: true
+  encode_inside_cv: true
+  scale_inside_cv: true
+  select_inside_cv: true
+  tune_inside_cv: true
+  holdout_opened_once_at_end: true

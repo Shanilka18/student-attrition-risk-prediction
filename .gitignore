@@ -1,0 +1,82 @@
+# Virtual Environment
+.venv
+.venv/
+env/
+venv/
+ENV/
+
+# Real student data (strictly uncommitted)
+data/real/*
+!data/real/.gitkeep
+
+# Reference material kept locally outside version control
+reference/antigravity_prompt_pack.md
+reference/*[Ee]ngagement*questionnaire*
+reference/*[Qq]uestionnaire*[Ee]ngagement*
+
+# Data directories (raw is strictly uncommitted; synthetic & interim cached)
+data/raw/*
+!data/raw/.gitkeep
+data/interim/*
+!data/interim/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+data/synthetic/*
+!data/synthetic/.gitkeep
+
+# Artifacts - runs, large models and binary files (keep manifest files)
+artifacts/runs/**/*
+!artifacts/runs/**/
+!artifacts/runs/**/manifest.json
+!artifacts/runs/**/manifest.yaml
+!artifacts/runs/**/manifest.yml
+!artifacts/runs/.gitkeep
+artifacts/models/*
+!artifacts/models/.gitkeep
+artifacts/scalers/*
+!artifacts/scalers/.gitkeep
+artifacts/calibrators/*
+!artifacts/calibrators/.gitkeep
+*.pt
+*.pth
+*.joblib
+*.pkl
+*.bin
+*.onnx
+
+# Node dependencies
+node_modules/
+**/node_modules/
+frontend/node_modules/
+frontend/dist/
+frontend/.next/
+frontend/build/
+.npm
+.yarn
+
+# Python bytecode and caches
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+.matplotlib/
+.matplotlib_cache/
+scratch/
+
+# OS and Editor files
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Environment variables
+.env
+.env.local

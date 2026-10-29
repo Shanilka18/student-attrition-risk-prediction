@@ -1,0 +1,287 @@
+# Environmental & Financial Causal Risk Intelligence Framework
+# Schema Specification (SLIIT CDAP Project KND-CDAP-IT-05)
+# Every column: name, type, allowed_values/range, role, description
+
+columns:
+  # Identifier
+  - name: "participant_id"
+    type: "string"
+    role: "id"
+    description: "Pseudonymous student identifier formatted as P-XXXXX; strictly no direct PII."
+    pattern: "^P-\\d{5}$"
+    nullable: false
+
+  # Demographics & Context (Fairness audit / Baseline Confounders)
+  - name: "gender"
+    type: "categorical"
+    role: "covariate"
+    allowed_values:
+      - "Female"
+      - "Male"
+      - "Non-binary"
+    description: "Reported gender, strictly preserved for post-hoc algorithmic fairness and subgroup parity audits; EXCLUDED from predictive model features."
+    nullable: false
+
+  - name: "faculty"
+    type: "categorical"
+    role: "covariate"
+    allowed_values:
+      - "Computing"
+      - "Engineering"
+      - "Business"
+      - "Humanities"
+    description: "Undergraduate faculty of enrollment."
+    nullable: false
+
+  - name: "year_of_study"
+    type: "integer"
+    role: "covariate"
+    range:
+      min: 1
+      max: 4
+    allowed_values: [1, 2, 3, 4]
+    description: "Current undergraduate year of study (1: First year, 4: Final year)."
+    nullable: false
+
+  - name: "district_type"
+    type: "categorical"
+    role: "covariate"
+    allowed_values:
+      - "urban"
+      - "semi-urban"
+      - "rural"
+    description: "Geographic classification of permanent home domicile in Sri Lanka."
+    nullable: false
+
+  # Socioeconomic & Financial Indicators
+  - name: "household_income_bracket"
+    type: "integer"
+    role: "feature"
+    range:
+      min: 1
+      max: 6
+    allowed_values: [1, 2, 3, 4, 5, 6]
+    ordered: true
+    description: "Monthly household gross income bracket (1: <30k LKR, 2: 30k-60k LKR, 3: 60k-100k LKR, 4: 100k-160k LKR, 5: 160k-250k LKR, 6: >250k LKR)."
+    nullable: false
+
+  - name: "financial_stress"
+    type: "integer"
+    role: "feature"
+    range:
+      min: 1
+      max: 5
+    allowed_values: [1, 2, 3, 4, 5]
+    description: "Self-reported financial stress scale (1: Minimal / None, 5: Extreme financial emergency)."
+    nullable: false
+
+  - name: "scholarship_bursary"
+    type: "integer"
+    role: "feature"
+    range:
+      min: 0
+      max: 1
+    allowed_values: [0, 1]
+    description: "Recipient of Mahapola, institutional bursary, or fee waiver grant (1: Recipient, 0: None)."
+    nullable: false
+
+  - name: "dependents_count"
+    type: "integer"
+    role: "feature"
+    range:
+      min: 0
+      max: 6
+    allowed_values: [0, 1, 2, 3, 4, 5, 6]
+    description: "Number of family dependents reliant on student or student's immediate household."
+    nullable: false
+
+  # Housing & Commuting Barriers
+  - name: "housing_type"
+    type: "categorical"
+    role: "feature"
+    allowed_values:
+      - "home"
+      - "boarding"
+      - "hostel"
+      - "relatives"
+    description: "Living accommodation type during academic terms."
+    nullable: false
+
+  - name: "commute_time_min"
+    type: "float"
+    role: "feature"
+    range:
+      min: 0.0
+      max: 240.0
+    unit: "minutes"
+    description: "One-way daily transit or travel duration to university campus."
+    nullable: false
+
+  - name: "commute_cost_lkr_week"
+    type: "float"
+    role: "feature"
+    range:
+      min: 0.0
+      max: 15000.0
+    unit: "LKR/week"
+    description: "Weekly transportation expenditure in Sri Lankan Rupees."
+    nullable: false
+
+  # Digital Infrastructure & Study Environment
+  - name: "internet_reliability"
+    type: "integer"
+    role: "feature"
+    range:
+      min: 1
+      max: 5
+    allowed_values: [1, 2, 3, 4, 5]
+    description: "Home internet stability for coursework (1: Very unreliable/intermittent, 5: Seamless broadband)."
+    nullable: false
+
+  - name: "internet_affordability"
+    type: "integer"
+    role: "feature"
+    range:
+      min: 1
+      max: 5
+    allowed_values: [1, 2, 3, 4, 5]
+    description: "Ease of financing monthly cellular/fiber data packages (1: Severe strain, 5: Easily affordable)."
+    nullable: false
+
+  - name: "device_type"
+    type: "categorical"
+    role: "feature"
+    allowed_values:
+      - "own laptop"
+      - "shared laptop"
+      - "phone only"
+      - "none"
+    description: "Primary digital hardware device available for academic coursework."
+    nullable: false
+
+  - name: "device_quality"
+    type: "integer"
+    role: "feature"
+    range:
+      min: 1
+      max: 5
+    allowed_values: [1, 2, 3, 4, 5]
+    description: "Perceived condition and capability of computing device (1: Obsolete/crashing, 5: High-spec modern)."
+    nullable: false
+
+  - name: "quiet_study_space"
+    type: "integer"
+    role: "feature"
+    range:
+      min: 0
+      max: 1
+    allowed_values: [0, 1]
+    description: "Regular access to an undisturbed, dedicated study area at home/residence (1: Yes, 0: No)."
+    nullable: false
+
+  # Employment Commitments
+  - name: "part_time_employment"
+    type: "integer"
+    role: "feature"
+    range:
+      min: 0
+      max: 1
+    allowed_values: [0, 1]
+    description: "Current paid employment status (1: Working, 0: Not working)."
+    nullable: false
+
+  - name: "work_hours_per_week"
+    type: "float"
+    role: "feature"
+    range:
+      min: 0.0
+      max: 50.0
+    unit: "hours/week"
+    description: "Average hours per week spent on paid employment (0 if unemployed)."
+    nullable: false
+
+  # External Baseline Adjustment Covariates (Peer Component Feeds)
+  - name: "baseline_gpa_band"
+    type: "categorical"
+    role: "covariate"
+    allowed_values:
+      - "Band 1 (< 2.00)"
+      - "Band 2 (2.00 - 2.49)"
+      - "Band 3 (2.50 - 2.99)"
+      - "Band 4 (3.00 - 3.49)"
+      - "Band 5 (3.50 - 4.00)"
+    ordered: true
+    description: "Prior academic standing band (Component 1 input feed)."
+    nullable: false
+
+  # Derived Exposures (Fixed policy definitions for causal estimation)
+  - name: "financial_hardship"
+    type: "integer"
+    role: "exposure"
+    range:
+      min: 0
+      max: 1
+    allowed_values: [0, 1]
+    description: "Binary exposure: household_income_bracket <= 2 AND financial_stress >= 4."
+    nullable: false
+
+  - name: "long_commute"
+    type: "integer"
+    role: "exposure"
+    range:
+      min: 0
+      max: 1
+    allowed_values: [0, 1]
+    description: "Binary exposure: commute_time_min > 120."
+    nullable: false
+
+  - name: "inadequate_digital_access"
+    type: "integer"
+    role: "exposure"
+    range:
+      min: 0
+      max: 1
+    allowed_values: [0, 1]
+    description: "Binary exposure: internet_reliability <= 2 OR device_type in ('phone only', 'none')."
+    nullable: false
+
+  - name: "heavy_part_time_work"
+    type: "integer"
+    role: "exposure"
+    range:
+      min: 0
+      max: 1
+    allowed_values: [0, 1]
+    description: "Binary exposure: work_hours_per_week > 15."
+    nullable: false
+
+  # Target Outcomes
+  - name: "attrition"
+    type: "integer"
+    role: "outcome"
+    range:
+      min: 0
+      max: 1
+    allowed_values: [0, 1]
+    description: "Primary institutional dropout/withdrawal event (1: Attrition, 0: Retained)."
+    nullable: false
+
+  - name: "intention_to_withdraw"
+    type: "integer"
+    role: "outcome"
+    range:
+      min: 1
+      max: 5
+    allowed_values: [1, 2, 3, 4, 5]
+    description: "PROXY OUTCOME: Student self-reported intention to drop out (1: Strongly Disagree to 5: Strongly Agree)."
+    nullable: false
+
+  - name: "latent_risk_score"
+    type: "float"
+    role: "outcome"
+    range:
+      min: 0.0
+      max: 100.0
+    unit: "score (0-100)"
+    description: "Continuous true ground-truth risk score for regression track (R2, MAE, RMSE)."
+    nullable: false

@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    container_name: eri_backend
+    restart: unless-stopped
+    ports:
+      - "${API_PORT:-8000}:8000"
+    environment:
+      - API_HOST=0.0.0.0
+      - API_PORT=8000
+      - CORS_ORIGINS=${CORS_ORIGINS:-http://localhost:5173,http://localhost:80,http://localhost}
+      - RATE_LIMIT_PER_MINUTE=${RATE_LIMIT_PER_MINUTE:-200}
+      - MAX_UPLOAD_MB=${MAX_UPLOAD_MB:-50}
+      - DATA_TYPE=${DATA_TYPE:-SYNTHETIC}
+      - RANDOM_SEED=${RANDOM_SEED:-42}
+    volumes:
+      - ./artifacts:/app/artifacts
+      - ./reports:/app/reports
+    networks:
+      - eri_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: eri_frontend
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-80}:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - eri_network
+
+networks:
+  eri_network:
+    driver: bridge

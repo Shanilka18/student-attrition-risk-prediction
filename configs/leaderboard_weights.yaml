@@ -1,0 +1,109 @@
+# Environmental & Financial Causal Risk Intelligence Framework
+# Leaderboard Weights & Finalist Selection Rules (SLIIT CDAP Project KND-CDAP-IT-05)
+
+selection_rules:
+  dataset_split: "val"  # Held-out test set is evaluated ONCE only for finalists
+  composite_score_range: [0.0, 1.0]
+  headline_metrics_only: true  # Accuracy is logged for completeness but NEVER used as a headline or rank metric
+  parsimony_threshold_p_value: 0.05
+  parsimony_margin: 0.015
+  overfit_penalty_threshold: 0.08
+  ece_penalty_threshold: 0.10
+
+threshold_tuning:
+  objective: "balanced_accuracy"  # Maximise balanced accuracy on validation data
+  tie_breaker: "f1"               # Secondary objective if balanced accuracy is tied
+  min_threshold: 0.05
+  max_threshold: 0.95
+  num_steps: 91
+
+hard_gates:
+  min_f1: 0.0001                          # Disqualify if F1 == 0 at chosen threshold
+  min_roc_auc: 0.55                       # Disqualify if ROC-AUC < 0.55
+  max_ece: 0.15                           # Disqualify if ECE > 0.15 limit
+  brier_worse_than_baseline: true         # Disqualify if Brier >= prevalence * (1 - prevalence)
+
+classification_weights:
+  pr_auc:
+    weight: 0.30
+    direction: "maximize"
+    description: "Precision-Recall AUC (critical under positive class imbalance ~15-20%)"
+  roc_auc:
+    weight: 0.20
+    direction: "maximize"
+    description: "Receiver Operating Characteristic AUC (overall discrimination capability)"
+  f1:
+    weight: 0.15
+    direction: "maximize"
+    description: "Harmonic mean of precision and recall"
+  balanced_accuracy:
+    weight: 0.10
+    direction: "maximize"
+    description: "Macro-averaged recall across retained and attrition cohorts"
+  brier_weight:
+    weight: 0.15
+    direction: "minimize"
+    description: "Mean squared probability error (calibration accuracy; composite uses 1 - norm_brier)"
+  ece_weight:
+    weight: 0.10
+    direction: "minimize"
+    description: "Expected Calibration Error (composite uses 1 - norm_ece)"
+
+regression_weights:
+  r2:
+    weight: 0.35
+    direction: "maximize"
+  mae_weight:
+    weight: 0.20
+    direction: "minimize"
+  rmse_weight:
+    weight: 0.20
+    direction: "minimize"
+  spearman_rho:
+    weight: 0.15
+    direction: "maximize"
+  overfit_weight:
+    weight: 0.10
+    direction: "minimize"
+
+calibration_thresholds:
+  max_acceptable_ece: 0.15  # If Expected Calibration Error > 0.15, relabel as "normalised model-risk score"
+  calibration_methods:
+    - "isotonic"
+    - "platt_sigmoid"
+    - "beta_calibration"
+
+model_categories:
+  - id: "linear_shallow"
+    name: "Linear / Shallow Models"
+    models:
+      - "LogisticRegression_L2"
+      - "LogisticRegression_L1"
+      - "LogisticRegression_ElasticNet"
+      - "LinearSVM"
+      - "NaiveBayes"
+      - "KNN"
+      - "DecisionTree"
+      - "ShallowMLP_1Layer"
+  - id: "tree_ensembles"
+    name: "Tree Ensembles"
+    models:
+      - "RandomForest"
+      - "ExtraTrees"
+      - "AdaBoost"
+      - "HistGradientBoosting"
+      - "XGBoost"
+      - "LightGBM"
+      - "CatBoost"
+  - id: "deep_learning"
+    name: "Deep Tabular Architectures"
+    models:
+      - "DeepTabularMLP"
+      - "TabularResNet"
+      - "TabNet"
+      - "Tabular1DCNN"
+  - id: "voting_stacking"
+    name: "Ensemble Combiners"
+    models:
+      - "SoftVotingTop3"
+      - "StackingTop3_LogisticMeta"
