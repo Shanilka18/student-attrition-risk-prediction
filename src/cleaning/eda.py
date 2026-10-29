@@ -13,15 +13,23 @@ Markdown data quality audit report:
 """
 
 from pathlib import Path
-from typing import Dict, Any, List
+from typing import Any
+
 import matplotlib
+
 matplotlib.use("Agg")  # Non-interactive backend
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from src.utils.paths import get_data_dir, get_reports_dir, get_project_root, ensure_dir, get_artifacts_dir
 from src.utils.logging_config import setup_logger
+from src.utils.paths import (
+    ensure_dir,
+    get_artifacts_dir,
+    get_data_dir,
+    get_project_root,
+    get_reports_dir,
+)
 
 logger = setup_logger("eda")
 
@@ -41,8 +49,12 @@ class EDAReporter:
         # Binary matrix: 1 for missing, 0 for present
         null_matrix = df.isna().astype(int).values
 
-        im = ax.imshow(null_matrix, aspect="auto", cmap="Blues", interpolation="nearest")
-        ax.set_title("Survey Feature Missingness Map (White = Present, Blue = Missing)", fontsize=13, pad=12)
+        ax.imshow(null_matrix, aspect="auto", cmap="Blues", interpolation="nearest")
+        ax.set_title(
+            "Survey Feature Missingness Map (White = Present, Blue = Missing)",
+            fontsize=13,
+            pad=12,
+        )
         ax.set_ylabel("Student Observations", fontsize=11)
         ax.set_xticks(range(df.shape[1]))
         ax.set_xticklabels(df.columns, rotation=90, fontsize=9)
@@ -51,7 +63,16 @@ class EDAReporter:
         missing_counts = df.isna().sum()
         for idx, (col_name, count) in enumerate(missing_counts.items()):
             if count > 0:
-                ax.text(idx, -15, f"{count}", rotation=90, ha="center", va="bottom", fontsize=8, color="darkred")
+                ax.text(
+                    idx,
+                    -15,
+                    f"{count}",
+                    rotation=90,
+                    ha="center",
+                    va="bottom",
+                    fontsize=8,
+                    color="darkred",
+                )
 
         plt.tight_layout()
         out_path = self.figures_dir / "missingness_heatmap.png"
@@ -69,8 +90,17 @@ class EDAReporter:
         colors = ["#2b5c8f", "#d95f02"]
         total = len(df)
 
-        bars = ax.bar(labels, [attrition_counts.get(0, 0), attrition_counts.get(1, 0)], color=colors, width=0.55)
-        ax.set_title("Primary Outcome Class Distribution (Attrition Imbalance)", fontsize=13, pad=12)
+        bars = ax.bar(
+            labels,
+            [attrition_counts.get(0, 0), attrition_counts.get(1, 0)],
+            color=colors,
+            width=0.55,
+        )
+        ax.set_title(
+            "Primary Outcome Class Distribution (Attrition Imbalance)",
+            fontsize=13,
+            pad=12,
+        )
         ax.set_ylabel("Student Count", fontsize=11)
         ax.set_ylim(0, total * 1.05)
 
@@ -103,7 +133,10 @@ class EDAReporter:
         exposures = [
             ("financial_hardship", "Financial Hardship\n(Inc<=2 & Stress>=4)"),
             ("long_commute", "Long Commute\n(> 120 min)"),
-            ("inadequate_digital_access", "Inadequate Digital\nAccess (Rel<=2 / Phone)"),
+            (
+                "inadequate_digital_access",
+                "Inadequate Digital\nAccess (Rel<=2 / Phone)",
+            ),
             ("heavy_part_time_work", "Heavy Part-Time Work\n(> 15 hrs/wk)"),
         ]
 
@@ -152,12 +185,15 @@ class EDAReporter:
             "internet_affordability",
             "device_quality",
             "work_hours_per_week",
-            "baseline_engagement_score",
             "attrition",
             "latent_risk_score",
         ]
         available_cols = [c for c in numeric_cols if c in df.columns]
-        corr_matrix = df[available_cols].apply(pd.to_numeric, errors="coerce").corr(method="spearman")
+        corr_matrix = (
+            df[available_cols]
+            .apply(pd.to_numeric, errors="coerce")
+            .corr(method="spearman")
+        )
 
         fig, ax = plt.subplots(figsize=(10, 8))
         im = ax.imshow(corr_matrix, cmap="coolwarm", vmin=-1, vmax=1)
@@ -183,14 +219,18 @@ class EDAReporter:
                     )
 
         fig.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
-        ax.set_title("Spearman Rank Correlation Heatmap (Numeric & Ordinal Variables)", fontsize=13, pad=12)
+        ax.set_title(
+            "Spearman Rank Correlation Heatmap (Numeric & Ordinal Variables)",
+            fontsize=13,
+            pad=12,
+        )
         plt.tight_layout()
         out_path = self.figures_dir / "correlation_spearman.png"
         fig.savefig(out_path, dpi=200)
         plt.close(fig)
         return out_path
 
-    def plot_bivariate_relationships(self, df: pd.DataFrame) -> List[Path]:
+    def plot_bivariate_relationships(self, df: pd.DataFrame) -> list[Path]:
         """Render key bivariate attrition curves (income vs attrition, commute vs attrition)."""
         logger.info("Generating bivariate attrition relationship plots...")
         paths = []
@@ -198,12 +238,27 @@ class EDAReporter:
         # 1. Income bracket vs Attrition rate
         if "household_income_bracket" in df.columns and "attrition" in df.columns:
             fig, ax = plt.subplots(figsize=(7, 4.5))
-            grouped = df.groupby("household_income_bracket")["attrition"].agg(["mean", "count"]).dropna()
+            grouped = (
+                df.groupby("household_income_bracket")["attrition"]
+                .agg(["mean", "count"])
+                .dropna()
+            )
             brackets = grouped.index.astype(int)
             rates = grouped["mean"] * 100.0
 
-            ax.plot(brackets, rates, marker="o", linewidth=2.5, color="#d95f02", markersize=8)
-            ax.set_title("Observed Attrition Rate by Household Income Bracket", fontsize=12, pad=10)
+            ax.plot(
+                brackets,
+                rates,
+                marker="o",
+                linewidth=2.5,
+                color="#d95f02",
+                markersize=8,
+            )
+            ax.set_title(
+                "Observed Attrition Rate by Household Income Bracket",
+                fontsize=12,
+                pad=10,
+            )
             ax.set_xlabel("Income Bracket (1: < 30k LKR, 6: > 250k LKR)", fontsize=10)
             ax.set_ylabel("Attrition Rate (%)", fontsize=10)
             ax.set_xticks(brackets)
@@ -230,7 +285,12 @@ class EDAReporter:
         if "commute_time_min" in df.columns and "attrition" in df.columns:
             fig, ax = plt.subplots(figsize=(7.5, 4.5))
             bins = [0, 30, 60, 120, 240]
-            bin_labels = ["< 30m\n(Hostel/Near)", "30-60m\n(Urban)", "60-120m\n(Semi-Urban)", "> 120m\n(Rural transit)"]
+            bin_labels = [
+                "< 30m\n(Hostel/Near)",
+                "30-60m\n(Urban)",
+                "60-120m\n(Semi-Urban)",
+                "> 120m\n(Rural transit)",
+            ]
             df_temp = df.copy()
             df_temp["commute_bin"] = pd.cut(
                 pd.to_numeric(df_temp["commute_time_min"], errors="coerce"),
@@ -239,11 +299,19 @@ class EDAReporter:
                 include_lowest=True,
             )
 
-            grouped_c = df_temp.groupby("commute_bin", observed=False)["attrition"].agg(["mean", "count"]).dropna()
+            grouped_c = (
+                df_temp.groupby("commute_bin", observed=False)["attrition"]
+                .agg(["mean", "count"])
+                .dropna()
+            )
             rates_c = grouped_c["mean"] * 100.0
 
             bars = ax.bar(grouped_c.index, rates_c, color="#1b9e77", width=0.55)
-            ax.set_title("Attrition Rate across One-Way Commute Duration Tiers", fontsize=12, pad=10)
+            ax.set_title(
+                "Attrition Rate across One-Way Commute Duration Tiers",
+                fontsize=12,
+                pad=10,
+            )
             ax.set_ylabel("Attrition Rate (%)", fontsize=10)
             ax.set_ylim(0, max(rates_c) * 1.35)
 
@@ -279,7 +347,6 @@ class EDAReporter:
             ("commute_time_min", "Commute Time (Minutes)", "#2b5c8f"),
             ("commute_cost_lkr_week", "Weekly Commute Cost (LKR)", "#e7298a"),
             ("work_hours_per_week", "Work Hours / Week", "#e6ab02"),
-            ("baseline_engagement_score", "Baseline LMS Engagement (0-100)", "#66a61e"),
         ]
 
         for idx, (col, title, colr) in enumerate(targets):
@@ -291,8 +358,20 @@ class EDAReporter:
                 ax.set_ylabel("Frequency", fontsize=9)
                 ax.grid(axis="y", linestyle="--", alpha=0.5)
                 # Annotate mean and median
-                ax.axvline(series.mean(), color="red", linestyle="--", linewidth=1.5, label=f"Mean: {series.mean():.1f}")
-                ax.axvline(series.median(), color="black", linestyle="-", linewidth=1.5, label=f"Median: {series.median():.1f}")
+                ax.axvline(
+                    series.mean(),
+                    color="red",
+                    linestyle="--",
+                    linewidth=1.5,
+                    label=f"Mean: {series.mean():.1f}",
+                )
+                ax.axvline(
+                    series.median(),
+                    color="black",
+                    linestyle="-",
+                    linewidth=1.5,
+                    label=f"Median: {series.median():.1f}",
+                )
                 ax.legend(fontsize=8)
 
         plt.suptitle("Continuous Feature Distribution Diagnostics", fontsize=14, y=1.00)
@@ -303,7 +382,10 @@ class EDAReporter:
         return out_path
 
     def write_data_quality_report(
-        self, df_raw: pd.DataFrame, df_clean: pd.DataFrame, cleaning_summary: Dict[str, Any]
+        self,
+        df_raw: pd.DataFrame,
+        df_clean: pd.DataFrame,
+        cleaning_summary: dict[str, Any],
     ) -> Path:
         """Generate structured Markdown data quality and health report."""
         logger.info("Authoring data_quality_report.md...")
@@ -313,13 +395,7 @@ class EDAReporter:
         attrition_count = int(df_clean["attrition"].sum())
         attrition_rate = (attrition_count / total_rows_clean) * 100.0
 
-        missing_raw = df_raw.isna().sum()
-        total_missing_raw = int(missing_raw.sum())
-
-        missing_clean = df_clean.isna().sum()
-        total_missing_clean = int(missing_clean.sum())
-
-        content = f"""# Comprehensive Data Quality & Health Audit Report
+        content = rf"""# Comprehensive Data Quality & Health Audit Report
 
 **Component:** Environmental & Financial Causal Risk Intelligence Framework (SLIIT KND-CDAP-IT-05)  
 **Execution Timestamp:** Automated Pipeline Execution  
@@ -349,7 +425,7 @@ class EDAReporter:
             if m_c > 0 or m_r > 0:
                 content += f"| `{col}` | {m_r:,} ({m_r/len(df_raw)*100:.1f}%) | {m_c:,} ({m_c/total_rows_clean*100:.1f}%) | In-Fold Median / Mode + Missing Indicator |\n"
 
-        content += f"""
+        content += r"""
 ### 2.2 Missing Mechanism Classification
 1. **Household Income Bracket (MNAR):** Non-response is informative: low-income (Bracket 1) and high-income (Bracket 6) students omitted disclosure at elevated rates (`"Prefer not to say"`), reflecting stigma and privacy concerns.
 2. **Commute Expenditure (MAR):** Commute cost missingness is conditional on short transit times ($< 20$ minutes) where public transport ticketing is negligible or walk-in.
@@ -398,11 +474,17 @@ def run_eda_pipeline() -> Path:
     metrics_dir = get_artifacts_dir("metrics")
 
     clean_path = interim_dir / "clean.csv"
-    raw_path = synthetic_dir / "eri_synthetic_raw_latest.csv" if (synthetic_dir / "eri_synthetic_raw_latest.csv").is_file() else synthetic_dir / "eri_synthetic_raw.csv"
+    raw_path = (
+        synthetic_dir / "eri_synthetic_raw_latest.csv"
+        if (synthetic_dir / "eri_synthetic_raw_latest.csv").is_file()
+        else synthetic_dir / "eri_synthetic_raw.csv"
+    )
     log_path = metrics_dir / "cleaning_log.json"
 
     if not clean_path.is_file():
-        raise FileNotFoundError(f"Cleaned dataset not found at {clean_path}. Run cleaner.py first.")
+        raise FileNotFoundError(
+            f"Cleaned dataset not found at {clean_path}. Run cleaner.py first."
+        )
 
     df_clean = pd.read_csv(clean_path)
     df_raw = pd.read_csv(raw_path) if raw_path.is_file() else df_clean
@@ -410,6 +492,7 @@ def run_eda_pipeline() -> Path:
     cleaning_summary = {}
     if log_path.is_file():
         import json
+
         with open(log_path, "r", encoding="utf-8") as f:
             cleaning_summary = json.load(f)
 

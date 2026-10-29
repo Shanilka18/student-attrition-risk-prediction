@@ -14,35 +14,33 @@ from __future__ import annotations
 
 import os
 import tempfile
+
 if "MPLCONFIGDIR" not in os.environ:
     os.environ["MPLCONFIGDIR"] = os.path.join(tempfile.gettempdir(), "matplotlib_cache")
 
 import asyncio
-from datetime import datetime, timezone
 import io
 import json
-import logging
-from pathlib import Path
 import time
-from typing import Any, Dict, List, Optional, Union
 import uuid
+from datetime import UTC, datetime
+from pathlib import Path
+from typing import Any
 
+import pandas as pd
 from fastapi import (
     BackgroundTasks,
-    Depends,
     FastAPI,
     File,
     HTTPException,
     Query,
     Request,
-    Response,
     UploadFile,
     status,
 )
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
-import pandas as pd
 
 from src.api.schemas import (
     AllSplitsResponse,
@@ -75,7 +73,6 @@ from src.api.schemas import (
 from src.causal.dag import (
     CONFOUNDERS,
     EXPOSURES,
-    MEDIATORS,
     OUTCOME,
     build_causal_dag,
 )
@@ -90,18 +87,19 @@ logger = setup_logger("api_main")
 
 # Service Start Time
 START_TIME = time.time()
+UPLOAD_FILE = File(...)
 DATA_BANNER = "SYNTHETIC - pipeline validation only"
 ARTIFACTS_DIR = get_artifacts_dir()
 
 # ---------------------------------------------------------------------------
 # In-Memory Job Registry for Async Retraining and Batch Prediction
 # ---------------------------------------------------------------------------
-job_registry: Dict[str, Dict[str, Any]] = {}
+job_registry: dict[str, dict[str, Any]] = {}
 
 # ---------------------------------------------------------------------------
 # Rate Limiting State (In-Memory IP Bucket)
 # ---------------------------------------------------------------------------
-IP_REQUEST_LOGS: Dict[str, List[float]] = {}
+IP_REQUEST_LOGS: dict[str, list[float]] = {}
 RATE_LIMIT_PER_MINUTE = 200
 MAX_UPLOAD_BYTES = 50 * 1024 * 1024  # 50 MB limit
 
@@ -109,6 +107,7 @@ MAX_UPLOAD_BYTES = 50 * 1024 * 1024  # 50 MB limit
 # ---------------------------------------------------------------------------
 # Custom Middlewares: Structured Logging, Upload Cap & Rate Limiter
 # ---------------------------------------------------------------------------
+
 
 class SecurityAndLoggingMiddleware(BaseHTTPMiddleware):
     """Logs requests without PII, checks payload bounds, and enforces rate limits."""
@@ -132,7 +131,9 @@ class SecurityAndLoggingMiddleware(BaseHTTPMiddleware):
             )
             return JSONResponse(
                 status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-                content={"detail": "Rate limit exceeded. Maximum 200 requests per minute."},
+                content={
+                    "detail": "Rate limit exceeded. Maximum 200 requests per minute."
+                },
             )
         timestamps.append(now)
         IP_REQUEST_LOGS[client_ip] = timestamps
@@ -147,7 +148,9 @@ class SecurityAndLoggingMiddleware(BaseHTTPMiddleware):
             )
             return JSONResponse(
                 status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
-                content={"detail": f"File size exceeds maximum allowable limit of {MAX_UPLOAD_BYTES // (1024*1024)}MB."},
+                content={
+                    "detail": f"File size exceeds maximum allowable limit of {MAX_UPLOAD_BYTES // (1024*1024)}MB."
+                },
             )
 
         # 3. Log request arrival (Strict Rule: NEVER log request bodies or PII)
@@ -183,7 +186,7 @@ class SecurityAndLoggingMiddleware(BaseHTTPMiddleware):
                 str(exc),
                 elapsed_ms,
             )
-            raise exc
+            raise
 
 
 # ---------------------------------------------------------------------------
@@ -224,6 +227,7 @@ app.add_middleware(SecurityAndLoggingMiddleware)
 # Helper Loaders
 # ---------------------------------------------------------------------------
 
+
 def _load_json_artifact(relative_path: str) -> Any:
     full_path = ARTIFACTS_DIR / relative_path
     if not full_path.exists():
@@ -234,7 +238,7 @@ def _load_json_artifact(relative_path: str) -> Any:
     try:
         with open(full_path, "r", encoding="utf-8") as f:
             return json.load(f)
-    except Exception as e:
+    except (OSError, json.JSONDecodeError) as e:
         logger.error("Failed to read JSON artifact %s: %s", relative_path, e)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -242,9 +246,21 @@ def _load_json_artifact(relative_path: str) -> Any:
         )
 
 
+def _load_efi_inference_engine() -> ProductionInferenceEngine:
+    try:
+        return ProductionInferenceEngine()
+    except (FileNotFoundError, RuntimeError) as exc:
+        logger.error("EFI scoring is unavailable: %s", exc)
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=f"EFI scoring is unavailable: {exc}",
+        ) from exc
+
+
 # ---------------------------------------------------------------------------
 # 1. Health & Metadata Endpoints
 # ---------------------------------------------------------------------------
+
 
 @app.get("/health", response_model=HealthResponse, tags=["System"])
 def get_health() -> HealthResponse:
@@ -263,7 +279,9 @@ def get_metadata() -> MetaResponse:
     selection = _load_json_artifact("leaderboard/selection_decision.json")
     manifest = _load_json_artifact("manifest.json")
     run_id = manifest.get("run_id", selection.get("run_id", "run_prod_01"))
-    timestamp = manifest.get("timestamp", selection.get("timestamp", "2026-10-25T10:00:00Z"))
+    timestamp = manifest.get(
+        "timestamp", selection.get("timestamp", "2026-10-25T10:00:00Z")
+    )
     return MetaResponse(
         model_name=selection.get("selected_model", "logistic_l2"),
         model_version="1.0.0",
@@ -281,6 +299,7 @@ def get_metadata() -> MetaResponse:
 # ---------------------------------------------------------------------------
 # 2. Leaderboard & Model Inspection Endpoints
 # ---------------------------------------------------------------------------
+
 
 @app.get("/leaderboard", response_model=LeaderboardResponse, tags=["Models"])
 def get_leaderboard(track: str = Query("C", pattern="^(C|R)$")) -> LeaderboardResponse:
@@ -300,7 +319,7 @@ def get_leaderboard(track: str = Query("C", pattern="^(C|R)$")) -> LeaderboardRe
 
     # Load category winners strictly from single source of truth (frontend_data/category_winners.json or qualified models)
     cat_winners_file = ARTIFACTS_DIR / "frontend_data" / "category_winners.json"
-    category_winners: Dict[str, Any] = {}
+    category_winners: dict[str, Any] = {}
     if cat_winners_file.exists():
         category_winners = _load_json_artifact("frontend_data/category_winners.json")
     else:
@@ -386,7 +405,7 @@ def get_model_metrics(name: str) -> ModelMetricsResponse:
         splits_list = splits_data
 
     # Gather curve data if present
-    curves: Dict[str, Any] = {}
+    curves: dict[str, Any] = {}
     roc_path = ARTIFACTS_DIR / f"curves/{name}_{track}_roc_curve.json"
     if roc_path.exists():
         with open(roc_path, "r", encoding="utf-8") as f:
@@ -428,13 +447,18 @@ def get_all_splits_metrics() -> AllSplitsResponse:
 # 3. Explainability (SHAP) Endpoints
 # ---------------------------------------------------------------------------
 
+
 @app.get("/shap/global", response_model=ShapGlobalResponse, tags=["Explainability"])
 def get_shap_global() -> ShapGlobalResponse:
     """Retrieve global SHAP feature importance rankings and base value."""
     base_val_data = _load_json_artifact("shap/base_value.json")
     importance_data = _load_json_artifact("shap/global_importance.json")
 
-    base_val = base_val_data.get("base_value", 0.0) if isinstance(base_val_data, dict) else float(base_val_data)
+    base_val = (
+        base_val_data.get("base_value", 0.0)
+        if isinstance(base_val_data, dict)
+        else float(base_val_data)
+    )
 
     items = []
     if isinstance(importance_data, list):
@@ -454,7 +478,11 @@ def get_shap_global() -> ShapGlobalResponse:
     )
 
 
-@app.get("/shap/student/{student_id}", response_model=ShapStudentResponse, tags=["Explainability"])
+@app.get(
+    "/shap/student/{student_id}",
+    response_model=ShapStudentResponse,
+    tags=["Explainability"],
+)
 def get_shap_student(student_id: str) -> ShapStudentResponse:
     """Retrieve individual student waterfall explanation, top drivers, and narrative."""
     narratives = _load_json_artifact("shap/student_narratives.json")
@@ -480,11 +508,16 @@ def get_shap_student(student_id: str) -> ShapStudentResponse:
         narrative=matched.get("narrative", ""),
         main_drivers=matched.get("main_drivers", []),
         protective_factors=matched.get("protective_factors", []),
-        disclaimer=matched.get("disclaimer", "This explains the model's score. It does not prove these factors caused the outcome."),
+        disclaimer=matched.get(
+            "disclaimer",
+            "This explains the model's score. It does not prove these factors caused the outcome.",
+        ),
     )
 
 
-@app.get("/shap/stability", response_model=ShapStabilityResponse, tags=["Explainability"])
+@app.get(
+    "/shap/stability", response_model=ShapStabilityResponse, tags=["Explainability"]
+)
 def get_shap_stability() -> ShapStabilityResponse:
     """Retrieve cross-validation fold stability metrics for SHAP feature rankings."""
     stability = _load_json_artifact("shap/stability.json")
@@ -494,7 +527,9 @@ def get_shap_stability() -> ShapStabilityResponse:
         spearman_rank_correlation=stability.get("spearman_rank_correlation", 0.0),
         is_stable=stability.get("is_stable", True),
         unstable_features=stability.get("unstable_features", []),
-        interpretation=stability.get("interpretation", "Feature attribution ranking is robust across folds."),
+        interpretation=stability.get(
+            "interpretation", "Feature attribution ranking is robust across folds."
+        ),
     )
 
 
@@ -502,7 +537,10 @@ def get_shap_stability() -> ShapStabilityResponse:
 # 4. Causal Analysis & DAG Endpoints
 # ---------------------------------------------------------------------------
 
-@app.get("/causal/summary", response_model=CausalSummaryResponse, tags=["Causal Inference"])
+
+@app.get(
+    "/causal/summary", response_model=CausalSummaryResponse, tags=["Causal Inference"]
+)
 def get_causal_summary() -> CausalSummaryResponse:
     """Retrieve multi-estimator causal effects table (Risk Differences) across all exposures."""
     summary = _load_json_artifact("causal/causal_effects_summary.json")
@@ -518,15 +556,18 @@ def get_causal_summary() -> CausalSummaryResponse:
     )
 
 
-@app.get("/causal/diagnostics", response_model=CausalDiagnosticsResponse, tags=["Causal Inference"])
+@app.get(
+    "/causal/diagnostics",
+    response_model=CausalDiagnosticsResponse,
+    tags=["Causal Inference"],
+)
 def get_causal_diagnostics() -> CausalDiagnosticsResponse:
     """Retrieve propensity score balance diagnostics (SMD Love Plot) and sensitivity bounds."""
     love_plot = _load_json_artifact("causal/love_plot_data.json")
     summary = _load_json_artifact("causal/causal_effects_summary.json")
     exposures_data = summary.get("exposures", {})
     diagnostics = {
-        exp: data.get("diagnostics", {})
-        for exp, data in exposures_data.items()
+        exp: data.get("diagnostics", {}) for exp, data in exposures_data.items()
     }
 
     return CausalDiagnosticsResponse(
@@ -535,7 +576,11 @@ def get_causal_diagnostics() -> CausalDiagnosticsResponse:
     )
 
 
-@app.get("/causal/heterogeneity", response_model=CausalHeterogeneityResponse, tags=["Causal Inference"])
+@app.get(
+    "/causal/heterogeneity",
+    response_model=CausalHeterogeneityResponse,
+    tags=["Causal Inference"],
+)
 def get_causal_heterogeneity() -> CausalHeterogeneityResponse:
     """Retrieve Conditional Average Treatment Effects (CATE) and Causal Forest gate validation status."""
     summary = _load_json_artifact("causal/causal_effects_summary.json")
@@ -557,13 +602,13 @@ def get_dag_specification() -> DagResponse:
     """Retrieve the formal Causal DAG structure (nodes, roles, edges) and visualization link."""
     G = build_causal_dag()
 
-    nodes: List[DagNode] = []
+    nodes: list[DagNode] = []
     for node, attrs in G.nodes(data=True):
         role = attrs.get("role", "confounder")
         label = node.replace("_", " ").title()
         nodes.append(DagNode(id=node, label=label, role=role))
 
-    edges: List[DagEdge] = []
+    edges: list[DagEdge] = []
     for u, v in G.edges():
         edges.append(DagEdge(source=u, target=v))
 
@@ -571,7 +616,6 @@ def get_dag_specification() -> DagResponse:
         nodes=nodes,
         edges=edges,
         exposures=EXPOSURES,
-        mediators=MEDIATORS,
         confounders=CONFOUNDERS,
         primary_outcome=OUTCOME,
         image_url="/dag/image",
@@ -594,9 +638,10 @@ def get_dag_image() -> FileResponse:
 # 5. Production Inference & Batch Upload Endpoints
 # ---------------------------------------------------------------------------
 
+
 @app.post("/predict/upload", response_model=UploadPredictResponse, tags=["Inference"])
 async def upload_and_predict(
-    file: UploadFile = File(...),
+    file: UploadFile = UPLOAD_FILE,
 ) -> UploadPredictResponse:
     """Upload a survey batch file (.csv, .xlsx, .xls), sanitize PII, score with model, and return bundle."""
     # 1. Validate file extension
@@ -621,11 +666,11 @@ async def upload_and_predict(
             df_raw = pd.read_csv(io.BytesIO(content))
         else:
             df_raw = pd.read_excel(io.BytesIO(content))
-    except Exception as exc:
+    except (OSError, ValueError, ImportError) as exc:
         logger.error("Failed to parse uploaded table: %s", exc)
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Unable to parse table: {str(exc)}",
+            detail=f"Unable to parse table: {exc!s}",
         )
 
     # 3. Run the shared EF cleaner on the original upload for quality findings.
@@ -637,21 +682,21 @@ async def upload_and_predict(
         logger.error("Survey cleaning failed: %s", exc)
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail=f"Survey cleaning error: {str(exc)}",
+            detail=f"Survey cleaning error: {exc!s}",
         )
 
     # 4. Pipeline Ingestion & Schema Alignment (Strict PII Drop)
     try:
         df_aligned, report = align_dataframe_schema(df_raw)
-    except Exception as exc:
+    except (KeyError, TypeError, ValueError) as exc:
         logger.error("Ingestion pipeline failed: %s", exc)
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail=f"Data schema ingestion error: {str(exc)}",
+            detail=f"Data schema ingestion error: {exc!s}",
         )
 
     # 5. Score Batch with Production Engine
-    engine = ProductionInferenceEngine()
+    engine = _load_efi_inference_engine()
     df_scored, cohort_summary = engine.score_dataframe(df_aligned)
 
     # 6. Export deliverables bundle
@@ -659,7 +704,9 @@ async def upload_and_predict(
     out_dir = ARTIFACTS_DIR / "predictions" / job_id
     ensure_dir(out_dir)
 
-    bundle_paths = export_inference_bundle(df_scored, cohort_summary, output_dir=out_dir)
+    bundle_paths = export_inference_bundle(
+        df_scored, cohort_summary, output_dir=out_dir
+    )
 
     # Save job record
     job_registry[job_id] = {
@@ -668,8 +715,8 @@ async def upload_and_predict(
         "status": "completed",
         "progress_percent": 100,
         "message": f"Successfully scored {len(df_scored)} students.",
-        "created_at": datetime.now(timezone.utc).isoformat(),
-        "completed_at": datetime.now(timezone.utc).isoformat(),
+        "created_at": datetime.now(UTC).isoformat(),
+        "completed_at": datetime.now(UTC).isoformat(),
         "artifacts_dir": str(out_dir),
         "bundle": {k: str(v) for k, v in bundle_paths.items()},
     }
@@ -689,22 +736,28 @@ async def upload_and_predict(
 
     # Format cohort summary
     std_val = float(df_scored["eri_score"].std()) if len(df_scored) > 1 else 0.0
-    risk_dist = {str(k): int(v) for k, v in df_scored["risk_band"].value_counts().items()}
+    risk_dist = {
+        str(k): int(v) for k, v in df_scored["risk_band"].value_counts().items()
+    }
     risk_pct = {k: round(v / len(df_scored) * 100, 2) for k, v in risk_dist.items()}
 
     summary_obj = CohortSummary(
         total_students=cohort_summary.get("total_students_scored", len(df_scored)),
         mean_eri=cohort_summary.get("mean_eri", float(df_scored["eri_score"].mean())),
-        median_eri=cohort_summary.get("median_eri", float(df_scored["eri_score"].median())),
+        median_eri=cohort_summary.get(
+            "median_eri", float(df_scored["eri_score"].median())
+        ),
         std_eri=round(std_val, 2),
         risk_distribution=risk_dist,
         risk_percentages=risk_pct,
         top_cohort_drivers=cohort_summary.get("top_cohort_drivers", []),
-        causal_summary_status=str(cohort_summary.get("causal_summary", "Not evaluated")),
+        causal_summary_status=str(
+            cohort_summary.get("causal_summary", "Not evaluated")
+        ),
     )
 
     # Format sample preview (first 10 records)
-    sample_preview: List[PredictionItem] = []
+    sample_preview: list[PredictionItem] = []
     for _, row in df_scored.head(10).iterrows():
         sample_preview.append(
             PredictionItem(
@@ -712,7 +765,9 @@ async def upload_and_predict(
                 eri=float(row["eri_score"]),
                 risk_band=str(row["risk_band"]),
                 intervention_sla=str(row.get("intervention_sla", "Within 30 days")),
-                recommended_action=str(row.get("recommended_action", "Routine monitoring")),
+                recommended_action=str(
+                    row.get("recommended_action", "Routine monitoring")
+                ),
                 narrative=str(row.get("narrative", "")),
                 data_quality_flags=int(row.get("missing_fields_count", 0)),
                 confidence_note=str(row.get("confidence_note", "Standard")),
@@ -758,15 +813,26 @@ def download_inference_file(job_id: str, file_format: str) -> FileResponse:
         if target_path_str and Path(target_path_str).exists():
             file_path = Path(target_path_str)
         else:
-            file_path = ARTIFACTS_DIR / "predictions" / job_id / f"scored_students.{clean_format}"
+            file_path = (
+                ARTIFACTS_DIR
+                / "predictions"
+                / job_id
+                / f"scored_students.{clean_format}"
+            )
     else:
         # Check standard predictions folder
-        file_path = ARTIFACTS_DIR / "predictions" / job_id / f"scored_students.{clean_format}"
+        file_path = (
+            ARTIFACTS_DIR / "predictions" / job_id / f"scored_students.{clean_format}"
+        )
         if not file_path.exists():
             if clean_format == "html":
-                file_path = ARTIFACTS_DIR / "predictions" / job_id / "cohort_report.html"
+                file_path = (
+                    ARTIFACTS_DIR / "predictions" / job_id / "cohort_report.html"
+                )
             elif clean_format == "json":
-                file_path = ARTIFACTS_DIR / "predictions" / job_id / "fusion_payload.json"
+                file_path = (
+                    ARTIFACTS_DIR / "predictions" / job_id / "fusion_payload.json"
+                )
 
     if not file_path.exists():
         raise HTTPException(
@@ -792,22 +858,28 @@ def download_inference_file(job_id: str, file_format: str) -> FileResponse:
 # 6. Fusion Framework Integration Endpoint
 # ---------------------------------------------------------------------------
 
-@app.post("/fusion/score", response_model=FusionScoreResponse, tags=["Fusion Framework"])
+
+@app.post(
+    "/fusion/score", response_model=FusionScoreResponse, tags=["Fusion Framework"]
+)
 def score_fusion_payload(request: FusionScoreRequest) -> FusionScoreResponse:
     """Score or retrieve calibrated ERI results for the group Fusion Framework."""
-    scored_items: List[FusionScoreItem] = []
+    scored_items: list[FusionScoreItem] = []
 
     # Case A: Explicit student questionnaires provided inline
     if request.students:
         df_in = pd.DataFrame(request.students)
         df_aligned, _ = align_dataframe_schema(df_in)
-        engine = ProductionInferenceEngine()
+        engine = _load_efi_inference_engine()
         df_scored, _ = engine.score_dataframe(df_aligned)
 
         for _, row in df_scored.iterrows():
             top_drivers = []
             if "top_drivers" in row and isinstance(row["top_drivers"], list):
-                top_drivers = [str(d.get("feature", d)) if isinstance(d, dict) else str(d) for d in row["top_drivers"]]
+                top_drivers = [
+                    str(d.get("feature", d)) if isinstance(d, dict) else str(d)
+                    for d in row["top_drivers"]
+                ]
 
             scored_items.append(
                 FusionScoreItem(
@@ -883,12 +955,15 @@ def score_fusion_payload(request: FusionScoreRequest) -> FusionScoreResponse:
 # 7. Guarded Retraining & Background Job Status
 # ---------------------------------------------------------------------------
 
+
 async def _run_retraining_worker(job_id: str, req: RetrainRequest):
     """Background async worker for guarded model retraining."""
     job = job_registry[job_id]
     job["status"] = "running"
     job["progress_percent"] = 10
-    job["message"] = "Initializing retraining environment and validating outcome column..."
+    job["message"] = (
+        "Initializing retraining environment and validating outcome column..."
+    )
 
     await asyncio.sleep(0.5)
 
@@ -912,21 +987,23 @@ async def _run_retraining_worker(job_id: str, req: RetrainRequest):
 
         job["progress_percent"] = 100
         job["status"] = "failed" if result.get("status") == "failed" else "completed"
-        job["completed_at"] = datetime.now(timezone.utc).isoformat()
+        job["completed_at"] = datetime.now(UTC).isoformat()
         job["message"] = result.get(
             "message",
-            "Retraining completed successfully."
-            if result.get("status") == "success"
-            else "Cleaning and validation completed; no model artifacts were updated.",
+            (
+                "Retraining completed successfully."
+                if result.get("status") == "success"
+                else "Cleaning and validation completed; no model artifacts were updated."
+            ),
         )
         job["result"] = result
-    except Exception as exc:
+    except Exception as exc:  # noqa: BLE001
         logger.error("Retraining background task %s failed: %s", job_id, exc)
         job["status"] = "failed"
         job["progress_percent"] = 100
-        job["completed_at"] = datetime.now(timezone.utc).isoformat()
+        job["completed_at"] = datetime.now(UTC).isoformat()
         job["error"] = str(exc)
-        job["message"] = f"Retraining failed: {str(exc)}"
+        job["message"] = f"Retraining failed: {exc!s}"
 
 
 @app.post("/retrain", response_model=JobStatusResponse, tags=["Retraining"])
@@ -943,7 +1020,7 @@ async def trigger_retraining(
         "status": "queued",
         "progress_percent": 0,
         "message": "Job queued for retraining.",
-        "created_at": datetime.now(timezone.utc).isoformat(),
+        "created_at": datetime.now(UTC).isoformat(),
         "completed_at": None,
         "result": None,
         "error": None,

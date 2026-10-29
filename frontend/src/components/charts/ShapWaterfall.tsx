@@ -121,7 +121,7 @@ export const ERIGauge: React.FC<{ score: number; band: string }> = ({ score, ban
   return (
     <div className="text-center p-4 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
       <div className="text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400 font-semibold mb-1">
-        Environmental Risk Index (ERI)
+        Environmental & Financial Index (EFI)
       </div>
       <div className="text-4xl font-black text-slate-900 dark:text-white font-mono tracking-tight my-2">
         {score.toFixed(1)}

@@ -99,7 +99,7 @@ eri_scale:
   max: 100.0
   scaling_factor: 100.0
   fallback_label: "normalised model-risk score"
-  calibrated_label: "Environmental Risk Index (ERI)"
+  calibrated_label: "Environmental & Financial Index (EFI)"
   risk_bands:
     - band: "Low"
       min: 0.0

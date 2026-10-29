@@ -85,7 +85,7 @@ export const OverviewPage: React.FC = () => {
           </h1>
           <p className="text-sm text-slate-300 leading-relaxed">
             Quantifies non-academic socio-economic barriers to higher education retention. Combines a rigorous 22-model benchmark,
-            isotonic probability calibration producing a normalized Environmental Risk Index (ERI 0–100), deterministic SHAP
+            isotonic probability calibration producing a normalized Environmental & Financial Index (EFI 0–100), deterministic SHAP
             waterfall explanations, and a methodologically isolated observational causal inference layer.
           </p>
         </div>

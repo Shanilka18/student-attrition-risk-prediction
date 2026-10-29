@@ -12,7 +12,8 @@ from __future__ import annotations
 
 import re
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any
+
 import numpy as np
 import pandas as pd
 
@@ -22,45 +23,142 @@ logger = setup_logger("inference_ingestion")
 
 # Forbidden direct identifiers that must be dropped immediately with a security warning
 PII_COLUMNS = [
-    "name", "full_name", "first_name", "last_name", "student_name",
-    "nic", "national_id", "id_number", "passport",
-    "phone", "mobile", "contact_no", "telephone",
-    "email", "email_address", "student_email",
-    "student_number", "student_id", "reg_no", "registration_no", "index_no", "admission_no",
+    "name",
+    "full_name",
+    "first_name",
+    "last_name",
+    "student_name",
+    "nic",
+    "national_id",
+    "id_number",
+    "passport",
+    "phone",
+    "mobile",
+    "contact_no",
+    "telephone",
+    "email",
+    "email_address",
+    "student_email",
+    "student_number",
+    "student_id",
+    "reg_no",
+    "registration_no",
+    "index_no",
+    "admission_no",
 ]
 
 # Canonical feature names and their common synonyms for survey ingestion
-COLUMN_SYNONYMS: Dict[str, List[str]] = {
-    "participant_id": ["participant_id", "participant", "id", "student_token", "hash_id", "record_id"],
+COLUMN_SYNONYMS: dict[str, list[str]] = {
+    "participant_id": [
+        "participant_id",
+        "participant",
+        "id",
+        "student_token",
+        "hash_id",
+        "record_id",
+    ],
     "household_income_bracket": [
-        "household_income_bracket", "income_bracket", "monthly_income", "household_income",
-        "family_income", "income", "monthly_household_income", "income_level",
+        "household_income_bracket",
+        "income_bracket",
+        "monthly_income",
+        "household_income",
+        "family_income",
+        "income",
+        "monthly_household_income",
+        "income_level",
     ],
-    "financial_stress": ["financial_stress", "financial_pressure", "financial_difficulty", "economic_stress"],
+    "financial_stress": [
+        "financial_stress",
+        "financial_pressure",
+        "financial_difficulty",
+        "economic_stress",
+    ],
     "scholarship_bursary": [
-        "scholarship_bursary", "scholarship", "bursary", "mahapola", "grant", "financial_aid",
+        "scholarship_bursary",
+        "scholarship",
+        "bursary",
+        "mahapola",
+        "grant",
+        "financial_aid",
     ],
-    "dependents_count": ["dependents_count", "dependents", "family_dependents", "num_dependents", "children_dependents"],
-    "housing_type": ["housing_type", "living_situation", "accommodation", "residence_type", "housing"],
+    "dependents_count": [
+        "dependents_count",
+        "dependents",
+        "family_dependents",
+        "num_dependents",
+        "children_dependents",
+    ],
+    "housing_type": [
+        "housing_type",
+        "living_situation",
+        "accommodation",
+        "residence_type",
+        "housing",
+    ],
     "commute_time_min": [
-        "commute_time_min", "commute_time", "travel_time", "commute_minutes", "travel_time_min",
-        "commute_duration", "daily_commute",
+        "commute_time_min",
+        "commute_time",
+        "travel_time",
+        "commute_minutes",
+        "travel_time_min",
+        "commute_duration",
+        "daily_commute",
     ],
     "commute_cost_lkr_week": [
-        "commute_cost_lkr_week", "commute_cost", "weekly_commute_cost", "travel_cost", "transit_fare",
+        "commute_cost_lkr_week",
+        "commute_cost",
+        "weekly_commute_cost",
+        "travel_cost",
+        "transit_fare",
     ],
-    "internet_reliability": ["internet_reliability", "internet_quality", "connection_stability", "wifi_reliability"],
-    "internet_affordability": ["internet_affordability", "data_cost_affordability", "internet_expense"],
+    "internet_reliability": [
+        "internet_reliability",
+        "internet_quality",
+        "connection_stability",
+        "wifi_reliability",
+    ],
+    "internet_affordability": [
+        "internet_affordability",
+        "data_cost_affordability",
+        "internet_expense",
+    ],
     "device_type": ["device_type", "primary_device", "device_access", "computer_type"],
     "device_quality": ["device_quality", "laptop_condition", "device_rating"],
-    "quiet_study_space": ["quiet_study_space", "study_space", "quiet_room", "study_environment"],
-    "part_time_employment": ["part_time_employment", "employed", "has_job", "working", "job_status"],
-    "work_hours_per_week": ["work_hours_per_week", "work_hours", "job_hours", "hours_worked"],
+    "quiet_study_space": [
+        "quiet_study_space",
+        "study_space",
+        "quiet_room",
+        "study_environment",
+    ],
+    "part_time_employment": [
+        "part_time_employment",
+        "employed",
+        "has_job",
+        "working",
+        "job_status",
+    ],
+    "work_hours_per_week": [
+        "work_hours_per_week",
+        "work_hours",
+        "job_hours",
+        "hours_worked",
+    ],
     "faculty": ["faculty", "department", "academic_faculty", "school"],
     "year_of_study": ["year_of_study", "academic_year", "study_year", "year"],
-    "district_type": ["district_type", "home_location", "residence_zone", "origin_district", "locality"],
-    "baseline_gpa_band": ["baseline_gpa_band", "gpa_band", "baseline_gpa", "prior_gpa", "gpa_range"],
-    "baseline_engagement_score": ["baseline_engagement_score", "engagement_score", "prior_engagement", "lms_engagement"],
+    "district_type": [
+        "district_type",
+        "home_location",
+        "residence_zone",
+        "origin_district",
+        "locality",
+    ],
+    "baseline_gpa_band": [
+        "baseline_gpa_band",
+        "gpa_band",
+        "baseline_gpa",
+        "prior_gpa",
+        "gpa_range",
+    ],
     "gender": ["gender", "sex"],
     "attrition": ["attrition", "dropout", "withdrawn", "status_attrition"],
 }
@@ -72,7 +170,7 @@ def _normalize_name(name: str) -> str:
     return re.sub(r"\s+", "_", clean)
 
 
-def detect_and_strip_pii(df: pd.DataFrame) -> Tuple[pd.DataFrame, List[str]]:
+def detect_and_strip_pii(df: pd.DataFrame) -> tuple[pd.DataFrame, list[str]]:
     """Scan and purge any direct personal identifiers. Never stores or logs PII values."""
     dropped_pii = []
     df_clean = df.copy()
@@ -122,7 +220,9 @@ def load_raw_file(file_path: Path | str) -> pd.DataFrame:
         elif ext in [".xlsx", ".xls"]:
             df = pd.read_excel(path)
         else:
-            raise ValueError(f"Unsupported file format '{ext}'. Must be .csv, .xlsx, or .xls.")
+            raise ValueError(
+                f"Unsupported file format '{ext}'. Must be .csv, .xlsx, or .xls."
+            )
 
         if df.empty:
             raise ValueError("Provided dataset is empty (0 rows).")
@@ -132,15 +232,15 @@ def load_raw_file(file_path: Path | str) -> pd.DataFrame:
         raise ValueError(f"Provided dataset is empty: {e}")
 
 
-def align_dataframe_schema(df: pd.DataFrame) -> Tuple[pd.DataFrame, Dict[str, Any]]:
+def align_dataframe_schema(df: pd.DataFrame) -> tuple[pd.DataFrame, dict[str, Any]]:
     """Align raw columns against schema via synonym matching and produce schema report."""
     # 1. Purge PII
     df_safe, dropped_pii = detect_and_strip_pii(df)
 
     # 2. Map columns via synonym lookup
-    mapping: Dict[str, str] = {}
-    matched_canonical: Set[str] = set()
-    ignored_columns: List[str] = []
+    mapping: dict[str, str] = {}
+    matched_canonical: set[str] = set()
+    ignored_columns: list[str] = []
 
     for col in df_safe.columns:
         norm = _normalize_name(col)
@@ -158,7 +258,9 @@ def align_dataframe_schema(df: pd.DataFrame) -> Tuple[pd.DataFrame, Dict[str, An
 
     # 3. Handle Participant ID
     if "participant_id" not in df_aligned.columns:
-        logger.info("No participant_id column found. Generating pseudonymous IDs (P-00001, P-00002, ...)")
+        logger.info(
+            "No participant_id column found. Generating pseudonymous IDs (P-00001, P-00002, ...)"
+        )
         df_aligned["participant_id"] = [f"P-{i+1:05d}" for i in range(len(df_aligned))]
     else:
         # Standardize formatting
@@ -166,17 +268,35 @@ def align_dataframe_schema(df: pd.DataFrame) -> Tuple[pd.DataFrame, Dict[str, An
 
     # 4. Identify missing mandatory questionnaire features
     core_features = [
-        "household_income_bracket", "financial_stress", "scholarship_bursary", "dependents_count",
-        "housing_type", "commute_time_min", "commute_cost_lkr_week", "internet_reliability",
-        "internet_affordability", "device_type", "device_quality", "quiet_study_space",
-        "part_time_employment", "work_hours_per_week", "faculty", "year_of_study",
-        "district_type", "baseline_gpa_band", "baseline_engagement_score",
+        "household_income_bracket",
+        "financial_stress",
+        "scholarship_bursary",
+        "dependents_count",
+        "housing_type",
+        "commute_time_min",
+        "commute_cost_lkr_week",
+        "internet_reliability",
+        "internet_affordability",
+        "device_type",
+        "device_quality",
+        "quiet_study_space",
+        "part_time_employment",
+        "work_hours_per_week",
+        "faculty",
+        "year_of_study",
+        "district_type",
+        "baseline_gpa_band",
     ]
     missing_features = [f for f in core_features if f not in df_aligned.columns]
 
     # Categorical and string columns must have object/str dtype for sklearn encoders
     string_categorical_cols = {
-        "housing_type", "device_type", "faculty", "district_type", "baseline_gpa_band", "gender",
+        "housing_type",
+        "device_type",
+        "faculty",
+        "district_type",
+        "baseline_gpa_band",
+        "gender",
     }
 
     # For missing features, initialize with appropriate NaN / None so preprocessor imputers handle them cleanly

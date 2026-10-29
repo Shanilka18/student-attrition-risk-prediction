@@ -1,4 +1,4 @@
-# Makefile for ERI Research Repository (SLIIT CDAP Project KND-CDAP-IT-05)
+# Makefile for EFI Research Repository (SLIIT CDAP Project KND-CDAP-IT-05)
 # Component: Environmental & Financial Factors — Study Conditions Index
 # Cross-Platform / POSIX & Windows nmake/gnu-make compatibility
 # Usage: make <target>  (e.g., make all, make data, make train, make test)
@@ -34,12 +34,10 @@ setup:
 	$(PYTHON) -m pip install -r requirements.txt
 
 data:
-	$(PYTHON) -m src.data_gen.generate --n 2000 --seed 42
+	$(PYTHON) -m efi.cli make-sample-data
 
 clean:
-	$(PYTHON) -m src.cleaning.cleaner
-	$(PYTHON) -m src.cleaning.eda
-	$(PYTHON) -m src.preprocessing.split
+	$(PYTHON) -m efi.cli clean --input data/raw/survey_raw_sample.csv --mode training
 
 train:
 	$(PYTHON) -m src.training.run_all --track C --models all --quick --no-tune

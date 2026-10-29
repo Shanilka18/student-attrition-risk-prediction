@@ -28,7 +28,7 @@ export const DataCleaningPage: React.FC = () => {
 
   const leakageRules = [
     { title: 'In-Fold Preprocessing', desc: 'All transformations (scaling, encoding, imputation) are fitted strictly on training folds.' },
-    { title: 'No Target Leakage in Mediators', desc: 'Post-exposure mediators (later GPA decline, engagement drop) excluded from total-effect set.' },
+    { title: 'Outcome Separation', desc: 'Outcome, consent, attention-check, identifier, and timestamp fields are excluded from model features.' },
     { title: 'Group-Aware Stratification', desc: 'Folds maintain exact class balance (17.55%) without student cross-contamination.' },
     { title: 'Sealed Held-Out Test Set', desc: 'Test partition (286 students) remained frozen and was evaluated exactly once for finalists.' },
   ];

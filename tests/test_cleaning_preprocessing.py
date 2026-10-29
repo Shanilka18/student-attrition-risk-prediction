@@ -1,26 +1,25 @@
 """Automated test suite verifying data cleaning, leakage prevention, in-fold preprocessing, and permutation integrity."""
 
 import numpy as np
-import pandas as pd
 import pytest
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import roc_auc_score
 
 from src.cleaning.cleaner import SurveyCleaner
+from src.data_gen.generate import SocioeconomicDGP, SurveyCorruptionInjector
 from src.preprocessing.pipeline import (
-    LeakageProofPreprocessor,
-    get_tree_pipeline,
-    get_scaled_pipeline,
-    validate_feature_boundary,
     FORBIDDEN_COLUMNS,
+    LeakageProofPreprocessor,
+    get_scaled_pipeline,
+    get_tree_pipeline,
+    validate_feature_boundary,
 )
+from src.preprocessing.resampling import apply_smote_in_fold
 from src.preprocessing.split import (
+    SealedTestAccessViolation,
     create_grouped_stratified_split,
     get_sealed_test_set,
-    SealedTestAccessViolation,
 )
-from src.preprocessing.resampling import apply_smote_in_fold, get_class_weights
-from src.data_gen.generate import SocioeconomicDGP, SurveyCorruptionInjector
 
 
 @pytest.fixture
@@ -53,14 +52,20 @@ def test_survey_cleaner_operations(sample_raw_and_clean_data):
     assert (df_cleaned["work_hours_per_week"] <= 50.0).all()
 
     # 4. Logical contradiction resolution
-    unemployed_hours = df_cleaned[df_cleaned["part_time_employment"] == 0]["work_hours_per_week"]
-    assert (unemployed_hours == 0.0).all(), "Unemployed students still have non-zero work hours!"
+    unemployed_hours = df_cleaned[df_cleaned["part_time_employment"] == 0][
+        "work_hours_per_week"
+    ]
+    assert (
+        unemployed_hours == 0.0
+    ).all(), "Unemployed students still have non-zero work hours!"
 
 
 def test_sealed_test_set_security():
     """Verify that accessing the test set raises SealedTestAccessViolation unless explicitly allowed."""
     with pytest.raises(SealedTestAccessViolation):
-        get_sealed_test_set(allow_test_access=False, caller_description="Unauthorized routine")
+        get_sealed_test_set(
+            allow_test_access=False, caller_description="Unauthorized routine"
+        )
 
 
 def test_preprocessor_refuses_fit_without_infold_flag(sample_raw_and_clean_data):
@@ -88,20 +93,25 @@ def test_no_nan_after_transformation(sample_raw_and_clean_data):
         X_train_trans = preprocessor.fit_transform(train_df, is_train_fold=True)
         X_test_trans = preprocessor.transform(test_df)
 
-        assert not np.isnan(X_train_trans).any(), f"NaN found in {view} train transformation!"
-        assert not np.isnan(X_test_trans).any(), f"NaN found in {view} test transformation!"
+        assert not np.isnan(
+            X_train_trans
+        ).any(), f"NaN found in {view} train transformation!"
+        assert not np.isnan(
+            X_test_trans
+        ).any(), f"NaN found in {view} test transformation!"
         assert X_train_trans.shape[1] == X_test_trans.shape[1]
 
 
 def test_feature_boundary_enforcement(sample_raw_and_clean_data):
-    """Verify that validate_feature_boundary drops forbidden mediators and outcomes."""
+    """Verify that validate_feature_boundary drops forbidden outcomes."""
     _, df_truth = sample_raw_and_clean_data
     assert "attrition" in df_truth.columns
-    assert "later_gpa_decline" in df_truth.columns
 
     df_filtered = validate_feature_boundary(df_truth)
     for forbidden in FORBIDDEN_COLUMNS:
-        assert forbidden not in df_filtered.columns, f"Forbidden column '{forbidden}' was not dropped!"
+        assert (
+            forbidden not in df_filtered.columns
+        ), f"Forbidden column '{forbidden}' was not dropped!"
 
 
 def test_permutation_leakage_test(sample_raw_and_clean_data):
@@ -145,7 +155,7 @@ def test_infold_smote_resampling():
     X = rng.normal(0, 1, size=(120, 5))
     y = np.array([0] * 100 + [1] * 20)
 
-    X_res, y_res = apply_smote_in_fold(X, y, target_ratio=0.50, seed=42)
+    _, y_res = apply_smote_in_fold(X, y, target_ratio=0.50, seed=42)
 
     assert len(y_res) > len(y)
     n_pos = int((y_res == 1).sum())

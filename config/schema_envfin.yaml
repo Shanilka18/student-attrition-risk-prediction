@@ -5,7 +5,7 @@
 component:
   name: "Environmental & Financial Factors"
   short_code: "envfin"
-  index_name: "Environmental & Financial Index (EFI) / Environmental Risk Index (ERI)"
+  index_name: "Environmental & Financial Index (EFI)"
   index_range: [0, 100]
   source_file: "docs/questionnaire_envfin_v2.md"
 

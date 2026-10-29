@@ -9,9 +9,7 @@ Converts local SHAP contributions into human-interpretable institutional narrati
 from __future__ import annotations
 
 from functools import lru_cache
-import json
-from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import numpy as np
 
@@ -30,7 +28,6 @@ FEATURE_DESCRIPTIONS = {
     "quiet_study_space": "access to quiet study environment",
     "scholarship_bursary": "bursary or scholarship funding status",
     "part_time_employment": "part-time employment status",
-    "baseline_engagement_score": "baseline academic engagement index",
     "baseline_gpa_band": "prior cumulative academic performance band",
     "housing_type": "residential housing and boarding arrangement",
     "district_type": "home district geographic classification",
@@ -53,9 +50,7 @@ FORBIDDEN_CAUSAL_WORDS = [
     "proves causation",
 ]
 
-MANDATORY_DISCLAIMER = (
-    "This explains the model's score. It does not prove these factors caused the outcome."
-)
+MANDATORY_DISCLAIMER = "This explains the model's score. It does not prove these factors caused the outcome."
 
 
 @lru_cache(maxsize=512)
@@ -75,23 +70,29 @@ def clean_feature_label(feat_name: str) -> str:
 def generate_student_narrative(
     participant_id: str,
     eri_score: float,
-    feature_names: List[str],
+    feature_names: list[str],
     shap_vector: np.ndarray,
     top_k: int = 3,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Generate deterministic, template-based explanation narrative for an individual student.
 
     Converts raw log-odds or continuous SHAP contributions into relative point indicators.
     """
-    assert len(feature_names) == len(shap_vector), "Feature names and SHAP vector dimensions mismatch"
+    assert len(feature_names) == len(
+        shap_vector
+    ), "Feature names and SHAP vector dimensions mismatch"
 
     # Separate positive (risk-increasing) and negative (risk-reducing / protective) contributions
     pos_indices = [i for i, v in enumerate(shap_vector) if v > 0]
     neg_indices = [i for i, v in enumerate(shap_vector) if v < 0]
 
     # Sort by absolute magnitude
-    pos_sorted = sorted(pos_indices, key=lambda i: abs(shap_vector[i]), reverse=True)[:top_k]
-    neg_sorted = sorted(neg_indices, key=lambda i: abs(shap_vector[i]), reverse=True)[:top_k]
+    pos_sorted = sorted(pos_indices, key=lambda i: abs(shap_vector[i]), reverse=True)[
+        :top_k
+    ]
+    neg_sorted = sorted(neg_indices, key=lambda i: abs(shap_vector[i]), reverse=True)[
+        :top_k
+    ]
 
     # Determine risk band
     if eri_score < 25.0:
@@ -112,20 +113,40 @@ def generate_student_narrative(
     for idx in pos_sorted:
         lbl = clean_feature_label(feature_names[idx])
         # Approximate relative point weight
-        pts = max(1, int(round((abs(shap_vector[idx]) / total_abs) * max(abs(delta_from_base), 15))))
-        drivers.append({"feature": feature_names[idx], "description": lbl, "points": pts, "shap_raw": float(shap_vector[idx])})
+        pts = max(
+            1,
+            round((abs(shap_vector[idx]) / total_abs) * max(abs(delta_from_base), 15)),
+        )
+        drivers.append(
+            {
+                "feature": feature_names[idx],
+                "description": lbl,
+                "points": pts,
+                "shap_raw": float(shap_vector[idx]),
+            }
+        )
 
     protective = []
     for idx in neg_sorted:
         lbl = clean_feature_label(feature_names[idx])
-        pts = max(1, int(round((abs(shap_vector[idx]) / total_abs) * max(abs(delta_from_base), 15))))
-        protective.append({"feature": feature_names[idx], "description": lbl, "points": -pts, "shap_raw": float(shap_vector[idx])})
+        pts = max(
+            1,
+            round((abs(shap_vector[idx]) / total_abs) * max(abs(delta_from_base), 15)),
+        )
+        protective.append(
+            {
+                "feature": feature_names[idx],
+                "description": lbl,
+                "points": -pts,
+                "shap_raw": float(shap_vector[idx]),
+            }
+        )
 
     # Assemble narrative string
     driver_strs = [f"{d['description']} (+{d['points']} pts)" for d in drivers]
     prot_strs = [f"{p['description']} ({p['points']} pts)" for p in protective]
 
-    parts = [f"{band_str} environmental risk (ERI {int(round(eri_score))}/100)."]
+    parts = [f"{band_str} environmental risk (EFI {round(eri_score)}/100)."]
     if driver_strs:
         parts.append(f"Main drivers: {', '.join(driver_strs)}.")
     if prot_strs:
@@ -137,9 +158,13 @@ def generate_student_narrative(
     # Runtime assertion against causal language
     lowered = narrative_text.lower()
     for forbidden in FORBIDDEN_CAUSAL_WORDS:
-        assert forbidden not in lowered, f"Violation: Narrative contained forbidden causal term '{forbidden}'"
+        assert (
+            forbidden not in lowered
+        ), f"Violation: Narrative contained forbidden causal term '{forbidden}'"
 
-    assert MANDATORY_DISCLAIMER in narrative_text, "Violation: Narrative missing mandatory anti-causal disclaimer"
+    assert (
+        MANDATORY_DISCLAIMER in narrative_text
+    ), "Violation: Narrative missing mandatory anti-causal disclaimer"
 
     return {
         "participant_id": participant_id,
@@ -153,11 +178,11 @@ def generate_student_narrative(
 
 
 def batch_generate_narratives(
-    sample_ids: List[str],
+    sample_ids: list[str],
     eri_scores: np.ndarray,
-    feature_names: List[str],
+    feature_names: list[str],
     shap_matrix: np.ndarray,
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     """Generate structured narratives across all students in cohort."""
     narratives = []
     for i, pid in enumerate(sample_ids):

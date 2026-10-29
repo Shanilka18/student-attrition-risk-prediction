@@ -58,14 +58,22 @@ class SurveyCleaner:
         df = df_raw.copy()
         n_initial = len(df)
         self.log_actions.clear()
-        self.log_action("initial_load", n_initial, f"Raw dataset loaded with {n_initial} rows and {df.shape[1]} columns.")
+        self.log_action(
+            "initial_load",
+            n_initial,
+            f"Raw dataset loaded with {n_initial} rows and {df.shape[1]} columns.",
+        )
 
         # 1. Exact Duplicate Removal
         duplicate_mask = df.duplicated()
         n_duplicates = int(duplicate_mask.sum())
         if n_duplicates > 0:
             df = df.drop_duplicates(keep="first").reset_index(drop=True)
-            self.log_action("remove_duplicates", n_duplicates, f"Removed {n_duplicates} exact duplicate records.")
+            self.log_action(
+                "remove_duplicates",
+                n_duplicates,
+                f"Removed {n_duplicates} exact duplicate records.",
+            )
         else:
             self.log_action("remove_duplicates", 0, "No duplicate records detected.")
 
@@ -92,7 +100,9 @@ class SurveyCleaner:
                 # Detect sentinels (excluding legitimate categories like device_type 'none')
                 if col == "device_type":
                     # 'none' is a valid device category, sentinels are n/a, prefer not to say
-                    sentinel_mask = s_lower.isin(["prefer not to say", "not applicable", "n/a", "?"])
+                    sentinel_mask = s_lower.isin(
+                        ["prefer not to say", "not applicable", "n/a", "?"]
+                    )
                 else:
                     sentinel_mask = s_lower.isin(sentinel_tokens)
 
@@ -144,8 +154,6 @@ class SurveyCleaner:
             "quiet_study_space",
             "part_time_employment",
             "year_of_study",
-            "later_gpa_decline",
-            "later_engagement_decline",
             "financial_hardship",
             "long_commute",
             "inadequate_digital_access",
@@ -158,7 +166,6 @@ class SurveyCleaner:
             "commute_time_min",
             "commute_cost_lkr_week",
             "work_hours_per_week",
-            "baseline_engagement_score",
             "latent_risk_score",
         ]
 
@@ -231,7 +238,9 @@ class SurveyCleaner:
         # 6. Logical Contradiction Resolution
         # Rule: If part_time_employment == 0, work_hours_per_week MUST be 0.0
         if "part_time_employment" in df.columns and "work_hours_per_week" in df.columns:
-            contradiction_mask = (df["part_time_employment"] == 0) & (df["work_hours_per_week"] > 0)
+            contradiction_mask = (df["part_time_employment"] == 0) & (
+                df["work_hours_per_week"] > 0
+            )
             n_contradictions = int(contradiction_mask.sum())
             if n_contradictions > 0:
                 df.loc[contradiction_mask, "work_hours_per_week"] = 0.0
@@ -242,7 +251,9 @@ class SurveyCleaner:
                 )
 
             # Rule: If part_time_employment == 1 and work_hours_per_week == 0, set to median employed hours (18.0)
-            employed_zero_mask = (df["part_time_employment"] == 1) & (df["work_hours_per_week"] == 0)
+            employed_zero_mask = (df["part_time_employment"] == 1) & (
+                df["work_hours_per_week"] == 0
+            )
             n_emp_zero = int(employed_zero_mask.sum())
             if n_emp_zero > 0:
                 df.loc[employed_zero_mask, "work_hours_per_week"] = 18.0
@@ -310,7 +321,6 @@ def compute_recovery_metrics(
         "commute_time_min",
         "commute_cost_lkr_week",
         "work_hours_per_week",
-        "baseline_engagement_score",
     ]
 
     for col in numeric_compare_cols:
@@ -318,8 +328,18 @@ def compute_recovery_metrics(
         col_t = f"{col}_truth"
         if col_c in merged.columns and col_t in merged.columns:
             valid_mask = merged[col_c].notna() & merged[col_t].notna()
-            mae = float(np.mean(np.abs(merged.loc[valid_mask, col_c] - merged.loc[valid_mask, col_t])))
-            corr = float(np.corrcoef(merged.loc[valid_mask, col_c], merged.loc[valid_mask, col_t])[0, 1])
+            mae = float(
+                np.mean(
+                    np.abs(
+                        merged.loc[valid_mask, col_c] - merged.loc[valid_mask, col_t]
+                    )
+                )
+            )
+            corr = float(
+                np.corrcoef(
+                    merged.loc[valid_mask, col_c], merged.loc[valid_mask, col_t]
+                )[0, 1]
+            )
             feature_metrics[col] = {
                 "mae": round(mae, 4),
                 "pearson_correlation": round(corr, 4),
@@ -331,7 +351,9 @@ def compute_recovery_metrics(
         col_c = f"{col}_cleaned"
         col_t = f"{col}_truth"
         if col_c in merged.columns and col_t in merged.columns:
-            exact_matches = int((merged[col_c].astype(str) == merged[col_t].astype(str)).sum())
+            exact_matches = int(
+                (merged[col_c].astype(str) == merged[col_t].astype(str)).sum()
+            )
             feature_metrics[col] = {
                 "exact_match_rate": round(exact_matches / n_matched_rows, 4),
                 "matched_count": exact_matches,
@@ -344,7 +366,9 @@ def compute_recovery_metrics(
         "row_recovery_percentage": round(row_recovery_rate * 100.0, 2),
         "feature_metrics": feature_metrics,
     }
-    logger.info(f"Recovery rate: {recovery_report['row_recovery_percentage']}% matched rows.")
+    logger.info(
+        f"Recovery rate: {recovery_report['row_recovery_percentage']}% matched rows."
+    )
     return recovery_report
 
 
@@ -354,11 +378,21 @@ def run_cleaning_pipeline() -> tuple[Path, Path, dict[str, Any]]:
     interim_dir = get_data_dir("interim")
     metrics_dir = get_artifacts_dir("metrics")
 
-    raw_path = synthetic_dir / "eri_synthetic_raw_latest.csv" if (synthetic_dir / "eri_synthetic_raw_latest.csv").is_file() else synthetic_dir / "eri_synthetic_raw.csv"
-    truth_path = synthetic_dir / "eri_synthetic_clean_truth_latest.csv" if (synthetic_dir / "eri_synthetic_clean_truth_latest.csv").is_file() else synthetic_dir / "eri_synthetic_clean_truth.csv"
+    raw_path = (
+        synthetic_dir / "eri_synthetic_raw_latest.csv"
+        if (synthetic_dir / "eri_synthetic_raw_latest.csv").is_file()
+        else synthetic_dir / "eri_synthetic_raw.csv"
+    )
+    truth_path = (
+        synthetic_dir / "eri_synthetic_clean_truth_latest.csv"
+        if (synthetic_dir / "eri_synthetic_clean_truth_latest.csv").is_file()
+        else synthetic_dir / "eri_synthetic_clean_truth.csv"
+    )
 
     if not raw_path.is_file():
-        raise FileNotFoundError(f"Raw synthetic data not found at {raw_path}. Run generate.py first.")
+        raise FileNotFoundError(
+            f"Raw synthetic data not found at {raw_path}. Run generate.py first."
+        )
 
     df_raw = pd.read_csv(raw_path)
     cleaner = SurveyCleaner()
@@ -393,4 +427,6 @@ if __name__ == "__main__":
     print(f"  Rows before:       {summary['initial_row_count']}")
     print(f"  Rows after:        {summary['cleaned_row_count']}")
     if "recovery_against_truth" in summary:
-        print(f"  Row Recovery Rate: {summary['recovery_against_truth']['row_recovery_percentage']}%\n")
+        print(
+            f"  Row Recovery Rate: {summary['recovery_against_truth']['row_recovery_percentage']}%\n"
+        )

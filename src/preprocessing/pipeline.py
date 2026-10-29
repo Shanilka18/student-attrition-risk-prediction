@@ -3,7 +3,7 @@
 Guarantees:
 1. Leakage Prevention: ColumnTransformer is fitted strictly inside training folds.
 2. Feature Set Boundary: Restricts inputs to environmental/financial features and documented
-   baseline covariates (baseline GPA band, baseline engagement score). Mediators, identifiers,
+   baseline covariates. Identifiers,
    fairness audit variables, and targets are strictly prohibited.
 3. Dual Feature Views:
    (a) Tree-View: Imputed, ordinal/one-hot encoded, NO scaling (for XGBoost, LightGBM, CatBoost).
@@ -11,7 +11,6 @@ Guarantees:
 4. No NaNs: Guaranteed complete transformation with missingness indicators preserved.
 """
 
-from typing import Any, Dict, List, Optional, Tuple, Union
 import numpy as np
 import pandas as pd
 from sklearn.base import BaseEstimator, TransformerMixin
@@ -33,7 +32,6 @@ NUMERIC_FEATURES = [
     "commute_cost_lkr_week",
     "work_hours_per_week",
     "dependents_count",
-    "baseline_engagement_score",
 ]
 
 # Explicit ordinal hierarchies
@@ -68,7 +66,9 @@ BINARY_FEATURES = [
     "scholarship_bursary",
 ]
 
-ALL_ALLOWED_FEATURES = NUMERIC_FEATURES + ORDINAL_FEATURES + NOMINAL_FEATURES + BINARY_FEATURES
+ALL_ALLOWED_FEATURES = (
+    NUMERIC_FEATURES + ORDINAL_FEATURES + NOMINAL_FEATURES + BINARY_FEATURES
+)
 
 # Forbidden columns that must NEVER enter predictive modeling features
 FORBIDDEN_COLUMNS = {
@@ -76,9 +76,6 @@ FORBIDDEN_COLUMNS = {
     "participant_id",
     # Fairness auditing attribute (omitted from predictive features)
     "gender",
-    # Intermediate Mediators (MUST NOT enter adjustment set or predictive features)
-    "later_gpa_decline",
-    "later_engagement_decline",
     # Derived policy exposures (analyzed in Phase 6 Causal track)
     "financial_hardship",
     "long_commute",
@@ -96,7 +93,7 @@ FORBIDDEN_COLUMNS = {
 def validate_feature_boundary(df: pd.DataFrame) -> pd.DataFrame:
     """Enforce strict feature set boundary.
 
-    Drops forbidden variables (mediators, outcomes, IDs, gender) and asserts
+    Drops forbidden outcomes, identifiers, and audit fields, then asserts
     that only approved environmental/financial features remain.
     """
     detected_forbidden = [col for col in df.columns if col in FORBIDDEN_COLUMNS]
@@ -144,28 +141,34 @@ def build_column_transformer(scaled: bool = False) -> ColumnTransformer:
 
     # 2. Ordinal Pipeline (handle string/int categories, map to integers with imputer)
     ordinal_categories_list = [ORDINAL_CATEGORIES[col] for col in ORDINAL_FEATURES]
-    ordinal_pipe = Pipeline([
-        (
-            "encoder",
-            OrdinalEncoder(
-                categories=ordinal_categories_list,
-                handle_unknown="use_encoded_value",
-                unknown_value=-1,
+    ordinal_pipe = Pipeline(
+        [
+            (
+                "encoder",
+                OrdinalEncoder(
+                    categories=ordinal_categories_list,
+                    handle_unknown="use_encoded_value",
+                    unknown_value=-1,
+                ),
             ),
-        ),
-        ("imputer", SimpleImputer(strategy="median", add_indicator=True)),
-    ])
+            ("imputer", SimpleImputer(strategy="median", add_indicator=True)),
+        ]
+    )
 
     # 3. Nominal Pipeline (Most-frequent imputer + One-Hot Encoding)
-    nominal_pipe = Pipeline([
-        ("imputer", SimpleImputer(strategy="most_frequent")),
-        ("ohe", OneHotEncoder(handle_unknown="ignore", sparse_output=False)),
-    ])
+    nominal_pipe = Pipeline(
+        [
+            ("imputer", SimpleImputer(strategy="most_frequent")),
+            ("ohe", OneHotEncoder(handle_unknown="ignore", sparse_output=False)),
+        ]
+    )
 
     # 4. Binary Pipeline (Most-frequent imputer)
-    binary_pipe = Pipeline([
-        ("imputer", SimpleImputer(strategy="most_frequent")),
-    ])
+    binary_pipe = Pipeline(
+        [
+            ("imputer", SimpleImputer(strategy="most_frequent")),
+        ]
+    )
 
     transformer = ColumnTransformer(
         transformers=[
@@ -194,13 +197,16 @@ class LeakageProofPreprocessor(BaseEstimator, TransformerMixin):
         view_type : str
             Either 'tree' (unscaled) or 'scaled' (RobustScaler applied).
         """
-        assert view_type in {"tree", "scaled"}, f"view_type must be 'tree' or 'scaled', got {view_type}"
+        assert view_type in {
+            "tree",
+            "scaled",
+        }, f"view_type must be 'tree' or 'scaled', got {view_type}"
         self.view_type = view_type
-        self.is_scaled = (view_type == "scaled")
+        self.is_scaled = view_type == "scaled"
         self.transformer = build_column_transformer(scaled=self.is_scaled)
         self.is_fitted = False
-        self.fitted_on: Optional[str] = None
-        self.feature_names_out_: Optional[List[str]] = None
+        self.fitted_on: str | None = None
+        self.feature_names_out_: list[str] | None = None
 
     def fit(self, X: pd.DataFrame, y=None, is_train_fold: bool = False):
         """Fit preprocessor strictly on training fold data.
@@ -232,7 +238,9 @@ class LeakageProofPreprocessor(BaseEstimator, TransformerMixin):
         except AttributeError:
             self.feature_names_out_ = None
 
-        logger.info(f"Preprocessor ({self.view_type}-view) successfully fitted on {len(X)} training samples.")
+        logger.info(
+            f"Preprocessor ({self.view_type}-view) successfully fitted on {len(X)} training samples."
+        )
         return self
 
     def transform(self, X: pd.DataFrame) -> np.ndarray:
@@ -249,7 +257,9 @@ class LeakageProofPreprocessor(BaseEstimator, TransformerMixin):
             Complete numerical array with zero NaNs.
         """
         if not self.is_fitted:
-            raise RuntimeError("Preprocessor has not been fitted! Call fit() inside training fold first.")
+            raise RuntimeError(
+                "Preprocessor has not been fitted! Call fit() inside training fold first."
+            )
 
         X_valid = validate_feature_boundary(X)
         transformed = self.transformer.transform(X_valid)
@@ -257,16 +267,20 @@ class LeakageProofPreprocessor(BaseEstimator, TransformerMixin):
         # Assertion: Transformed matrix must have zero NaNs
         nan_count = int(np.isnan(transformed).sum())
         if nan_count > 0:
-            raise ValueError(f"Transformation produced {nan_count} NaNs in feature matrix!")
+            raise ValueError(
+                f"Transformation produced {nan_count} NaNs in feature matrix!"
+            )
 
         return transformed
 
-    def fit_transform(self, X: pd.DataFrame, y=None, is_train_fold: bool = False) -> np.ndarray:
+    def fit_transform(
+        self, X: pd.DataFrame, y=None, is_train_fold: bool = False
+    ) -> np.ndarray:
         """Fit and transform on training fold data."""
         self.fit(X, y=y, is_train_fold=is_train_fold)
         return self.transform(X)
 
-    def get_feature_names_out(self) -> List[str]:
+    def get_feature_names_out(self) -> list[str]:
         """Return list of transformed feature column names."""
         if self.feature_names_out_ is not None:
             return self.feature_names_out_

@@ -24,15 +24,13 @@ switch ($Target) {
     }
     "data" {
         Write-Host "[TASK: data] Generating synthetic validation dataset..." -ForegroundColor Cyan
-        & $VenvPython -m src.data_gen.generate --n 2000 --seed 42
+        & $VenvPython -m efi.cli make-sample-data
         Write-Host "[TASK: data] Synthetic dataset generated successfully." -ForegroundColor Green
     }
     "clean" {
-        Write-Host "[TASK: clean] Cleaning survey data, running EDA, and creating partitions..." -ForegroundColor Cyan
-        & $VenvPython -m src.cleaning.cleaner
-        & $VenvPython -m src.cleaning.eda
-        & $VenvPython -m src.preprocessing.split
-        Write-Host "[TASK: clean] Data cleaned, EDA generated, and partitions created successfully." -ForegroundColor Green
+        Write-Host "[TASK: clean] Cleaning the generated Environmental & Financial survey..." -ForegroundColor Cyan
+        & $VenvPython -m efi.cli clean --input data\raw\survey_raw_sample.csv --mode training
+        Write-Host "[TASK: clean] Survey cleaning and quality reporting completed." -ForegroundColor Green
     }
     "train" {
         Write-Host "[TASK: train] Training model zoo across 4 algorithm categories..." -ForegroundColor Cyan
@@ -55,7 +53,7 @@ switch ($Target) {
         Write-Host "[TASK: causal] Phase 7 Causal Inference pipeline completed successfully." -ForegroundColor Green
     }
     "predict" {
-        param([string]$File = "data/legacy/samples/sample_upload.csv")
+        param([string]$File = "data\samples\sample_upload_clean.xlsx")
         Write-Host "[TASK: predict] Scoring input survey questionnaire: $File" -ForegroundColor Cyan
         & $VenvPython -m src.inference.predict --file $File --output_dir artifacts/predictions
         Write-Host "[TASK: predict] Inference completed. Deliverables in artifacts/predictions." -ForegroundColor Green

@@ -8,9 +8,11 @@ Verifies:
 5. Utility functions (Timer, Logger, Path helpers).
 """
 
+import importlib
 import sys
+
 import pytest
-from pathlib import Path
+
 
 # Verify python version is 3.11
 def test_python_version():
@@ -21,47 +23,47 @@ def test_python_version():
 
 # 1. Package Import Verification
 @pytest.mark.parametrize(
-    "pkg_name,import_statement",
+    "pkg_name,module_name",
     [
-        ("pandas", "import pandas as pd"),
-        ("numpy", "import numpy as np"),
-        ("scikit-learn", "import sklearn"),
-        ("xgboost", "import xgboost as xgb"),
-        ("lightgbm", "import lightgbm as lgb"),
-        ("catboost", "import catboost as cb"),
-        ("torch", "import torch"),
-        ("pytorch-tabnet", "import pytorch_tabnet"),
-        ("shap", "import shap"),
-        ("econml", "import econml"),
-        ("dowhy", "import dowhy"),
-        ("statsmodels", "import statsmodels.api as sm"),
-        ("optuna", "import optuna"),
-        ("joblib", "import joblib"),
-        ("pytest", "import pytest"),
-        ("openpyxl", "import openpyxl"),
-        ("fastapi", "import fastapi"),
-        ("uvicorn", "import uvicorn"),
-        ("python-multipart", "import multipart"),
-        ("pydantic", "import pydantic"),
-        ("matplotlib", "import matplotlib.pyplot as plt"),
-        ("pyyaml", "import yaml"),
+        ("pandas", "pandas"),
+        ("numpy", "numpy"),
+        ("scikit-learn", "sklearn"),
+        ("xgboost", "xgboost"),
+        ("lightgbm", "lightgbm"),
+        ("catboost", "catboost"),
+        ("torch", "torch"),
+        ("pytorch-tabnet", "pytorch_tabnet"),
+        ("shap", "shap"),
+        ("econml", "econml"),
+        ("dowhy", "dowhy"),
+        ("statsmodels", "statsmodels.api"),
+        ("optuna", "optuna"),
+        ("joblib", "joblib"),
+        ("pytest", "pytest"),
+        ("openpyxl", "openpyxl"),
+        ("fastapi", "fastapi"),
+        ("uvicorn", "uvicorn"),
+        ("python-multipart", "multipart"),
+        ("pydantic", "pydantic"),
+        ("matplotlib", "matplotlib.pyplot"),
+        ("pyyaml", "yaml"),
     ],
 )
-def test_package_imports(pkg_name, import_statement):
+def test_package_imports(pkg_name, module_name):
     """Verify each of the 22 required libraries imports without error."""
-    exec_scope = {}
     try:
-        exec(import_statement, exec_scope)
-    except Exception as exc:
-        pytest.fail(f"Failed to import package '{pkg_name}' with command '{import_statement}': {exc}")
+        importlib.import_module(module_name)
+    except ImportError as exc:
+        pytest.fail(f"Failed to import package '{pkg_name}' ({module_name}): {exc}")
 
 
 # 2. Seed Determinism & Reproducibility
 def test_seed_determinism():
     """Verify set_seed ensures deterministic sampling across libraries."""
-    from src.utils.seed import set_seed
     import numpy as np
     import torch
+
+    from src.utils.seed import set_seed
 
     set_seed(42)
     val_np_1 = np.random.uniform(0, 1, size=(5,))
@@ -71,8 +73,12 @@ def test_seed_determinism():
     val_np_2 = np.random.uniform(0, 1, size=(5,))
     val_torch_2 = torch.rand(5)
 
-    np.testing.assert_allclose(val_np_1, val_np_2, err_msg="NumPy random numbers did not match with seed 42")
-    assert torch.equal(val_torch_1, val_torch_2), "PyTorch random tensors did not match with seed 42"
+    np.testing.assert_allclose(
+        val_np_1, val_np_2, err_msg="NumPy random numbers did not match with seed 42"
+    )
+    assert torch.equal(
+        val_torch_1, val_torch_2
+    ), "PyTorch random tensors did not match with seed 42"
 
 
 # 3. Config Loading & Integrity
@@ -104,47 +110,16 @@ def test_config_loader():
 
 # 4. Schema Integrity & Role Verification
 def test_schema_loader():
-    """Verify schema.yaml defines all columns with valid roles and descriptions."""
+    """Verify the canonical Environmental & Financial schema and shared outcomes."""
     from src.utils.config_loader import load_schema
 
     schema = load_schema()
-    assert "columns" in schema, "Schema must have a 'columns' list"
-    cols = schema["columns"]
-    assert len(cols) >= 20, f"Expected at least 20 columns in schema, got {len(cols)}"
-
-    valid_roles = {"id", "feature", "exposure", "covariate", "mediator", "outcome", "demographic_audit"}
-    col_names = set()
-    found_roles = set()
-
-    for col in cols:
-        assert "name" in col, f"Column missing 'name': {col}"
-        assert "type" in col, f"Column '{col.get('name')}' missing 'type'"
-        assert "role" in col, f"Column '{col.get('name')}' missing 'role'"
-        assert col["role"] in valid_roles, f"Column '{col['name']}' has invalid role '{col['role']}'"
-        assert "description" in col, f"Column '{col['name']}' missing 'description'"
-
-        col_names.add(col["name"])
-        found_roles.add(col["role"])
-
-    # Verify key specific variables exist
-    expected_vars = [
-        "participant_id",
-        "household_income_bracket",
-        "financial_stress",
-        "commute_time_min",
-        "housing_type",
-        "baseline_gpa_band",
-        "later_gpa_decline",
-        "attrition",
-        "latent_risk_score",
-    ]
-    for ev in expected_vars:
-        assert ev in col_names, f"Expected variable '{ev}' not found in schema"
-
-    # Verify mediators are specifically tagged
-    mediator_cols = [c["name"] for c in cols if c["role"] == "mediator"]
-    assert "later_gpa_decline" in mediator_cols
-    assert "later_engagement_decline" in mediator_cols
+    assert len(schema["items"]) == 17
+    assert {"attrition_intent_score", "at_risk"} <= set(schema["outcomes"])
+    assert all(
+        schema["outcomes"][name]["role"] == "outcome"
+        for name in ("attrition_intent_score", "at_risk")
+    )
 
 
 # 5. Leaderboard Weights Loading
@@ -156,7 +131,9 @@ def test_leaderboard_weights_loader():
     assert "classification_weights" in weights
     cw = weights["classification_weights"]
     total_cls_weight = sum(item["weight"] for item in cw.values())
-    assert abs(total_cls_weight - 1.0) < 1e-4, f"Classification weights must sum to 1.0, got {total_cls_weight}"
+    assert (
+        abs(total_cls_weight - 1.0) < 1e-4
+    ), f"Classification weights must sum to 1.0, got {total_cls_weight}"
 
     assert "model_categories" in weights
     cat_ids = [c["id"] for c in weights["model_categories"]]
@@ -169,11 +146,11 @@ def test_leaderboard_weights_loader():
 def test_paths_helpers():
     """Verify path helper returns valid directories."""
     from src.utils.paths import (
-        get_project_root,
-        get_data_dir,
         get_artifacts_dir,
         get_configs_dir,
+        get_data_dir,
         get_docs_dir,
+        get_project_root,
     )
 
     root = get_project_root()
@@ -192,8 +169,9 @@ def test_paths_helpers():
 # 7. Timer & Profiling Utility
 def test_timer_utility():
     """Verify Timer context manager and timed decorator."""
-    from src.utils.timer import Timer, timed
     import time
+
+    from src.utils.timer import Timer, timed
 
     with Timer("Test block") as t:
         time.sleep(0.01)

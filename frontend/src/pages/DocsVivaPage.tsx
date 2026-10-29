@@ -26,10 +26,10 @@ export const DocsVivaPage: React.FC<DocsVivaPageProps> = ({ onNavigate }) => {
       linkText: 'View Causal vs Predictive Boundaries',
     },
     {
-      q: '3. Why are post-exposure variables like "later GPA decline" excluded from the causal adjustment set?',
-      a: 'Later GPA decline and later engagement decline are intermediate mediators along the causal pathway between environmental stress and dropout. Adjusting for mediators blocks the indirect causal effect (overcontrolling bias) and can open spurious collider pathways, heavily biasing the total causal effect toward zero.',
-      linkPage: 'causal' as PageId,
-      linkText: 'Examine Causal DAG Specification',
+      q: '3. What does the Environmental & Financial Index represent?',
+      a: 'The index summarizes the calibrated model probability for the self-reported intention-based risk label using reported study-condition factors. It is a research measure, not a diagnosis, causal estimate, or basis for individual decisions.',
+      linkPage: 'overview' as PageId,
+      linkText: 'Review the project overview',
     },
     {
       q: '4. Why use the Adjusted Risk Difference instead of Odds Ratios for institutional policy decisions?',

@@ -48,7 +48,7 @@ export const UploadPredictPage: React.FC = () => {
 
   const handleDownloadSample = () => {
     const csvContent =
-      'household_income_bracket,financial_stress,commute_time_min,commute_cost_lkr_week,housing_type,internet_reliability,internet_affordability,device_type,device_quality,quiet_study_space,part_time_employment,work_hours_per_week,scholarship_bursary,dependents_count,district_type,year_of_study,faculty,baseline_gpa_band,baseline_engagement_score\n' +
+      'household_income_bracket,financial_stress,commute_time_min,commute_cost_lkr_week,housing_type,internet_reliability,internet_affordability,device_type,device_quality,quiet_study_space,part_time_employment,work_hours_per_week,scholarship_bursary,dependents_count,district_type,year_of_study,faculty,baseline_gpa_band\n' +
       '"Below 50,000",4,75,2500,"Rented room",2,2,"Smartphone only",2,1,1,25,0,2,"Rural",2,"Computing","2.0-2.5",45.0\n' +
       '"100,000 - 150,000",2,30,800,"With parents",4,4,"Own laptop",4,4,0,0,0,0,"Urban",1,"Engineering","3.0-3.3",72.5\n' +
       '"50,000 - 100,000",3,50,1500,"Boarding house",3,3,"Own laptop",3,2,1,15,1,1,"Semi-Urban",3,"Business","2.7-3.0",58.0\n';
@@ -230,7 +230,7 @@ export const UploadPredictPage: React.FC = () => {
               </div>
             </Card>
 
-            <Card title="Cohort Key Statistics" subtitle="Aggregate Environmental Risk Index metrics">
+            <Card title="Cohort Key Statistics" subtitle="Aggregate Environmental & Financial Index metrics">
               <div className="space-y-3 text-xs pt-3">
                 <div className="flex justify-between py-1.5 border-b border-slate-100 dark:border-slate-800">
                   <span className="text-slate-500">Students Evaluated:</span>

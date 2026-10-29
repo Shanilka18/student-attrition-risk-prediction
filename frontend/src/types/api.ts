@@ -178,7 +178,6 @@ export interface DagResponse {
   nodes: DagNode[];
   edges: DagEdge[];
   exposures: string[];
-  mediators: string[];
   confounders: string[];
   primary_outcome: string;
   image_url: string;

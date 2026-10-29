@@ -33,7 +33,7 @@ export const FinalModelPage: React.FC = () => {
     <div className="space-y-6">
       <div className="border-b border-slate-200 dark:border-slate-800 pb-4">
         <h2 className="text-xl font-bold text-slate-900 dark:text-white">
-          Production Model: Calibrated Environmental Risk Index (ERI)
+          Production Model: Calibrated Environmental & Financial Index (EFI)
         </h2>
         <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
           Model card specification, probability calibration efficacy, operational triage tiers, and demographic fairness audits.
@@ -66,7 +66,7 @@ export const FinalModelPage: React.FC = () => {
       {/* ERI Distribution & Calibration Impact */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         <Card
-          title="Environmental Risk Index (ERI) Score Distribution"
+          title="Environmental & Financial Index (EFI) Score Distribution"
           subtitle="Continuous score mapped from 0 to 100 on the validation cohort (N = 286)"
           aboutText="Displays the spread of calibrated attrition risk. Skewed toward lower tiers reflecting realistic baseline retention rates."
         >

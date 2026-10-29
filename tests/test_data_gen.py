@@ -1,20 +1,15 @@
 """Unit and statistical validation tests for the synthetic data generator."""
 
-import json
-from pathlib import Path
-import numpy as np
 import pandas as pd
-import pytest
 from sklearn.metrics import roc_auc_score
 
-from src.data_gen.generate import SocioeconomicDGP, SurveyCorruptionInjector, run_generation
-from src.utils.paths import get_data_dir
+from src.data_gen.generate import SocioeconomicDGP, SurveyCorruptionInjector
 
 
 def test_generation_sample_size_and_columns():
     """Verify clean dataset generates requested sample size with expected columns."""
     dgp = SocioeconomicDGP(seed=42)
-    df, gt = dgp.generate(n=1000)
+    df, _ = dgp.generate(n=1000)
 
     assert len(df) == 1000, f"Expected 1000 rows, got {len(df)}"
     assert "participant_id" in df.columns
@@ -29,12 +24,12 @@ def test_generation_sample_size_and_columns():
 def test_attrition_prevalence_bounds():
     """Verify class imbalance: attrition prevalence must strictly be in 12% - 20% range."""
     dgp = SocioeconomicDGP(seed=42)
-    df, gt = dgp.generate(n=2000)
+    df, _ = dgp.generate(n=2000)
 
     prevalence = df["attrition"].mean()
-    assert 0.12 <= prevalence <= 0.20, (
-        f"Attrition prevalence {prevalence:.4f} outside required bounds [0.12, 0.20]"
-    )
+    assert (
+        0.12 <= prevalence <= 0.20
+    ), f"Attrition prevalence {prevalence:.4f} outside required bounds [0.12, 0.20]"
 
 
 def test_no_label_leakage():
@@ -51,7 +46,6 @@ def test_no_label_leakage():
         "commute_cost_lkr_week",
         "financial_stress",
         "work_hours_per_week",
-        "baseline_engagement_score",
     ]
 
     for col in candidate_features:
@@ -59,9 +53,9 @@ def test_no_label_leakage():
         # Compute single feature ROC-AUC
         auc = roc_auc_score(y, x)
         auc_directed = max(auc, 1.0 - auc)
-        assert auc_directed <= 0.88, (
-            f"Feature '{col}' has excessive ROC-AUC ({auc_directed:.4f} > 0.88). Label leakage detected!"
-        )
+        assert (
+            auc_directed <= 0.88
+        ), f"Feature '{col}' has excessive ROC-AUC ({auc_directed:.4f} > 0.88). Label leakage detected!"
 
 
 def test_derived_exposures_logic():
@@ -70,8 +64,12 @@ def test_derived_exposures_logic():
     df, _ = dgp.generate(n=1000)
 
     # 1. financial_hardship: income <= 2 AND stress >= 4
-    expected_fh = ((df["household_income_bracket"] <= 2) & (df["financial_stress"] >= 4)).astype(int)
-    pd.testing.assert_series_equal(df["financial_hardship"], expected_fh, check_names=False)
+    expected_fh = (
+        (df["household_income_bracket"] <= 2) & (df["financial_stress"] >= 4)
+    ).astype(int)
+    pd.testing.assert_series_equal(
+        df["financial_hardship"], expected_fh, check_names=False
+    )
 
     # 2. long_commute: commute_time_min > 120
     expected_lc = (df["commute_time_min"] > 120.0).astype(int)
@@ -79,13 +77,18 @@ def test_derived_exposures_logic():
 
     # 3. inadequate_digital_access: reliability <= 2 OR device in ('phone only', 'none')
     expected_ida = (
-        (df["internet_reliability"] <= 2) | df["device_type"].isin(["phone only", "none"])
+        (df["internet_reliability"] <= 2)
+        | df["device_type"].isin(["phone only", "none"])
     ).astype(int)
-    pd.testing.assert_series_equal(df["inadequate_digital_access"], expected_ida, check_names=False)
+    pd.testing.assert_series_equal(
+        df["inadequate_digital_access"], expected_ida, check_names=False
+    )
 
     # 4. heavy_part_time_work: work_hours_per_week > 15
     expected_hpt = (df["work_hours_per_week"] > 15.0).astype(int)
-    pd.testing.assert_series_equal(df["heavy_part_time_work"], expected_hpt, check_names=False)
+    pd.testing.assert_series_equal(
+        df["heavy_part_time_work"], expected_hpt, check_names=False
+    )
 
 
 def test_planted_effects_ground_truth_structure():
@@ -125,13 +128,17 @@ def test_mess_injection_in_raw_dataset():
     # 3. Sentinels exist in income or commute cost
     raw_income_vals = df_raw["household_income_bracket"].dropna().astype(str).values
     has_sentinel = any(s in ["Prefer not to say", "N/A"] for s in raw_income_vals)
-    assert has_sentinel, "Sentinel values ('Prefer not to say' / 'N/A') missing from income column"
+    assert (
+        has_sentinel
+    ), "Sentinel values ('Prefer not to say' / 'N/A') missing from income column"
 
     # 4. Impossible values exist in commute time (-5 or 900)
     commute_raw = pd.to_numeric(df_raw["commute_time_min"], errors="coerce")
     has_negative_commute = (commute_raw < 0).any()
     has_extreme_commute = (commute_raw >= 800).any()
-    assert has_negative_commute or has_extreme_commute, "Impossible commute times were not injected"
+    assert (
+        has_negative_commute or has_extreme_commute
+    ), "Impossible commute times were not injected"
 
     # 5. Impossible work hours (> 80)
     hours_raw = pd.to_numeric(df_raw["work_hours_per_week"], errors="coerce")
@@ -140,7 +147,9 @@ def test_mess_injection_in_raw_dataset():
 
     # 6. Logical contradiction: unemployed but work hours > 0
     contradictions = df_raw[(df_raw["part_time_employment"] == 0) & (hours_raw > 0)]
-    assert len(contradictions) > 0, "Logical contradiction (unemployed with work hours) not injected"
+    assert (
+        len(contradictions) > 0
+    ), "Logical contradiction (unemployed with work hours) not injected"
 
 
 def test_seed_reproducibility():

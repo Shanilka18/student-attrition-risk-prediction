@@ -176,7 +176,7 @@ export const CausalAnalysisPage: React.FC = () => {
         <Card
           title="Structural Causal Model (DAG Specification)"
           subtitle="Formal node classification: Confounders, Exposures, Mediators, and Outcome"
-          aboutText="The DAG encodes non-parametric identification assumptions. Notice post-exposure mediators are excluded from adjustment."
+          aboutText="The DAG summarizes the assumed relationships among study-condition exposures and outcomes; it does not establish causation."
         >
           <div className="space-y-3">
             <div className="rounded-lg overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-900/50 flex items-center justify-center p-2">
@@ -192,12 +192,12 @@ export const CausalAnalysisPage: React.FC = () => {
                 Income, Commute, Digital, Work
               </div>
               <div className="p-2 bg-slate-100 dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700">
-                <span className="font-bold text-slate-700 dark:text-slate-300 block">Confounders (7)</span>
+                <span className="font-bold text-slate-700 dark:text-slate-300 block">Confounders (6)</span>
                 District, Faculty, Baseline GPA
               </div>
               <div className="p-2 bg-rose-50 dark:bg-rose-950/30 rounded border border-rose-200 dark:border-rose-900">
-                <span className="font-bold text-rose-700 dark:text-rose-300 block">Mediators (Excluded)</span>
-                Later GPA & Engagement drop
+                <span className="font-bold text-rose-700 dark:text-rose-300 block">Interpretation</span>
+                Associations are not causal proof
               </div>
               <div className="p-2 bg-emerald-50 dark:bg-emerald-950/30 rounded border border-emerald-200 dark:border-emerald-900">
                 <span className="font-bold text-emerald-700 dark:text-emerald-300 block">Outcome</span>

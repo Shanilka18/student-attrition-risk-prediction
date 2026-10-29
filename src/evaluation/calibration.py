@@ -1,4 +1,4 @@
-"""Probability calibration engine and Environmental Risk Index (ERI) calculator.
+"""Probability calibration engine and Environmental & Financial Index (EFI) calculator.
 
 Fits Platt Scaling (logistic sigmoid) and Isotonic Regression on validation predictions,
 selects the best calibrator via Brier score and ECE, converts calibrated probabilities into ERI
@@ -7,20 +7,20 @@ selects the best calibrator via Brier score and ECE, converts calibrated probabi
 
 from __future__ import annotations
 
-import json
-from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
-import joblib
 import numpy as np
-from sklearn.calibration import calibration_curve
 from sklearn.isotonic import IsotonicRegression
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import balanced_accuracy_score, f1_score, precision_score, recall_score
+from sklearn.metrics import (
+    balanced_accuracy_score,
+    f1_score,
+    precision_score,
+    recall_score,
+)
 
 from src.evaluation.metrics import compute_ece
 from src.utils.logging_config import setup_logger
-from src.utils.paths import get_artifacts_dir, get_configs_dir
 
 logger = setup_logger("calibration")
 
@@ -31,7 +31,7 @@ class PlattCalibrator:
     def __init__(self):
         self.lr = LogisticRegression(C=1.0, solver="lbfgs")
 
-    def fit(self, y_prob: np.ndarray, y_true: np.ndarray) -> "PlattCalibrator":
+    def fit(self, y_prob: np.ndarray, y_true: np.ndarray) -> PlattCalibrator:
         # LogisticRegression expects 2D feature matrix
         X = y_prob.reshape(-1, 1)
         self.lr.fit(X, y_true)
@@ -48,7 +48,7 @@ class PlattCalibrator:
 def fit_calibrators(
     val_probs: np.ndarray,
     val_y: np.ndarray,
-) -> Tuple[Any, str, Dict[str, float]]:
+) -> tuple[Any, str, dict[str, float]]:
     """Compare Platt scaling vs Isotonic regression on validation data.
 
     Returns:
@@ -87,15 +87,17 @@ def fit_calibrators(
         best_name = "isotonic"
         best_calibrator = isotonic
 
-    logger.info(f"Calibration fit complete. Chosen method: {best_name} (Platt Brier={platt_brier:.4f}, Iso Brier={iso_brier:.4f})")
+    logger.info(
+        f"Calibration fit complete. Chosen method: {best_name} (Platt Brier={platt_brier:.4f}, Iso Brier={iso_brier:.4f})"
+    )
     return best_calibrator, best_name, metrics
 
 
 def calibrate_classifier(
     val_probs: np.ndarray,
     val_y: np.ndarray,
-    prevalence: Optional[float] = None,
-) -> Dict[str, Any]:
+    prevalence: float | None = None,
+) -> dict[str, Any]:
     """Calibrate a classifier's validation probabilities and compute Brier Skill Score."""
     calibrator, cal_name, metrics = fit_calibrators(val_probs, val_y)
     cal_probs = calibrator.predict(val_probs)
@@ -127,7 +129,7 @@ def find_optimal_threshold(
     min_threshold: float = 0.05,
     max_threshold: float = 0.95,
     num_steps: int = 91,
-) -> Tuple[float, Dict[str, float]]:
+) -> tuple[float, dict[str, float]]:
     """Grid-search the decision threshold strictly on validation data.
 
     Maximizes objective (e.g. balanced_accuracy) with tie-breaker (e.g. f1).
@@ -148,7 +150,9 @@ def find_optimal_threshold(
         score = bal_acc if objective == "balanced_accuracy" else f1
         tie = f1 if objective == "balanced_accuracy" else bal_acc
 
-        if score > best_score or (np.isclose(score, best_score, atol=1e-5) and tie > best_tie):
+        if score > best_score or (
+            np.isclose(score, best_score, atol=1e-5) and tie > best_tie
+        ):
             best_score = score
             best_tie = tie
             best_th = float(th)
@@ -167,8 +171,8 @@ def calculate_eri(
     calibrated_probs: np.ndarray,
     ece: float,
     ece_threshold: float = 0.15,
-) -> Tuple[np.ndarray, str, bool]:
-    """Compute Environmental Risk Index = 100 * P_calibrated.
+) -> tuple[np.ndarray, str, bool]:
+    """Compute Environmental & Financial Index = 100 * calibrated P(at_risk).
 
     If ECE stays above ece_threshold, relabel as 'normalised model-risk score'
     with is_calibrated=False.
@@ -176,7 +180,7 @@ def calculate_eri(
     eri_scores = np.clip(calibrated_probs * 100.0, 0.0, 100.0)
 
     if ece <= ece_threshold:
-        label = "Environmental Risk Index (ERI)"
+        label = "Environmental & Financial Index (EFI)"
         is_calibrated = True
     else:
         label = "normalised model-risk score"
@@ -189,7 +193,7 @@ def calculate_eri(
     return eri_scores, label, is_calibrated
 
 
-def assign_risk_band(eri_score: float) -> Dict[str, str]:
+def assign_risk_band(eri_score: float) -> dict[str, str]:
     """Map ERI score (0-100) to human-interpretable institutional risk band."""
     if eri_score < 25.0:
         return {

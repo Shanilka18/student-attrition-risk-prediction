@@ -5,7 +5,6 @@ without relying on machine-specific hardcoded directories.
 """
 
 from pathlib import Path
-from typing import Union
 
 
 def get_project_root() -> Path:
@@ -16,7 +15,7 @@ def get_project_root() -> Path:
     return Path(__file__).resolve().parent.parent.parent
 
 
-def ensure_dir(path: Union[str, Path]) -> Path:
+def ensure_dir(path: str | Path) -> Path:
     """Ensure directory exists; creates parent directories if necessary."""
     p = Path(path)
     p.mkdir(parents=True, exist_ok=True)
@@ -33,12 +32,14 @@ def get_config_path(config_filename: str = "config.yaml") -> Path:
     return get_configs_dir() / config_filename
 
 
-def get_schema_path(schema_filename: str = "schema.yaml") -> Path:
+def get_schema_path(schema_filename: str = "schema_envfin.yaml") -> Path:
     """Return absolute path to schema configuration."""
-    return get_configs_dir() / schema_filename
+    return get_project_root() / "config" / schema_filename
 
 
-def get_leaderboard_weights_path(weights_filename: str = "leaderboard_weights.yaml") -> Path:
+def get_leaderboard_weights_path(
+    weights_filename: str = "leaderboard_weights.yaml",
+) -> Path:
     """Return absolute path to leaderboard weights file."""
     return get_configs_dir() / weights_filename
 

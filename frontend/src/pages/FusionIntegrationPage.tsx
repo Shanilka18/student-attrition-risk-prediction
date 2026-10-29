@@ -38,7 +38,7 @@ export const FusionIntegrationPage: React.FC = () => {
           </h2>
         </div>
         <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-          Decoupled score-level API integrating the Environmental Risk Index with Academic, Engagement, and Psychosocial components.
+          Decoupled score-level API integrating the Environmental & Financial Index with the other academic and wellbeing components.
         </p>
       </div>
 

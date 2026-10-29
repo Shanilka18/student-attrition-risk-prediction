@@ -14,15 +14,15 @@ Outputs:
 import argparse
 import json
 from pathlib import Path
-from typing import Any, Dict, List, Tuple
+from typing import Any
+
 import numpy as np
 import pandas as pd
 from scipy.special import expit
 
-from src.utils.paths import get_data_dir, ensure_dir, get_schema_path, get_config_path
-from src.utils.seed import set_seed
 from src.utils.logging_config import setup_logger
-from src.utils.config_loader import load_config, load_schema
+from src.utils.paths import get_data_dir
+from src.utils.seed import set_seed
 
 logger = setup_logger("data_gen")
 
@@ -34,7 +34,7 @@ class SocioeconomicDGP:
         self.seed = seed
         self.rng = np.random.default_rng(seed)
 
-    def generate(self, n: int = 2000) -> Tuple[pd.DataFrame, Dict[str, Any]]:
+    def generate(self, n: int = 2000) -> tuple[pd.DataFrame, dict[str, Any]]:
         """Generate pristine, uncorrupted synthetic student cohort.
 
         Parameters
@@ -94,7 +94,12 @@ class SocioeconomicDGP:
         # Financial stress (Likert 1 to 5) driven by low income and high dependents
         financial_stress = np.zeros(n, dtype=int)
         for i in range(n):
-            latent_stress = 4.2 - 0.58 * household_income_bracket[i] + 0.28 * dependents_count[i] + self.rng.normal(0, 0.75)
+            latent_stress = (
+                4.2
+                - 0.58 * household_income_bracket[i]
+                + 0.28 * dependents_count[i]
+                + self.rng.normal(0, 0.75)
+            )
             # Threshold discretization
             if latent_stress < 1.7:
                 fs = 1
@@ -112,7 +117,11 @@ class SocioeconomicDGP:
         scholarship_bursary = np.zeros(n, dtype=int)
         for i in range(n):
             inc = household_income_bracket[i]
-            p_scholarship = 0.38 if inc == 1 else (0.28 if inc == 2 else (0.12 if inc == 3 else 0.03))
+            p_scholarship = (
+                0.38
+                if inc == 1
+                else (0.28 if inc == 2 else (0.12 if inc == 3 else 0.03))
+            )
             scholarship_bursary[i] = int(self.rng.random() < p_scholarship)
 
         # 3. Accommodation & Commuting Barriers
@@ -159,8 +168,12 @@ class SocioeconomicDGP:
 
             # Weekly commute cost (LKR): transit fare + inflation shock
             # Base fare ~500 LKR + rate per commute minute * 5 days + noise
-            weekly_cost = 450.0 + (commute_time_min[i] * 18.5) + self.rng.normal(0, 250.0)
-            commute_cost_lkr_week[i] = round(float(np.clip(weekly_cost, 250.0, 9500.0)), 2)
+            weekly_cost = (
+                450.0 + (commute_time_min[i] * 18.5) + self.rng.normal(0, 250.0)
+            )
+            commute_cost_lkr_week[i] = round(
+                float(np.clip(weekly_cost, 250.0, 9500.0)), 2
+            )
 
         housing_type = np.array(housing_type)
 
@@ -192,7 +205,9 @@ class SocioeconomicDGP:
             else:
                 d_probs = [0.92, 0.06, 0.02, 0.00]
 
-            dt_choice = self.rng.choice(["own laptop", "shared laptop", "phone only", "none"], p=d_probs)
+            dt_choice = self.rng.choice(
+                ["own laptop", "shared laptop", "phone only", "none"], p=d_probs
+            )
             device_type.append(dt_choice)
 
             # Device quality (1 to 5)
@@ -204,7 +219,9 @@ class SocioeconomicDGP:
                 quality_mean = 1.8
             else:
                 quality_mean = 1.0
-            device_quality[i] = int(np.clip(round(self.rng.normal(quality_mean, 0.8)), 1, 5))
+            device_quality[i] = int(
+                np.clip(round(self.rng.normal(quality_mean, 0.8)), 1, 5)
+            )
 
             # Quiet study space access (reduced by dependents count and boarding density)
             dep = dependents_count[i]
@@ -244,49 +261,21 @@ class SocioeconomicDGP:
             "Band 5 (3.50 - 4.00)",
         ]
         gpa_probs = [0.08, 0.18, 0.38, 0.26, 0.10]
-        baseline_gpa_band = self.rng.choice(baseline_gpa_band_choices, size=n, p=gpa_probs)
-
-        # Baseline engagement score (continuous 0 to 100)
-        baseline_engagement_score = np.zeros(n, dtype=float)
-        for i in range(n):
-            gpa_idx = baseline_gpa_band_choices.index(baseline_gpa_band[i])
-            eng_mean = 52.0 + (gpa_idx * 6.5)
-            eng_val = self.rng.normal(eng_mean, 14.0)
-            baseline_engagement_score[i] = round(float(np.clip(eng_val, 8.0, 99.0)), 1)
+        baseline_gpa_band = self.rng.choice(
+            baseline_gpa_band_choices, size=n, p=gpa_probs
+        )
 
         # 7. Derived Exposures (Fixed policy definitions)
-        financial_hardship = ((household_income_bracket <= 2) & (financial_stress >= 4)).astype(int)
+        financial_hardship = (
+            (household_income_bracket <= 2) & (financial_stress >= 4)
+        ).astype(int)
         long_commute = (commute_time_min > 120.0).astype(int)
         inadequate_digital_access = (
             (internet_reliability <= 2) | np.isin(device_type, ["phone only", "none"])
         ).astype(int)
         heavy_part_time_work = (work_hours_per_week > 15.0).astype(int)
 
-        # 8. Mediators (Post-Exposure Mechanisms: NEVER in Total Effect Adjustment Set)
-        later_gpa_decline = np.zeros(n, dtype=int)
-        later_engagement_decline = np.zeros(n, dtype=int)
-
-        for i in range(n):
-            p_gpa_drop = (
-                0.12
-                + 0.18 * financial_hardship[i]
-                + 0.12 * long_commute[i]
-                + 0.14 * inadequate_digital_access[i]
-                + 0.15 * heavy_part_time_work[i]
-                - 0.05 * (baseline_engagement_score[i] / 100.0)
-            )
-            later_gpa_decline[i] = int(self.rng.random() < np.clip(p_gpa_drop, 0.05, 0.85))
-
-            p_eng_drop = (
-                0.14
-                + 0.14 * long_commute[i]
-                + 0.20 * inadequate_digital_access[i]
-                + 0.18 * heavy_part_time_work[i]
-                + 0.10 * (1 - quiet_study_space[i])
-            )
-            later_engagement_decline[i] = int(self.rng.random() < np.clip(p_eng_drop, 0.05, 0.85))
-
-        # 9. Structural Outcome Equation & Planted Treatment Effects
+        # 8. Structural Outcome Equation & Planted Treatment Effects
         # Planted Population Average Treatment Effects (Risk Differences):
         # ATE financial_hardship = +0.10
         # ATE long_commute = +0.06
@@ -296,27 +285,34 @@ class SocioeconomicDGP:
         # vs Junior (Year 1-2) & Urban students = +0.07
 
         # Structural Logit formulation
-        beta_0 = -3.30  # Calibrated intercept to fix baseline attrition ~16-18% under non-linear synergy
+        beta_0 = (
+            -3.30
+        )  # Calibrated intercept to fix baseline attrition ~16-18% under non-linear synergy
 
         # Confounder linear contributions
         alpha_inc = -0.22 * (household_income_bracket - 3.5)
-        alpha_gpa = np.array([
-            0.80 if b == "Band 1 (< 2.00)" else (
-                0.45 if b == "Band 2 (2.00 - 2.49)" else (
-                    0.0 if b == "Band 3 (2.50 - 2.99)" else (
-                        -0.40 if b == "Band 4 (3.00 - 3.49)" else -0.70
+        alpha_gpa = np.array(
+            [
+                (
+                    0.80
+                    if b == "Band 1 (< 2.00)"
+                    else (
+                        0.45
+                        if b == "Band 2 (2.00 - 2.49)"
+                        else (
+                            0.0
+                            if b == "Band 3 (2.50 - 2.99)"
+                            else (-0.40 if b == "Band 4 (3.00 - 3.49)" else -0.70)
+                        )
                     )
                 )
-            )
-            for b in baseline_gpa_band
-        ])
-        alpha_eng = -0.016 * (baseline_engagement_score - 60.0)
+                for b in baseline_gpa_band
+            ]
+        )
         alpha_year = 0.10 * (year_of_study - 2.5)
 
         # Heterogeneity indicator: Senior (Year 3-4) AND Rural
         senior_rural = ((year_of_study >= 3) & (district_type == "rural")).astype(float)
-        junior_urban = ((year_of_study <= 2) & (district_type == "urban")).astype(float)
-
         # Planted exposure logit coefficients (empirically calibrated to deliver exact risk differences)
         coef_fh_base = 0.80
         coef_fh_het = 0.45  # Added log-odds for senior rural
@@ -324,14 +320,14 @@ class SocioeconomicDGP:
         coef_digital = 0.55
         coef_work = 0.42
 
-        # Mediator direct effect contributions
-        coef_med_gpa = 0.50
-        coef_med_eng = 0.42
-
         # Non-linear interaction / compounding hardship terms
         synergy_hardship = 0.50 * (financial_hardship * long_commute)
-        synergy_digital = 0.45 * (inadequate_digital_access * (financial_stress >= 4).astype(int))
-        compound_stress = 0.40 * ((financial_stress >= 4) & (heavy_part_time_work == 1)).astype(float)
+        synergy_digital = 0.45 * (
+            inadequate_digital_access * (financial_stress >= 4).astype(int)
+        )
+        compound_stress = 0.40 * (
+            (financial_stress >= 4) & (heavy_part_time_work == 1)
+        ).astype(float)
 
         # Calibrated observation noise (ensuring realistic ROC-AUC in 0.78 - 0.85 range)
         noise = self.rng.normal(0, 0.40, size=n)
@@ -341,15 +337,12 @@ class SocioeconomicDGP:
             beta_0
             + alpha_inc
             + alpha_gpa
-            + alpha_eng
             + alpha_year
             + coef_fh_base * financial_hardship
             + coef_fh_het * (financial_hardship * senior_rural)
             + coef_commute * long_commute
             + coef_digital * inadequate_digital_access
             + coef_work * heavy_part_time_work
-            + coef_med_gpa * later_gpa_decline
-            + coef_med_eng * later_engagement_decline
             + synergy_hardship
             + synergy_digital
             + compound_stress
@@ -371,42 +364,43 @@ class SocioeconomicDGP:
 
         # Verify class prevalence
         prevalence = float(np.mean(attrition))
-        logger.info(f"Generated attrition prevalence: {prevalence:.4f} (target range 0.12 - 0.20)")
+        logger.info(
+            f"Generated attrition prevalence: {prevalence:.4f} (target range 0.12 - 0.20)"
+        )
 
         # Assemble clean DataFrame
-        df_clean = pd.DataFrame({
-            "participant_id": participant_ids,
-            "faculty": faculty,
-            "year_of_study": year_of_study,
-            "gender": gender,
-            "district_type": district_type,
-            "household_income_bracket": household_income_bracket,
-            "financial_stress": financial_stress,
-            "scholarship_bursary": scholarship_bursary,
-            "dependents_count": dependents_count,
-            "housing_type": housing_type,
-            "commute_time_min": commute_time_min,
-            "commute_cost_lkr_week": commute_cost_lkr_week,
-            "internet_reliability": internet_reliability,
-            "internet_affordability": internet_affordability,
-            "device_type": device_type,
-            "device_quality": device_quality,
-            "quiet_study_space": quiet_study_space,
-            "part_time_employment": part_time_employment,
-            "work_hours_per_week": work_hours_per_week,
-            "baseline_gpa_band": baseline_gpa_band,
-            "baseline_engagement_score": baseline_engagement_score,
-            "later_gpa_decline": later_gpa_decline,
-            "later_engagement_decline": later_engagement_decline,
-            "financial_hardship": financial_hardship,
-            "long_commute": long_commute,
-            "inadequate_digital_access": inadequate_digital_access,
-            "heavy_part_time_work": heavy_part_time_work,
-            "attrition": attrition,
-            "intention_to_withdraw": intention_to_withdraw,
-            "latent_risk_score": latent_risk_score,
-            "true_probability": np.round(true_prob, 5),
-        })
+        df_clean = pd.DataFrame(
+            {
+                "participant_id": participant_ids,
+                "faculty": faculty,
+                "year_of_study": year_of_study,
+                "gender": gender,
+                "district_type": district_type,
+                "household_income_bracket": household_income_bracket,
+                "financial_stress": financial_stress,
+                "scholarship_bursary": scholarship_bursary,
+                "dependents_count": dependents_count,
+                "housing_type": housing_type,
+                "commute_time_min": commute_time_min,
+                "commute_cost_lkr_week": commute_cost_lkr_week,
+                "internet_reliability": internet_reliability,
+                "internet_affordability": internet_affordability,
+                "device_type": device_type,
+                "device_quality": device_quality,
+                "quiet_study_space": quiet_study_space,
+                "part_time_employment": part_time_employment,
+                "work_hours_per_week": work_hours_per_week,
+                "baseline_gpa_band": baseline_gpa_band,
+                "financial_hardship": financial_hardship,
+                "long_commute": long_commute,
+                "inadequate_digital_access": inadequate_digital_access,
+                "heavy_part_time_work": heavy_part_time_work,
+                "attrition": attrition,
+                "intention_to_withdraw": intention_to_withdraw,
+                "latent_risk_score": latent_risk_score,
+                "true_probability": np.round(true_prob, 5),
+            }
+        )
 
         # Calculate empirical unadjusted risk differences for logging and registry
         def calc_rd(exposure_col: str) -> float:
@@ -417,16 +411,28 @@ class SocioeconomicDGP:
             return 0.0
 
         # Subgroup risk difference for senior rural
-        sr_mask = (df_clean["year_of_study"] >= 3) & (df_clean["district_type"] == "rural")
-        ju_mask = (df_clean["year_of_study"] <= 2) & (df_clean["district_type"] == "urban")
+        sr_mask = (df_clean["year_of_study"] >= 3) & (
+            df_clean["district_type"] == "rural"
+        )
+        ju_mask = (df_clean["year_of_study"] <= 2) & (
+            df_clean["district_type"] == "urban"
+        )
 
         rd_fh_sr = float(
-            df_clean[sr_mask & (df_clean["financial_hardship"] == 1)]["attrition"].mean()
-            - df_clean[sr_mask & (df_clean["financial_hardship"] == 0)]["attrition"].mean()
+            df_clean[sr_mask & (df_clean["financial_hardship"] == 1)][
+                "attrition"
+            ].mean()
+            - df_clean[sr_mask & (df_clean["financial_hardship"] == 0)][
+                "attrition"
+            ].mean()
         )
         rd_fh_ju = float(
-            df_clean[ju_mask & (df_clean["financial_hardship"] == 1)]["attrition"].mean()
-            - df_clean[ju_mask & (df_clean["financial_hardship"] == 0)]["attrition"].mean()
+            df_clean[ju_mask & (df_clean["financial_hardship"] == 1)][
+                "attrition"
+            ].mean()
+            - df_clean[ju_mask & (df_clean["financial_hardship"] == 0)][
+                "attrition"
+            ].mean()
         )
 
         ground_truth = {
@@ -454,11 +460,15 @@ class SocioeconomicDGP:
                 },
                 "inadequate_digital_access": {
                     "theoretical_ate_risk_difference": 0.07,
-                    "empirical_unadjusted_rd": round(calc_rd("inadequate_digital_access"), 4),
+                    "empirical_unadjusted_rd": round(
+                        calc_rd("inadequate_digital_access"), 4
+                    ),
                 },
                 "heavy_part_time_work": {
                     "theoretical_ate_risk_difference": 0.05,
-                    "empirical_unadjusted_rd": round(calc_rd("heavy_part_time_work"), 4),
+                    "empirical_unadjusted_rd": round(
+                        calc_rd("heavy_part_time_work"), 4
+                    ),
                 },
             },
             "structural_coefficients": {
@@ -468,8 +478,6 @@ class SocioeconomicDGP:
                 "coef_long_commute": coef_commute,
                 "coef_inadequate_digital_access": coef_digital,
                 "coef_heavy_part_time_work": coef_work,
-                "coef_mediator_later_gpa": coef_med_gpa,
-                "coef_mediator_later_engagement": coef_med_eng,
                 "observation_noise_std": 0.40,
                 "synergy_hardship": 0.50,
                 "synergy_digital": 0.45,
@@ -553,7 +561,9 @@ class SurveyCorruptionInjector:
         # 3. Logical Contradictions
         # part_time_employment == 0 but work_hours_per_week > 0
         contradiction_idx = self.rng.choice(
-            df[df["part_time_employment"] == 0].index, size=max(3, int(0.015 * n)), replace=False
+            df[df["part_time_employment"] == 0].index,
+            size=max(3, int(0.015 * n)),
+            replace=False,
         )
         for idx in contradiction_idx:
             df.loc[idx, "work_hours_per_week"] = 25.0
@@ -600,49 +610,216 @@ class SurveyCorruptionInjector:
         duplicate_rows = df.iloc[duplicate_indices].copy()
         df = pd.concat([df, duplicate_rows], ignore_index=True)
 
-        logger.info(f"Messy dataset generated with {len(df)} total rows ({n_duplicates} duplicates appended).")
+        logger.info(
+            f"Messy dataset generated with {len(df)} total rows ({n_duplicates} duplicates appended)."
+        )
         return df
 
 
 def create_data_dictionary() -> pd.DataFrame:
     """Build standardized data dictionary table for documentation and schema enforcement."""
     dict_records = [
-        {"column_name": "participant_id", "data_type": "string", "role": "id", "allowed_range_values": "P-00001 to P-99999", "description": "Pseudonymous student identifier; strictly no PII."},
-        {"column_name": "gender", "data_type": "categorical", "role": "demographic_audit", "allowed_range_values": "Female, Male, Non-binary", "description": "Reported gender for algorithmic fairness audit; excluded from predictive models."},
-        {"column_name": "faculty", "data_type": "categorical", "role": "covariate", "allowed_range_values": "Computing, Engineering, Business, Humanities", "description": "Faculty of enrollment."},
-        {"column_name": "year_of_study", "data_type": "integer", "role": "covariate", "allowed_range_values": "1, 2, 3, 4", "description": "Current undergraduate study year."},
-        {"column_name": "district_type", "data_type": "categorical", "role": "covariate", "allowed_range_values": "urban, semi-urban, rural", "description": "Geographic typology of permanent home domicile."},
-        {"column_name": "household_income_bracket", "data_type": "integer", "role": "feature", "allowed_range_values": "1 to 6 (ordinal)", "description": "Monthly gross household income bracket in LKR."},
-        {"column_name": "financial_stress", "data_type": "integer", "role": "feature", "allowed_range_values": "1 to 5", "description": "Self-reported financial stress Likert scale."},
-        {"column_name": "scholarship_bursary", "data_type": "integer", "role": "feature", "allowed_range_values": "0, 1", "description": "Recipient of Mahapola or institutional grant."},
-        {"column_name": "dependents_count", "data_type": "integer", "role": "feature", "allowed_range_values": "0 to 6", "description": "Number of dependents supported by student or household."},
-        {"column_name": "housing_type", "data_type": "categorical", "role": "feature", "allowed_range_values": "home, boarding, hostel, relatives", "description": "Current living arrangement during term."},
-        {"column_name": "commute_time_min", "data_type": "float", "role": "feature", "allowed_range_values": "0 to 240 mins", "description": "One-way daily transit time to campus."},
-        {"column_name": "commute_cost_lkr_week", "data_type": "float", "role": "feature", "allowed_range_values": "0 to 15,000 LKR", "description": "Estimated weekly commute expenditure."},
-        {"column_name": "internet_reliability", "data_type": "integer", "role": "feature", "allowed_range_values": "1 to 5", "description": "Internet connectivity reliability for online coursework."},
-        {"column_name": "internet_affordability", "data_type": "integer", "role": "feature", "allowed_range_values": "1 to 5", "description": "Ease of paying for internet data quota."},
-        {"column_name": "device_type", "data_type": "categorical", "role": "feature", "allowed_range_values": "own laptop, shared laptop, phone only, none", "description": "Primary digital hardware device available."},
-        {"column_name": "device_quality", "data_type": "integer", "role": "feature", "allowed_range_values": "1 to 5", "description": "Perceived condition of computing device."},
-        {"column_name": "quiet_study_space", "data_type": "integer", "role": "feature", "allowed_range_values": "0, 1", "description": "Access to dedicated quiet study space."},
-        {"column_name": "part_time_employment", "data_type": "integer", "role": "feature", "allowed_range_values": "0, 1", "description": "Active paid employment status."},
-        {"column_name": "work_hours_per_week", "data_type": "float", "role": "feature", "allowed_range_values": "0 to 50 hrs/wk", "description": "Weekly paid working hours."},
-        {"column_name": "baseline_gpa_band", "data_type": "categorical", "role": "covariate", "allowed_range_values": "Band 1 to Band 5", "description": "Baseline GPA band from Component 1 feed."},
-        {"column_name": "baseline_engagement_score", "data_type": "float", "role": "covariate", "allowed_range_values": "0 to 100", "description": "Baseline LMS engagement score from Component 2 feed."},
-        {"column_name": "later_gpa_decline", "data_type": "integer", "role": "mediator", "allowed_range_values": "0, 1", "description": "Downstream mediator: drop in academic grades."},
-        {"column_name": "later_engagement_decline", "data_type": "integer", "role": "mediator", "allowed_range_values": "0, 1", "description": "Downstream mediator: drop in LMS participation."},
-        {"column_name": "financial_hardship", "data_type": "integer", "role": "exposure", "allowed_range_values": "0, 1", "description": "Derived exposure: income <= 2 AND stress >= 4."},
-        {"column_name": "long_commute", "data_type": "integer", "role": "exposure", "allowed_range_values": "0, 1", "description": "Derived exposure: commute_time_min > 120."},
-        {"column_name": "inadequate_digital_access", "data_type": "integer", "role": "exposure", "allowed_range_values": "0, 1", "description": "Derived exposure: reliability <= 2 OR device in {phone, none}."},
-        {"column_name": "heavy_part_time_work", "data_type": "integer", "role": "exposure", "allowed_range_values": "0, 1", "description": "Derived exposure: work_hours_per_week > 15."},
-        {"column_name": "attrition", "data_type": "integer", "role": "outcome", "allowed_range_values": "0, 1", "description": "Primary binary target: institutional withdrawal."},
-        {"column_name": "intention_to_withdraw", "data_type": "integer", "role": "outcome", "allowed_range_values": "1 to 5", "description": "PROXY OUTCOME: self-reported withdrawal intention."},
-        {"column_name": "latent_risk_score", "data_type": "float", "role": "outcome", "allowed_range_values": "0 to 100", "description": "Continuous ground-truth ERI risk score for regression benchmark."},
-        {"column_name": "true_probability", "data_type": "float", "role": "metadata_ground_truth", "allowed_range_values": "0 to 1", "description": "Continuous ground-truth Bayes probability for ceiling evaluation; excluded from features."},
+        {
+            "column_name": "participant_id",
+            "data_type": "string",
+            "role": "id",
+            "allowed_range_values": "P-00001 to P-99999",
+            "description": "Pseudonymous student identifier; strictly no PII.",
+        },
+        {
+            "column_name": "gender",
+            "data_type": "categorical",
+            "role": "demographic_audit",
+            "allowed_range_values": "Female, Male, Non-binary",
+            "description": "Reported gender for algorithmic fairness audit; excluded from predictive models.",
+        },
+        {
+            "column_name": "faculty",
+            "data_type": "categorical",
+            "role": "covariate",
+            "allowed_range_values": "Computing, Engineering, Business, Humanities",
+            "description": "Faculty of enrollment.",
+        },
+        {
+            "column_name": "year_of_study",
+            "data_type": "integer",
+            "role": "covariate",
+            "allowed_range_values": "1, 2, 3, 4",
+            "description": "Current undergraduate study year.",
+        },
+        {
+            "column_name": "district_type",
+            "data_type": "categorical",
+            "role": "covariate",
+            "allowed_range_values": "urban, semi-urban, rural",
+            "description": "Geographic typology of permanent home domicile.",
+        },
+        {
+            "column_name": "household_income_bracket",
+            "data_type": "integer",
+            "role": "feature",
+            "allowed_range_values": "1 to 6 (ordinal)",
+            "description": "Monthly gross household income bracket in LKR.",
+        },
+        {
+            "column_name": "financial_stress",
+            "data_type": "integer",
+            "role": "feature",
+            "allowed_range_values": "1 to 5",
+            "description": "Self-reported financial stress Likert scale.",
+        },
+        {
+            "column_name": "scholarship_bursary",
+            "data_type": "integer",
+            "role": "feature",
+            "allowed_range_values": "0, 1",
+            "description": "Recipient of Mahapola or institutional grant.",
+        },
+        {
+            "column_name": "dependents_count",
+            "data_type": "integer",
+            "role": "feature",
+            "allowed_range_values": "0 to 6",
+            "description": "Number of dependents supported by student or household.",
+        },
+        {
+            "column_name": "housing_type",
+            "data_type": "categorical",
+            "role": "feature",
+            "allowed_range_values": "home, boarding, hostel, relatives",
+            "description": "Current living arrangement during term.",
+        },
+        {
+            "column_name": "commute_time_min",
+            "data_type": "float",
+            "role": "feature",
+            "allowed_range_values": "0 to 240 mins",
+            "description": "One-way daily transit time to campus.",
+        },
+        {
+            "column_name": "commute_cost_lkr_week",
+            "data_type": "float",
+            "role": "feature",
+            "allowed_range_values": "0 to 15,000 LKR",
+            "description": "Estimated weekly commute expenditure.",
+        },
+        {
+            "column_name": "internet_reliability",
+            "data_type": "integer",
+            "role": "feature",
+            "allowed_range_values": "1 to 5",
+            "description": "Internet connectivity reliability for online coursework.",
+        },
+        {
+            "column_name": "internet_affordability",
+            "data_type": "integer",
+            "role": "feature",
+            "allowed_range_values": "1 to 5",
+            "description": "Ease of paying for internet data quota.",
+        },
+        {
+            "column_name": "device_type",
+            "data_type": "categorical",
+            "role": "feature",
+            "allowed_range_values": "own laptop, shared laptop, phone only, none",
+            "description": "Primary digital hardware device available.",
+        },
+        {
+            "column_name": "device_quality",
+            "data_type": "integer",
+            "role": "feature",
+            "allowed_range_values": "1 to 5",
+            "description": "Perceived condition of computing device.",
+        },
+        {
+            "column_name": "quiet_study_space",
+            "data_type": "integer",
+            "role": "feature",
+            "allowed_range_values": "0, 1",
+            "description": "Access to dedicated quiet study space.",
+        },
+        {
+            "column_name": "part_time_employment",
+            "data_type": "integer",
+            "role": "feature",
+            "allowed_range_values": "0, 1",
+            "description": "Active paid employment status.",
+        },
+        {
+            "column_name": "work_hours_per_week",
+            "data_type": "float",
+            "role": "feature",
+            "allowed_range_values": "0 to 50 hrs/wk",
+            "description": "Weekly paid working hours.",
+        },
+        {
+            "column_name": "baseline_gpa_band",
+            "data_type": "categorical",
+            "role": "covariate",
+            "allowed_range_values": "Band 1 to Band 5",
+            "description": "Baseline GPA band from Component 1 feed.",
+        },
+        {
+            "column_name": "financial_hardship",
+            "data_type": "integer",
+            "role": "exposure",
+            "allowed_range_values": "0, 1",
+            "description": "Derived exposure: income <= 2 AND stress >= 4.",
+        },
+        {
+            "column_name": "long_commute",
+            "data_type": "integer",
+            "role": "exposure",
+            "allowed_range_values": "0, 1",
+            "description": "Derived exposure: commute_time_min > 120.",
+        },
+        {
+            "column_name": "inadequate_digital_access",
+            "data_type": "integer",
+            "role": "exposure",
+            "allowed_range_values": "0, 1",
+            "description": "Derived exposure: reliability <= 2 OR device in {phone, none}.",
+        },
+        {
+            "column_name": "heavy_part_time_work",
+            "data_type": "integer",
+            "role": "exposure",
+            "allowed_range_values": "0, 1",
+            "description": "Derived exposure: work_hours_per_week > 15.",
+        },
+        {
+            "column_name": "attrition",
+            "data_type": "integer",
+            "role": "outcome",
+            "allowed_range_values": "0, 1",
+            "description": "Primary binary target: institutional withdrawal.",
+        },
+        {
+            "column_name": "intention_to_withdraw",
+            "data_type": "integer",
+            "role": "outcome",
+            "allowed_range_values": "1 to 5",
+            "description": "PROXY OUTCOME: self-reported withdrawal intention.",
+        },
+        {
+            "column_name": "latent_risk_score",
+            "data_type": "float",
+            "role": "outcome",
+            "allowed_range_values": "0 to 100",
+            "description": "Continuous ground-truth ERI risk score for regression benchmark.",
+        },
+        {
+            "column_name": "true_probability",
+            "data_type": "float",
+            "role": "metadata_ground_truth",
+            "allowed_range_values": "0 to 1",
+            "description": "Continuous ground-truth Bayes probability for ceiling evaluation; excluded from features.",
+        },
     ]
     return pd.DataFrame(dict_records)
 
 
-def run_generation(n: int = 2000, seed: int = 42) -> Tuple[Path, Path, Path, Path]:
+def run_generation(n: int = 2000, seed: int = 42) -> tuple[Path, Path, Path, Path]:
     """Execute complete synthetic generation pipeline and save all artifacts."""
     set_seed(seed)
     synthetic_dir = get_data_dir("synthetic")
@@ -671,7 +848,9 @@ def run_generation(n: int = 2000, seed: int = 42) -> Tuple[Path, Path, Path, Pat
         except PermissionError:
             fallback = target_path.with_name(target_path.stem + "_latest.csv")
             df.to_csv(fallback, index=False)
-            logger.warning(f"Target '{target_path.name}' is locked by an external program (e.g. Excel). Saved to '{fallback.name}' instead.")
+            logger.warning(
+                f"Target '{target_path.name}' is locked by an external program (e.g. Excel). Saved to '{fallback.name}' instead."
+            )
 
     _safe_to_csv(df_clean, clean_path)
     _safe_to_csv(df_raw, raw_path)
@@ -684,7 +863,9 @@ def run_generation(n: int = 2000, seed: int = 42) -> Tuple[Path, Path, Path, Pat
         fallback_gt = gt_path.with_name(gt_path.stem + "_latest.json")
         with open(fallback_gt, "w", encoding="utf-8") as f:
             json.dump(ground_truth, f, indent=2)
-        logger.warning(f"Target '{gt_path.name}' is locked. Saved to '{fallback_gt.name}' instead.")
+        logger.warning(
+            f"Target '{gt_path.name}' is locked. Saved to '{fallback_gt.name}' instead."
+        )
 
     logger.info(f"Clean dataset saved to: {clean_path}")
     logger.info(f"Raw messy dataset saved to: {raw_path}")
@@ -699,12 +880,22 @@ def main():
     parser = argparse.ArgumentParser(
         description="Generate synthetic student dataset for the ERI causal intelligence framework."
     )
-    parser.add_argument("--n", type=int, default=2000, help="Number of student records to generate (default: 2000)")
-    parser.add_argument("--seed", type=int, default=42, help="Random seed for reproducibility (default: 42)")
+    parser.add_argument(
+        "--n",
+        type=int,
+        default=2000,
+        help="Number of student records to generate (default: 2000)",
+    )
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=42,
+        help="Random seed for reproducibility (default: 42)",
+    )
     args = parser.parse_args()
 
     clean_p, raw_p, gt_p, dict_p = run_generation(n=args.n, seed=args.seed)
-    print(f"\n[SUCCESS] Synthetic generation completed:")
+    print("\n[SUCCESS] Synthetic generation completed:")
     print(f"  Clean ground truth: {clean_p}")
     print(f"  Raw messy survey:   {raw_p}")
     print(f"  Ground truth JSON:  {gt_p}")

@@ -2,28 +2,31 @@
 
 import json
 from pathlib import Path
+
 import networkx as nx
 import numpy as np
 import pandas as pd
 import pytest
 
-from src.causal.dag import build_causal_dag, get_adjustment_set, EXPOSURES, CONFOUNDERS, MEDIATORS, OUTCOME
-from src.causal.estimators import (
-    estimate_unadjusted_rd,
-    estimate_stabilized_ipw,
-    estimate_g_computation,
-    estimate_doubly_robust_aipw,
-    estimate_matching_sensitivity,
-    _prepare_design_matrix,
+from src.causal.causal_forest import can_run_causal_forest
+from src.causal.dag import (
+    EXPOSURES,
+    OUTCOME,
+    build_causal_dag,
+    get_adjustment_set,
 )
 from src.causal.diagnostics import (
-    compute_covariate_balance_smd,
-    evaluate_positivity_overlap,
     compute_e_value,
     run_refutation_tests,
 )
-from src.causal.causal_forest import can_run_causal_forest
-from src.causal.narrative import generate_causal_narrative, MANDATORY_CAUSAL_HEADER
+from src.causal.estimators import (
+    estimate_doubly_robust_aipw,
+    estimate_g_computation,
+    estimate_matching_sensitivity,
+    estimate_stabilized_ipw,
+    estimate_unadjusted_rd,
+)
+from src.causal.narrative import MANDATORY_CAUSAL_HEADER, generate_causal_narrative
 
 
 class TestCausalDAGIntegrity:
@@ -32,13 +35,15 @@ class TestCausalDAGIntegrity:
         assert nx.is_directed_acyclic_graph(G), "Causal DAG must not contain cycles"
         assert nx.is_weakly_connected(G), "Causal DAG must be a single connected graph"
 
-    def test_mediators_strictly_excluded_from_adjustment_sets(self):
+    def test_adjustment_sets_exclude_exposure_and_outcome(self):
         for exp in EXPOSURES:
             adj_set = get_adjustment_set(exp)
-            for m in MEDIATORS:
-                assert m not in adj_set, f"Mediator '{m}' illegally present in adjustment set for exposure '{exp}'"
-            assert exp not in adj_set, f"Exposure '{exp}' cannot be in its own adjustment set"
-            assert OUTCOME not in adj_set, f"Outcome '{OUTCOME}' cannot be in adjustment set"
+            assert (
+                exp not in adj_set
+            ), f"Exposure '{exp}' cannot be in its own adjustment set"
+            assert (
+                OUTCOME not in adj_set
+            ), f"Outcome '{OUTCOME}' cannot be in adjustment set"
 
 
 class TestEstimatorsAndConfoundingAdjustment:
@@ -61,7 +66,9 @@ class TestEstimatorsAndConfoundingAdjustment:
         df = synthetic_confounded_data
         unadj = estimate_unadjusted_rd(df, "exposure_a")
         sipw = estimate_stabilized_ipw(df, "exposure_a", ["confounder_w"])
-        gcomp = estimate_g_computation(df, "exposure_a", ["confounder_w"], n_bootstraps=30)
+        gcomp = estimate_g_computation(
+            df, "exposure_a", ["confounder_w"], n_bootstraps=30
+        )
 
         # Unadjusted RD must be systematically higher due to positive confounding
         assert unadj["risk_difference"] > sipw["risk_difference"]
@@ -102,22 +109,30 @@ class TestDiagnosticsAndRefutations:
 class TestCausalForestGating:
     def test_causal_forest_gate_pass_and_fail(self):
         # Pass conditions
-        passed, reason = can_run_causal_forest(n=500, n_events=80, min_exposure_group_size=50, overlap_satisfied=True)
+        passed, reason = can_run_causal_forest(
+            n=500, n_events=80, min_exposure_group_size=50, overlap_satisfied=True
+        )
         assert passed is True
         assert reason is None
 
         # Fail: insufficient sample size
-        passed, reason = can_run_causal_forest(n=250, n_events=80, min_exposure_group_size=50, overlap_satisfied=True)
+        passed, reason = can_run_causal_forest(
+            n=250, n_events=80, min_exposure_group_size=50, overlap_satisfied=True
+        )
         assert passed is False
         assert "Sample size" in reason
 
         # Fail: insufficient events
-        passed, reason = can_run_causal_forest(n=500, n_events=40, min_exposure_group_size=50, overlap_satisfied=True)
+        passed, reason = can_run_causal_forest(
+            n=500, n_events=40, min_exposure_group_size=50, overlap_satisfied=True
+        )
         assert passed is False
         assert "events" in reason
 
         # Fail: poor overlap
-        passed, reason = can_run_causal_forest(n=500, n_events=80, min_exposure_group_size=50, overlap_satisfied=False)
+        passed, reason = can_run_causal_forest(
+            n=500, n_events=80, min_exposure_group_size=50, overlap_satisfied=False
+        )
         assert passed is False
         assert "overlap" in reason
 

@@ -8,13 +8,14 @@ Defines all request and response models for:
 - Batch scoring, upload handling, Fusion Framework scoring, and retraining jobs
 """
 
-from typing import Dict, List, Optional, Any, Union
-from pydantic import BaseModel, Field
+from typing import Any
 
+from pydantic import BaseModel, Field
 
 # ---------------------------------------------------------------------------
 # Health & Metadata Schemas
 # ---------------------------------------------------------------------------
+
 
 class HealthResponse(BaseModel):
     status: str = Field(..., example="healthy")
@@ -39,38 +40,39 @@ class MetaResponse(BaseModel):
         example="Environmental & Financial Causal Risk Intelligence Framework",
     )
     student_id_format: str = Field(..., example="Pseudonymous (P-XXXXX / STU_XXXX)")
-    run_id: Optional[str] = Field(default=None, example="run_20261025_160000")
-    timestamp: Optional[str] = Field(default=None, example="2026-10-25T10:30:00Z")
+    run_id: str | None = Field(default=None, example="run_20261025_160000")
+    timestamp: str | None = Field(default=None, example="2026-10-25T10:30:00Z")
 
 
 # ---------------------------------------------------------------------------
 # Leaderboard & Model Inspection Schemas
 # ---------------------------------------------------------------------------
 
+
 class LeaderboardEntry(BaseModel):
     model: str
     track: str
-    category: Optional[str] = None
-    pr_auc: Optional[float] = None
-    roc_auc: Optional[float] = None
-    f1: Optional[float] = None
-    brier_score: Optional[float] = None
-    brier: Optional[float] = None
-    ece: Optional[float] = None
-    threshold: Optional[float] = None
-    brier_skill_score: Optional[float] = None
-    balanced_accuracy: Optional[float] = None
-    r2: Optional[float] = None
-    mae: Optional[float] = None
-    rmse: Optional[float] = None
-    composite_score: Optional[float] = None
-    rank: Optional[int] = None
-    qualified: Optional[bool] = True
-    status: Optional[str] = "passed"
-    disqualification_reasons: Optional[List[str]] = Field(default_factory=list)
-    split: Optional[str] = "validation"
-    run_id: Optional[str] = None
-    timestamp: Optional[str] = None
+    category: str | None = None
+    pr_auc: float | None = None
+    roc_auc: float | None = None
+    f1: float | None = None
+    brier_score: float | None = None
+    brier: float | None = None
+    ece: float | None = None
+    threshold: float | None = None
+    brier_skill_score: float | None = None
+    balanced_accuracy: float | None = None
+    r2: float | None = None
+    mae: float | None = None
+    rmse: float | None = None
+    composite_score: float | None = None
+    rank: int | None = None
+    qualified: bool | None = True
+    status: str | None = "passed"
+    disqualification_reasons: list[str] | None = Field(default_factory=list)
+    split: str | None = "validation"
+    run_id: str | None = None
+    timestamp: str | None = None
 
 
 class SelectionDecision(BaseModel):
@@ -78,32 +80,32 @@ class SelectionDecision(BaseModel):
     track: str
     selection_rationale: str
     parsimony_applied: bool
-    top_candidate_delta: Optional[float] = None
+    top_candidate_delta: float | None = None
 
 
 class LeaderboardResponse(BaseModel):
     track: str
     total_models: int
     selected_model: str
-    selection_decision: Dict[str, Any]
-    category_winners: Dict[str, Any]
-    leaderboard: List[Dict[str, Any]]
-    run_id: Optional[str] = None
-    timestamp: Optional[str] = None
-    split_used: Optional[str] = "validation"
+    selection_decision: dict[str, Any]
+    category_winners: dict[str, Any]
+    leaderboard: list[dict[str, Any]]
+    run_id: str | None = None
+    timestamp: str | None = None
+    split_used: str | None = "validation"
 
 
 class ModelHistoryResponse(BaseModel):
     model: str
-    epochs_or_iterations: List[Union[int, float]]
-    metrics: Dict[str, Any]
+    epochs_or_iterations: list[int | float]
+    metrics: dict[str, Any]
 
 
 class ModelMetricsResponse(BaseModel):
     model: str
     track: str
-    splits: List[Dict[str, Any]]
-    curves: Dict[str, Any] = Field(
+    splits: list[dict[str, Any]]
+    curves: dict[str, Any] = Field(
         default_factory=dict,
         description="ROC, PR, and Calibration curves if available",
     )
@@ -111,12 +113,13 @@ class ModelMetricsResponse(BaseModel):
 
 class AllSplitsResponse(BaseModel):
     records_count: int
-    data: List[Dict[str, Any]]
+    data: list[dict[str, Any]]
 
 
 # ---------------------------------------------------------------------------
 # Explainability (SHAP) Schemas
 # ---------------------------------------------------------------------------
+
 
 class ShapGlobalFeature(BaseModel):
     feature: str
@@ -127,7 +130,7 @@ class ShapGlobalFeature(BaseModel):
 class ShapGlobalResponse(BaseModel):
     base_value: float
     feature_count: int
-    global_importance: List[ShapGlobalFeature]
+    global_importance: list[ShapGlobalFeature]
     disclaimer: str = Field(
         default="This explains the model's score. It does not prove these factors caused the outcome."
     )
@@ -145,8 +148,8 @@ class ShapStudentResponse(BaseModel):
     eri_score: float
     risk_band: str
     narrative: str
-    main_drivers: List[ShapDriverItem]
-    protective_factors: List[ShapDriverItem]
+    main_drivers: list[ShapDriverItem]
+    protective_factors: list[ShapDriverItem]
     disclaimer: str = Field(
         default="This explains the model's score. It does not prove these factors caused the outcome."
     )
@@ -157,7 +160,7 @@ class ShapStabilityResponse(BaseModel):
     top5_overlap: float
     spearman_rank_correlation: float
     is_stable: bool
-    unstable_features: List[str]
+    unstable_features: list[str]
     interpretation: str
 
 
@@ -165,28 +168,29 @@ class ShapStabilityResponse(BaseModel):
 # Causal Analysis Schemas
 # ---------------------------------------------------------------------------
 
+
 class CausalExposureSummary(BaseModel):
-    exposure: Optional[str] = None
-    primary_adjusted_estimate: Optional[Dict[str, Any]] = None
-    unadjusted_estimate: Optional[Dict[str, Any]] = None
-    g_computation_estimate: Optional[Dict[str, Any]] = None
-    estimators_comparison: Optional[Union[List[Dict[str, Any]], Dict[str, Any]]] = None
-    ground_truth_recovery: Optional[Dict[str, Any]] = None
-    diagnostics: Optional[Dict[str, Any]] = None
-    narrative: Optional[Union[str, Dict[str, Any]]] = None
+    exposure: str | None = None
+    primary_adjusted_estimate: dict[str, Any] | None = None
+    unadjusted_estimate: dict[str, Any] | None = None
+    g_computation_estimate: dict[str, Any] | None = None
+    estimators_comparison: list[dict[str, Any]] | dict[str, Any] | None = None
+    ground_truth_recovery: dict[str, Any] | None = None
+    diagnostics: dict[str, Any] | None = None
+    narrative: str | dict[str, Any] | None = None
 
 
 class CausalSummaryResponse(BaseModel):
-    metadata: Dict[str, Any]
-    exposures: Dict[str, CausalExposureSummary]
+    metadata: dict[str, Any]
+    exposures: dict[str, CausalExposureSummary]
     disclaimer: str = Field(
         default="Adjusted association under stated assumptions (observational data); not experimentally validated."
     )
 
 
 class CausalDiagnosticsResponse(BaseModel):
-    balance_smd: Dict[str, Any]
-    exposure_diagnostics: Dict[str, Any]
+    balance_smd: dict[str, Any]
+    exposure_diagnostics: dict[str, Any]
 
 
 class CausalHeterogeneityResponse(BaseModel):
@@ -194,9 +198,9 @@ class CausalHeterogeneityResponse(BaseModel):
     gate_passed: bool
     n_samples: int
     n_events: int
-    reason: Optional[str] = None
-    overall_cate_mean: Optional[float] = None
-    subgroups: Dict[str, Any] = Field(default_factory=dict)
+    reason: str | None = None
+    overall_cate_mean: float | None = None
+    subgroups: dict[str, Any] = Field(default_factory=dict)
     disclaimer: str = Field(
         default="Adjusted association under stated assumptions (observational data); not experimentally validated."
     )
@@ -205,21 +209,20 @@ class CausalHeterogeneityResponse(BaseModel):
 class DagNode(BaseModel):
     id: str
     label: str
-    role: str = Field(..., description="exposure | confounder | mediator | outcome")
+    role: str = Field(..., description="exposure | confounder | outcome")
 
 
 class DagEdge(BaseModel):
     source: str
     target: str
-    description: Optional[str] = None
+    description: str | None = None
 
 
 class DagResponse(BaseModel):
-    nodes: List[DagNode]
-    edges: List[DagEdge]
-    exposures: List[str]
-    mediators: List[str]
-    confounders: List[str]
+    nodes: list[DagNode]
+    edges: list[DagEdge]
+    exposures: list[str]
+    confounders: list[str]
     primary_outcome: str
     image_url: str
 
@@ -228,16 +231,17 @@ class DagResponse(BaseModel):
 # Inference, Batch Upload & Fusion Framework Schemas
 # ---------------------------------------------------------------------------
 
+
 class SchemaReport(BaseModel):
     total_rows_ingested: int
     columns_matched_count: int
-    matched_features: List[str]
-    missing_features_imputed: List[str]
-    ignored_unknown_columns: List[str]
-    dropped_pii_columns: List[str]
+    matched_features: list[str]
+    missing_features_imputed: list[str]
+    ignored_unknown_columns: list[str]
+    dropped_pii_columns: list[str]
     has_outcome_column: bool
     generated_pseudonyms: bool = True
-    data_quality_report: Optional[Dict[str, Any]] = None
+    data_quality_report: dict[str, Any] | None = None
 
 
 class PredictionItem(BaseModel):
@@ -255,10 +259,10 @@ class CohortSummary(BaseModel):
     total_students: int
     mean_eri: float
     median_eri: float
-    std_eri: Optional[float] = 0.0
-    risk_distribution: Optional[Dict[str, int]] = Field(default_factory=dict)
-    risk_percentages: Optional[Dict[str, float]] = Field(default_factory=dict)
-    top_cohort_drivers: List[Dict[str, Any]] = Field(default_factory=list)
+    std_eri: float | None = 0.0
+    risk_distribution: dict[str, int] | None = Field(default_factory=dict)
+    risk_percentages: dict[str, float] | None = Field(default_factory=dict)
+    top_cohort_drivers: list[dict[str, Any]] = Field(default_factory=list)
     causal_summary_status: str
 
 
@@ -267,8 +271,8 @@ class UploadPredictResponse(BaseModel):
     status: str
     schema_report: SchemaReport
     cohort_summary: CohortSummary
-    scored_students_sample: List[PredictionItem]
-    download_urls: Dict[str, str]
+    scored_students_sample: list[PredictionItem]
+    download_urls: dict[str, str]
 
 
 class FusionScoreItem(BaseModel):
@@ -277,16 +281,16 @@ class FusionScoreItem(BaseModel):
     band: str
     explanation_type: str = Field(default="model_explanation")
     model_version: str = Field(default="1.0.0")
-    top_drivers: List[str] = Field(default_factory=list)
-    narrative: Optional[str] = None
+    top_drivers: list[str] = Field(default_factory=list)
+    narrative: str | None = None
 
 
 class FusionScoreRequest(BaseModel):
-    participant_ids: Optional[List[str]] = Field(
+    participant_ids: list[str] | None = Field(
         default=None,
         description="Optional list of specific Participant_IDs to score from the latest batch",
     )
-    students: Optional[List[Dict[str, Any]]] = Field(
+    students: list[dict[str, Any]] | None = Field(
         default=None,
         description="Optional inline list of student questionnaire records to score directly",
     )
@@ -295,12 +299,13 @@ class FusionScoreRequest(BaseModel):
 class FusionScoreResponse(BaseModel):
     total_scored: int
     explanation_type: str = "model_explanation"
-    scores: List[FusionScoreItem]
+    scores: list[FusionScoreItem]
 
 
 # ---------------------------------------------------------------------------
 # Retraining & Background Job Schemas
 # ---------------------------------------------------------------------------
+
 
 class RetrainRequest(BaseModel):
     outcome_column: str = Field(default="at_risk", example="at_risk")
@@ -308,7 +313,7 @@ class RetrainRequest(BaseModel):
         default=False,
         description="Must be explicitly True to replace production models and scalers",
     )
-    dataset_path: Optional[str] = Field(
+    dataset_path: str | None = Field(
         default=None,
         description="Path to uploaded or server-side training dataset. If omitted, uses default data.",
     )
@@ -317,10 +322,12 @@ class RetrainRequest(BaseModel):
 class JobStatusResponse(BaseModel):
     job_id: str
     job_type: str
-    status: str = Field(..., example="completed")  # queued | running | completed | failed
+    status: str = Field(
+        ..., example="completed"
+    )  # queued | running | completed | failed
     progress_percent: int = Field(default=0, example=100)
     message: str = Field(default="")
     created_at: str
-    completed_at: Optional[str] = None
-    result: Optional[Dict[str, Any]] = None
-    error: Optional[str] = None
+    completed_at: str | None = None
+    result: dict[str, Any] | None = None
+    error: str | None = None

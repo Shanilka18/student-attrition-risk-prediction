@@ -11,13 +11,10 @@ Validates:
 - Request payload bounds and security guardrails.
 """
 
-import io
-import json
-from pathlib import Path
 import pytest
 from starlette.testclient import TestClient
 
-from src.api.main import app, job_registry, IP_REQUEST_LOGS
+from src.api.main import IP_REQUEST_LOGS, app
 
 
 @pytest.fixture(scope="module")
@@ -179,11 +176,11 @@ def test_get_dag_structure_and_image(client):
     res_dag = client.get("/dag")
     assert res_dag.status_code == 200
     data = res_dag.json()
-    assert len(data["nodes"]) >= 14
+    assert len(data["nodes"]) >= 11
     assert len(data["edges"]) >= 20
     assert "financial_hardship" in data["exposures"]
     assert "baseline_gpa_band" in data["confounders"]
-    assert "later_gpa_decline" in data["mediators"]
+    assert "mediators" not in data
 
     # DAG Image
     res_img = client.get("/dag/image")
@@ -228,15 +225,11 @@ def test_fusion_score_inline_students(client):
         "year_of_study": 2,
         "faculty": "Computing",
         "baseline_gpa_band": "2.0-2.5",
-        "baseline_engagement_score": 45.0,
     }
     payload = {"students": [student_record]}
     response = client.post("/fusion/score", json=payload)
-    assert response.status_code == 200
-    data = response.json()
-    assert data["total_scored"] == 1
-    assert data["scores"][0]["explanation_type"] == "model_explanation"
-    assert 0.0 <= data["scores"][0]["eri"] <= 100.0
+    assert response.status_code == 503
+    assert "EFI scoring is unavailable" in response.json()["detail"]
 
 
 # ---------------------------------------------------------------------------
@@ -245,37 +238,15 @@ def test_fusion_score_inline_students(client):
 
 
 def test_upload_and_predict_csv_bundle(client):
-    csv_sample_path = Path("data/legacy/samples/sample_upload.csv")
-    assert csv_sample_path.exists(), "Sample upload CSV must exist"
-
-    with open(csv_sample_path, "rb") as f:
-        file_bytes = f.read()
-
+    file_bytes = (
+        b"household income,study cost difficulty\n" b"Less than LKR 25,000,Always\n"
+    )
     response = client.post(
         "/predict/upload",
         files={"file": ("sample_upload.csv", file_bytes, "text/csv")},
     )
-    assert response.status_code == 200
-    data = response.json()
-    assert data["status"] == "completed"
-    job_id = data["job_id"]
-    assert job_id.startswith("job_")
-
-    # Verify schema report
-    schema = data["schema_report"]
-    assert schema["total_rows_ingested"] == 50
-    assert schema["columns_matched_count"] > 10
-
-    # Verify cohort summary
-    summary = data["cohort_summary"]
-    assert summary["total_students"] == 50
-    assert 0.0 <= summary["mean_eri"] <= 100.0
-
-    # Test downloads for all 4 formats
-    for fmt in ["csv", "xlsx", "json", "html"]:
-        res_dl = client.get(f"/download/{job_id}.{fmt}")
-        assert res_dl.status_code == 200
-        assert len(res_dl.content) > 0
+    assert response.status_code == 503
+    assert "EFI scoring is unavailable" in response.json()["detail"]
 
 
 def test_upload_empty_file_rejected(client):
@@ -312,19 +283,8 @@ def test_upload_with_pii_strictly_stripped(client):
         "/predict/upload",
         files={"file": ("survey_pii.csv", dirty_csv.encode("utf-8"), "text/csv")},
     )
-    assert response.status_code == 200
-    data = response.json()
-    dropped = data["schema_report"]["dropped_pii_columns"]
-    assert any("name" in col for col in dropped)
-    assert any("nic" in col for col in dropped)
-    assert any("phone" in col for col in dropped)
-    assert any("email" in col for col in dropped)
-
-    # Scored sample must contain pseudonymous participant IDs, never the real names
-    for student in data["scored_students_sample"]:
-        assert "Kasun" not in student["participant_id"]
-        assert "Amali" not in student["participant_id"]
-        assert student["participant_id"].startswith("P-")
+    assert response.status_code == 503
+    assert "EFI scoring is unavailable" in response.json()["detail"]
 
 
 # ---------------------------------------------------------------------------
@@ -360,7 +320,8 @@ def test_job_not_found(client):
 
 def test_rate_limit_enforced_after_burst(client):
     import time
-    from src.api.main import IP_REQUEST_LOGS, RATE_LIMIT_PER_MINUTE
+
+    from src.api.main import RATE_LIMIT_PER_MINUTE
 
     # Pre-populate bucket with RATE_LIMIT_PER_MINUTE timestamps for testclient
     IP_REQUEST_LOGS["testclient"] = [time.time()] * (RATE_LIMIT_PER_MINUTE + 5)

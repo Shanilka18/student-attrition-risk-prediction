@@ -214,37 +214,6 @@ columns:
     description: "Prior academic standing band (Component 1 input feed)."
     nullable: false
 
-  - name: "baseline_engagement_score"
-    type: "float"
-    role: "covariate"
-    range:
-      min: 0.0
-      max: 100.0
-    unit: "score (0-100)"
-    description: "Prior semester LMS and attendance engagement index (Component 2 input feed)."
-    nullable: false
-
-  # Mediators (Explicitly EXCLUDED from Total-Effect Causal Adjustment Set)
-  - name: "later_gpa_decline"
-    type: "integer"
-    role: "mediator"
-    range:
-      min: 0
-      max: 1
-    allowed_values: [0, 1]
-    description: "Subsequent observed drop in academic performance (Mediator on pathway A -> M -> Y)."
-    nullable: false
-
-  - name: "later_engagement_decline"
-    type: "integer"
-    role: "mediator"
-    range:
-      min: 0
-      max: 1
-    allowed_values: [0, 1]
-    description: "Subsequent drop in LMS activity and attendance (Mediator on pathway A -> M -> Y)."
-    nullable: false
-
   # Derived Exposures (Fixed policy definitions for causal estimation)
   - name: "financial_hardship"
     type: "integer"
