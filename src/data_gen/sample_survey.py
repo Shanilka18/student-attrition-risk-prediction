@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import re
 import zipfile
 from datetime import datetime, timedelta
 from io import BytesIO
@@ -161,12 +162,14 @@ class EnvironmentalFinancialSampleGenerator:
             + rng.normal(0.0, float(outcome_settings["latent_noise_sd"]), size=n)
         )
         latent_risk = 1.0 / (1.0 + np.exp(-outcome_logit))
-        score = np.clip(
-            100.0 * latent_risk
-            + rng.normal(0.0, float(outcome_settings["score_noise_sd"]), size=n),
-            0.0,
-            100.0,
-        )
+        score = np.rint(
+            np.clip(
+                100.0 * latent_risk
+                + rng.normal(0.0, float(outcome_settings["score_noise_sd"]), size=n),
+                0.0,
+                100.0,
+            )
+        ).astype(int)
         threshold = float(outcome_settings["at_risk_threshold"])
         at_risk = (score >= threshold).astype(int)
 
@@ -192,9 +195,7 @@ class EnvironmentalFinancialSampleGenerator:
             raw[self.mappings[item]["google_forms_header"]] = [
                 _level_label(self.schema, item, int(code)) for code in codes[item]
             ]
-        raw[self.mappings["attrition_intent_score"]["google_forms_header"]] = np.rint(
-            score
-        ).astype(int)
+        raw[self.mappings["attrition_intent_score"]["google_forms_header"]] = score
         raw[self.mappings["at_risk"]["google_forms_header"]] = np.where(
             at_risk == 1, "At-Risk of Withdrawal", "Persisting / Low Risk"
         )
@@ -357,26 +358,30 @@ class EnvironmentalFinancialSampleGenerator:
             row, item_index = divmod(int(position), len(item_names))
             result.at[row, item_headers[item_names[item_index]]] = np.nan
 
+        # Preserve non-disclosure responses after injecting random blanks.
+        pns_count = round(n_rows * float(quality["prefer_not_to_say_rate"]))
+        pns_rows = rng.choice(n_rows, size=pns_count, replace=False)
+        pns = self.schema["items"]["cost_difficulty"]["prefer_not_to_say"]
+        result.loc[pns_rows, item_headers["cost_difficulty"]] = pns["label"]
+
         response_count = n_rows * len(item_names)
         typo_count = max(1, round(response_count * float(quality["typo_rate"])))
-        typo_positions = rng.choice(response_count, size=typo_count, replace=False)
+        item_header_list = [item_headers[item] for item in item_names]
+        eligible = result[item_header_list].notna().to_numpy()
+        cost_item_index = item_names.index("cost_difficulty")
+        eligible[pns_rows, cost_item_index] = False
+        eligible_positions = np.flatnonzero(eligible.ravel())
+        typo_count = min(typo_count, len(eligible_positions))
+        typo_positions = rng.choice(eligible_positions, size=typo_count, replace=False)
         for position in typo_positions:
             row, item_index = divmod(int(position), len(item_names))
             header = item_headers[item_names[item_index]]
             value = result.at[row, header]
-            if pd.isna(value):
-                continue
             if rng.random() < 0.5:
                 result.at[row, header] = f"  {value}  "
             else:
                 text = str(value)
                 result.at[row, header] = text[:-1] if len(text) > 1 else text
-
-        # Preserve the explicit non-disclosure response after injecting blanks.
-        pns_count = round(n_rows * float(quality["prefer_not_to_say_rate"]))
-        pns_rows = rng.choice(n_rows, size=pns_count, replace=False)
-        pns = self.schema["items"]["cost_difficulty"]["prefer_not_to_say"]
-        result.loc[pns_rows, item_headers["cost_difficulty"]] = pns["label"]
 
         duplicate_count = round(n_rows * float(quality["duplicate_rate"]))
         duplicate_rows = rng.choice(n_rows, size=duplicate_count, replace=False)
@@ -628,7 +633,14 @@ def _write_deterministic_excel(frame: pd.DataFrame, path: Path) -> None:
             info = zipfile.ZipInfo(name, date_time=(1980, 1, 1, 0, 0, 0))
             info.compress_type = zipfile.ZIP_DEFLATED
             info.external_attr = 0o600 << 16
-            normalized.writestr(info, source.read(name))
+            content = source.read(name)
+            if name == "docProps/core.xml":
+                content = re.sub(
+                    rb"(<dcterms:modified[^>]*>).*(</dcterms:modified>)",
+                    rb"\g<1>2000-01-01T00:00:00Z\g<2>",
+                    content,
+                )
+            normalized.writestr(info, content)
     path.write_bytes(normalized_buffer.getvalue())
 
 

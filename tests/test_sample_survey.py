@@ -93,6 +93,11 @@ def test_response_quality_injects_configured_export_mess(sample_generator):
     assert achieved["duplicates"] == round(
         len(raw) * settings["response_quality"]["duplicate_rate"]
     )
+    assert achieved["typo_cells"] == round(
+        len(raw)
+        * len(sample_generator.schema["items"])
+        * settings["response_quality"]["typo_rate"]
+    )
 
 
 def test_response_quality_is_reproducible(sample_generator):
