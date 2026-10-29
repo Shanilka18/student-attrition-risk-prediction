@@ -9,6 +9,11 @@ ENV/
 data/real/*
 !data/real/.gitkeep
 
+# Reference material kept locally outside version control
+reference/antigravity_prompt_pack.md
+reference/*[Ee]ngagement*questionnaire*
+reference/*[Qq]uestionnaire*[Ee]ngagement*
+
 # Data directories (raw is strictly uncommitted; synthetic & interim cached)
 data/raw/*
 !data/raw/.gitkeep

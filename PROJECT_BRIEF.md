@@ -104,9 +104,9 @@ Defined canonically in `docs/questionnaire_envfin_v2.md` and `config/schema_envf
   - **Study Environment Pressure** — quiet place (rev), living situation pressure.
 - **Ratio & interaction features** — e.g., `job_hours × cost_difficulty`, `commute_spend / income_band`.
 
-### 5.2 Risk Profiles (replaces Engagement concept of "states")
+### 5.2 Cross-Sectional Risk Profiles
 - Latent risk profiles identified by **clustering / GMM / latent class analysis** fitted strictly **inside cross-validation folds** (no leakage).
-- **No HMM, no periods, no sequence models** — this is a cross-sectional design.
+- Profiles are learned from the questionnaire's single cross-sectional response per student.
 - Profile labels: e.g., "High Financial Pressure", "Digital Barrier", "Commute-Burdened", "Low Risk".
 - Profiles used for stratified reporting and counsellor dashboards only; never as features for the main classifier.
 
@@ -119,7 +119,7 @@ Linear / Shallow models: Logistic Regression (L1, L2, ElasticNet), Ridge, Linear
 
 ### Track B — Non-Linear Benchmark
 Tree Ensembles: Random Forest, Extra Trees, Gradient Boosting, HistGB, AdaBoost, Decision Tree.  
-Deep Tabular: MLP (shallow & deep), ResNet-Tabular, TabNet, CNN-1D.  
+Deep Tabular: MLP (shallow & deep), ResNet-Tabular, TabNet.
 Voting / Stacking ensembles.
 
 ### Metrics (ranked by priority)

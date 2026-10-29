@@ -1,4 +1,4 @@
-# AGENTS
+# Environmental & Financial Component — Agent Guidelines
 
 ## Guidelines & Operational Rules
 
