@@ -1,55 +1,14 @@
-import React, { useEffect, useState } from 'react';
-import { BookOpen, FileText, ChevronRight, Layers, ArrowRight } from 'lucide-react';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
-import { api } from '../services/api';
-import { DocItem } from '../types/api';
-import { LoadingState } from '../components/common/FeedbackStates';
+import React from 'react';
+import { Layers } from 'lucide-react';
 
 export const MethodologyDocsPage: React.FC = () => {
-  const [docList, setDocList] = useState<DocItem[]>([]);
-  const [selectedDoc, setSelectedDoc] = useState<string>('00_project_overview.md');
-  const [content, setContent] = useState<string>('');
-  const [loading, setLoading] = useState<boolean>(true);
-
-  useEffect(() => {
-    const fetchList = async () => {
-      try {
-        const list = await api.getDocsList();
-        setDocList(list);
-        if (list.length > 0) {
-          setSelectedDoc(list[0].filename);
-        }
-      } catch (err) {
-        console.error('Failed to load doc list', err);
-      }
-    };
-    fetchList();
-  }, []);
-
-  useEffect(() => {
-    if (!selectedDoc) return;
-    const fetchContent = async () => {
-      setLoading(true);
-      try {
-        const data = await api.getDocContent(selectedDoc);
-        setContent(data.content);
-      } catch (err) {
-        setContent('# Error\nFailed to load document content.');
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchContent();
-  }, [selectedDoc]);
-
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="pb-2 border-b border-navy-800">
-        <h2 className="text-xl font-bold text-white tracking-tight">Methodology & Viva Documentation</h2>
+        <h2 className="text-xl font-bold text-white tracking-tight">System Architecture & Fusion Integration</h2>
         <p className="text-xs text-slate-400 mt-1">
-          In-app rendering of formal research phase documents (ELI5 + Technical Examiner Justifications) and Fusion Framework architecture.
+          Architectural specification for the multi-factor student attrition prediction framework and downstream Fusion layer contracts.
         </p>
       </div>
 
@@ -92,49 +51,6 @@ export const MethodologyDocsPage: React.FC = () => {
           <span className="font-mono text-[10px] px-2 py-0.5 rounded bg-indigo-500/20 border border-indigo-500/30">
             Strict Standard Export Contract
           </span>
-        </div>
-      </div>
-
-      {/* Docs Browser Layout */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        {/* Document Selector Sidebar */}
-        <div className="md:col-span-1 bg-navy-900 border border-navy-800 rounded-xl p-3 shadow-lg space-y-1">
-          <div className="px-3 py-2 text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
-            Phase Reports
-          </div>
-          {docList.map((doc) => {
-            const isSelected = selectedDoc === doc.filename;
-            return (
-              <button
-                key={doc.filename}
-                onClick={() => setSelectedDoc(doc.filename)}
-                className={`w-full text-left px-3 py-2 rounded-lg text-xs font-medium transition-colors flex items-center justify-between ${
-                  isSelected
-                    ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/40'
-                    : 'text-slate-300 hover:text-white hover:bg-navy-800'
-                }`}
-              >
-                <div className="flex items-center gap-2 truncate">
-                  <FileText className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                  <span className="truncate">{doc.title}</span>
-                </div>
-                {isSelected && <ChevronRight className="w-3.5 h-3.5 text-indigo-400 shrink-0" />}
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Document Markdown Viewer */}
-        <div className="md:col-span-3 bg-navy-900 border border-navy-800 rounded-xl p-6 shadow-lg min-h-[500px]">
-          {loading ? (
-            <LoadingState message="Rendering viva documentation..." />
-          ) : (
-            <div className="prose prose-invert prose-indigo max-w-none text-xs leading-relaxed">
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                {content}
-              </ReactMarkdown>
-            </div>
-          )}
         </div>
       </div>
     </div>
