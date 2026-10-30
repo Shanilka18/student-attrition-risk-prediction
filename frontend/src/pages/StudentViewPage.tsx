@@ -10,6 +10,8 @@ import {
   ChevronRight,
   Filter,
   Layers,
+  Search,
+  X,
 } from 'lucide-react';
 import {
   RadarChart,
@@ -42,6 +44,7 @@ export const StudentViewPage: React.FC = () => {
 
   // Filter for uploaded cohort
   const [riskFilter, setRiskFilter] = useState<'All' | 'High' | 'Moderate' | 'Low'>('All');
+  const [searchQuery, setSearchQuery] = useState<string>('');
 
   // Preset synthetic sample students for demonstration
   const [selectedPreset, setSelectedPreset] = useState<'high' | 'moderate' | 'low'>('high');
@@ -90,12 +93,32 @@ export const StudentViewPage: React.FC = () => {
     },
   };
 
-  // Filtered list of uploaded students
+  // Filtered list of uploaded students by risk tier
   const filteredUploadedStudents = useMemo(() => {
     if (!predictionResult?.students) return [];
     if (riskFilter === 'All') return predictionResult.students;
     return predictionResult.students.filter((s) => s.risk_category === riskFilter);
   }, [predictionResult?.students, riskFilter]);
+
+  // Search filter across student ID
+  const searchedStudents = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return filteredUploadedStudents;
+
+    // Search within current filtered list first
+    const withinFilter = filteredUploadedStudents.filter((s) =>
+      s.study_id.toLowerCase().includes(q)
+    );
+    if (withinFilter.length > 0) return withinFilter;
+
+    // Fallback: search across all students in cohort if not found in current risk tier
+    if (predictionResult?.students) {
+      return predictionResult.students.filter((s) =>
+        s.study_id.toLowerCase().includes(q)
+      );
+    }
+    return [];
+  }, [filteredUploadedStudents, predictionResult?.students, searchQuery]);
 
   // Active student resolution
   const activeUploadedStudent: StudentPrediction | null = useMemo(() => {
