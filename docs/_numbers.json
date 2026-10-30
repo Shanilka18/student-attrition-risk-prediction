@@ -3880,14 +3880,14 @@
   "sample_count": 2184,
   "separate_scoring_quality_audit": {
     "data_quality_report_is_for_training_run": false,
-    "missing_percent": 4.92,
-    "mode": "scoring",
+    "missing_percent": 0.0,
+    "mode": "training",
     "retention_rate": 1.0,
-    "rows_flagged": 245,
-    "rows_in": 5000,
-    "rows_out": 5000,
-    "run_id": "run_20261029_231152_011501",
-    "status": "GREEN"
+    "rows_flagged": 0,
+    "rows_in": 160,
+    "rows_out": 160,
+    "run_id": "run_20261029_181413_d8e87a",
+    "status": "AMBER"
   },
   "shap_consistency": {
     "kendall_w": 0.1421,
