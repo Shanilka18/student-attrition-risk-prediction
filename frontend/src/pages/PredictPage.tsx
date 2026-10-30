@@ -1122,6 +1122,7 @@ export const PredictPage: React.FC<PredictPageProps> = ({
                         <button
                           type="button"
                           onClick={() => setResultsSubTab('individual')}
+                          title="Open individual student diagnostic deep-dive with risk gauge and attribution chart"
                           className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
                             resultsSubTab === 'individual'
                               ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30'
@@ -1140,6 +1141,7 @@ export const PredictPage: React.FC<PredictPageProps> = ({
                         <button
                           type="button"
                           onClick={() => setResultsSubTab('table')}
+                          title="View full cohort triage table with search and risk filters"
                           className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
                             resultsSubTab === 'table'
                               ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30'
