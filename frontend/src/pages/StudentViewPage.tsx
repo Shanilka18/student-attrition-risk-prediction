@@ -540,7 +540,7 @@ export const StudentViewPage: React.FC = () => {
           subtitle="Subscale scores across 5 latent domains (Scale: 1.0 to 5.0)"
           className="lg:col-span-1"
         >
-          <div className="h-64 w-full">
+          <div className="h-56 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <RadarChart data={radarData}>
                 <PolarGrid stroke="#334155" />
@@ -549,6 +549,30 @@ export const StudentViewPage: React.FC = () => {
                 <Radar name="Student Score" dataKey="val" stroke="#818cf8" fill="#6366f1" fillOpacity={0.4} />
               </RadarChart>
             </ResponsiveContainer>
+          </div>
+
+          {/* Subscale Factor Scores Badges for all 5 factors */}
+          <div className="mt-2 pt-2.5 border-t border-navy-800 grid grid-cols-5 gap-1 text-center font-mono">
+            <div className="bg-navy-950/80 p-1 rounded border border-navy-800">
+              <span className="block text-[9px] text-slate-400">Stress</span>
+              <span className="text-[11px] font-bold text-rose-400">{student.factors.stress.toFixed(2)}</span>
+            </div>
+            <div className="bg-navy-950/80 p-1 rounded border border-navy-800">
+              <span className="block text-[9px] text-slate-400">Motiv</span>
+              <span className="text-[11px] font-bold text-indigo-300">{student.factors.motivation.toFixed(2)}</span>
+            </div>
+            <div className="bg-navy-950/80 p-1 rounded border border-navy-800">
+              <span className="block text-[9px] text-slate-400">Belong</span>
+              <span className="text-[11px] font-bold text-cyan-300">{student.factors.belongingness.toFixed(2)}</span>
+            </div>
+            <div className="bg-navy-950/80 p-1 rounded border border-navy-800">
+              <span className="block text-[9px] text-slate-400">Self-Eff</span>
+              <span className="text-[11px] font-bold text-purple-300">{student.factors.self_efficacy.toFixed(2)}</span>
+            </div>
+            <div className="bg-navy-950/80 p-1 rounded border border-navy-800">
+              <span className="block text-[9px] text-slate-400">Peer</span>
+              <span className="text-[11px] font-bold text-teal-300">{student.factors.peer_support.toFixed(2)}</span>
+            </div>
           </div>
         </ChartCard>
 
