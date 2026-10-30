@@ -1,10 +1,8 @@
 import React from 'react';
 import {
   GraduationCap,
-  Server,
   Sun,
   Moon,
-  Tv,
   Layers,
   Database,
   Trophy,
@@ -36,7 +34,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   health,
   meta,
 }) => {
-  const { theme, toggleTheme, presentationMode, togglePresentationMode } = useTheme();
+  const { theme, toggleTheme } = useTheme();
 
   const navItems: Array<{ id: PageId; label: string; icon: React.ReactNode }> = [
     { id: 'overview', label: 'Overview', icon: <Layers className="w-4 h-4" /> },
@@ -49,7 +47,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   return (
     <header className="sticky top-0 z-50 bg-slate-950/95 dark:bg-slate-950/95 backdrop-blur border-b border-slate-800">
-      {/* Top Title Bar & System Diagnostics */}
+      {/* Top Title Bar */}
       <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <div className="p-2 rounded-xl bg-indigo-600/20 text-indigo-400 border border-indigo-500/30">
@@ -62,57 +60,8 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
         </div>
 
-        {/* Controls: Health, Presentation, Theme */}
+        {/* Controls: Theme Toggle */}
         <div className="flex items-center gap-2">
-          {/* Active Data Mode Provenance Badge (SYNTHETIC vs REAL) */}
-          {meta && (
-            <div
-              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-xs font-semibold tracking-wide ${
-                meta.data_mode === 'REAL'
-                  ? 'bg-emerald-950/70 border-emerald-500/50 text-emerald-300 shadow-sm shadow-emerald-500/20'
-                  : 'bg-slate-900 border-amber-500/30 text-amber-300/90'
-              }`}
-              title={
-                meta.data_mode === 'REAL'
-                  ? `Active Scoring Model: ${meta.champion_model?.label || 'Retrained Model'} (Trained on user-provided data)`
-                  : 'Active Scoring Model: Canonical Synthetic Thesis Benchmark'
-              }
-            >
-              <span
-                className={`w-2 h-2 rounded-full ${
-                  meta.data_mode === 'REAL' ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'
-                }`}
-              />
-              <span className="font-mono text-[11px]">
-                {meta.data_mode === 'REAL' ? 'Active: REAL DATA' : 'Active: SYNTHETIC BENCHMARK'}
-              </span>
-            </div>
-          )}
-
-          {/* Health Status Pill */}
-          <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-xs">
-            <Server className={`w-3.5 h-3.5 ${health?.status === 'healthy' ? 'text-emerald-400' : 'text-amber-400'}`} />
-            <span className="text-slate-400">Backend:</span>
-            <span className={`font-mono ${health?.status === 'healthy' ? 'text-emerald-400' : 'text-amber-400'}`}>
-              {health?.status || 'Connecting...'}
-            </span>
-          </div>
-
-          {/* Presentation Mode Toggle */}
-          <button
-            onClick={togglePresentationMode}
-            title={presentationMode ? 'Exit Presentation Mode' : 'Enter Presentation Mode (Projector Optimization)'}
-            className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium border transition-colors ${
-              presentationMode
-                ? 'bg-indigo-600 text-white border-indigo-500 shadow-sm shadow-indigo-500/50'
-                : 'bg-slate-900 text-slate-300 border-slate-800 hover:bg-slate-800'
-            }`}
-          >
-            <Tv className="w-3.5 h-3.5" />
-            <span className="hidden md:inline">Presentation Mode</span>
-          </button>
-
-          {/* Theme Toggle */}
           <button
             onClick={toggleTheme}
             title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} theme`}
