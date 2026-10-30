@@ -46,10 +46,10 @@ export const EarlyWarningPage: React.FC = () => {
       <div>
         <h2 className="text-xl md:text-2xl font-bold text-white flex items-center gap-2">
           <Clock className="w-6 h-6 text-indigo-400" />
-          Early-Warning Lead Time & Prognostic Window Analysis
+          Early-Warning Lead Time & Intervention Runway Analysis
         </h2>
         <p className="text-sm text-slate-400 mt-1">
-          Evaluating the operational intervention runway provided to academic advisors prior to student academic probation or withdrawal.
+          Evaluating the advance warning runway provided to academic advisors prior to student probation or withdrawal.
         </p>
       </div>
 
