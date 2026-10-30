@@ -8,7 +8,6 @@ import { ChampionPage } from './pages/ChampionPage';
 import { ExplainabilityPage } from './pages/ExplainabilityPage';
 import { ScoreDataPage } from './pages/ScoreDataPage';
 import { StudentViewPage } from './pages/StudentViewPage';
-import { MethodologyDocsPage } from './pages/MethodologyDocsPage';
 import { CohortProvider, useCohort } from './context/CohortContext';
 
 function AppContent() {
@@ -31,8 +30,6 @@ function AppContent() {
         return <ScoreDataPage />;
       case 'student':
         return <StudentViewPage />;
-      case 'methodology':
-        return <MethodologyDocsPage />;
       default:
         return <OverviewPage />;
     }

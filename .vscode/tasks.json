@@ -15,7 +15,7 @@
     {
       "label": "Run Frontend (Vite)",
       "type": "shell",
-      "command": "cd frontend && npm run dev",
+      "command": "cd frontend; npm run dev",
       "problemMatcher": [],
       "isBackground": true,
       "presentation": {

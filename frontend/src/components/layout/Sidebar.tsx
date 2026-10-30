@@ -21,8 +21,7 @@ export type PageId =
   | 'champion'
   | 'explainability'
   | 'score'
-  | 'student'
-  | 'methodology';
+  | 'student';
 
 interface SidebarProps {
   currentPage: PageId;
@@ -39,7 +38,6 @@ const navItems: Array<{ id: PageId; label: string; icon: React.FC<{ className?: 
   { id: 'explainability', label: 'Explainability (SHAP)', icon: Network },
   { id: 'score', label: 'Score My Data', icon: UploadCloud },
   { id: 'student', label: 'Individual Student View', icon: UserCheck },
-  { id: 'methodology', label: 'System Architecture', icon: Layers },
 ];
 
 export const Sidebar: React.FC<SidebarProps> = ({
