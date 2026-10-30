@@ -285,9 +285,35 @@ export const StudentViewPage: React.FC = () => {
               </button>
             ))}
 
+            {/* Search Input for typing Student ID */}
+            <div className="relative flex items-center ml-2">
+              <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2 pointer-events-none" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && searchedStudents.length > 0) {
+                    setSelectedStudent(searchedStudents[0]);
+                  }
+                }}
+                placeholder="Type Student ID..."
+                className="bg-navy-850 text-slate-100 placeholder-slate-500 border border-navy-700 rounded pl-7 pr-6 py-1 text-xs font-mono focus:border-indigo-500 focus:outline-none w-36 sm:w-44 transition-all"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-1.5 text-slate-400 hover:text-slate-200"
+                  title="Clear search"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+
             {/* Student Dropdown Selector */}
-            <div className="ml-2 flex items-center gap-2">
-              <span className="text-slate-400">Select Student:</span>
+            <div className="flex items-center gap-1.5">
+              <span className="text-slate-400 hidden sm:inline">Select:</span>
               <select
                 value={activeUploadedStudent?.study_id || ''}
                 onChange={(e) => {
