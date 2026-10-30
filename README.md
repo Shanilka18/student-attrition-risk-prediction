@@ -64,10 +64,13 @@ python -m pytest backend/tests -v
 # Expected: 209 passed, 0 failed
 ```
 
-### Step 7 — Upload Your First Prediction
+### Step 7 — Upload Your First Prediction & Explore Triage
 1. Download the template: `GET http://localhost:8000/predict/template`
-2. Open the portal at `http://localhost:5173` → **Predict** page
-3. Drag-and-drop the CSV → view per-student ARI scores and explanations
+2. Open the portal at `http://localhost:5173` → **PREDICT (Upload)** page
+3. Drag-and-drop the CSV → explore the dual-view triage workspace:
+   - **Individual Student Diagnostic**: Interactive continuous risk gauge (0–100 ARI), clinical action protocols, horizontal TreeSHAP attribution charts, and quick-jump triage pills.
+   - **Cohort Triage Table**: Searchable, filterable student roster with 1-click drill-down into any student's diagnostic profile.
+   - **State Persistence**: Uploaded datasets and selected students remain loaded when switching across navigation tabs.
 
 ### Step 8 — Retrain on User Data, Scoring Promotion & Rollback
 1. Download template with outcomes: `GET http://localhost:8000/predict/template?with_outcomes=true`
