@@ -95,13 +95,13 @@ export const LeaderboardPage: React.FC<LeaderboardPageProps> = ({
               Comprehensive Model Benchmark Leaderboard
             </h2>
             <p className="text-sm text-slate-400 mt-1">
-              Multi-objective evaluation across 28 registered models on held-out test partitions. Click any model to inspect full parameters and training curves.
+              Multi-metric evaluation across 28 registered models on held-out test partitions. Click any model to inspect full parameters and evaluation curves.
             </p>
           </div>
 
           <div className="flex items-center gap-2">
             <span className="text-xs px-3 py-1.5 rounded-lg bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 font-mono">
-              Composite Weights: PR-AUC 25% | ROC 20% | F2 20% | Brier 15% | ECE 10% | Lead 10%
+              Composite Ranking: PR-AUC 25% | ROC 20% | F2 20% | Brier 15% | ECE 10% | Lead Time 10%
             </span>
           </div>
         </div>
