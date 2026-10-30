@@ -122,26 +122,29 @@ export const StudentViewPage: React.FC = () => {
 
   // Active student resolution
   const activeUploadedStudent: StudentPrediction | null = useMemo(() => {
-    if (!filteredUploadedStudents.length) {
+    if (!searchedStudents.length) {
       return predictionResult?.students?.[0] || null;
     }
-    if (selectedStudent && filteredUploadedStudents.some((s) => s.study_id === selectedStudent.study_id)) {
+    if (selectedStudent && searchedStudents.some((s) => s.study_id === selectedStudent.study_id)) {
       return selectedStudent;
     }
-    return filteredUploadedStudents[0];
-  }, [filteredUploadedStudents, selectedStudent, predictionResult]);
+    if (selectedStudent && predictionResult?.students?.some((s) => s.study_id === selectedStudent.study_id)) {
+      return selectedStudent;
+    }
+    return searchedStudents[0];
+  }, [searchedStudents, selectedStudent, predictionResult]);
 
-  // Navigate next/prev in filtered cohort
+  // Navigate next/prev in searched/filtered cohort
   const currentStudentIndex = useMemo(() => {
-    if (!activeUploadedStudent || !filteredUploadedStudents.length) return 0;
-    const idx = filteredUploadedStudents.findIndex((s) => s.study_id === activeUploadedStudent.study_id);
+    if (!activeUploadedStudent || !searchedStudents.length) return 0;
+    const idx = searchedStudents.findIndex((s) => s.study_id === activeUploadedStudent.study_id);
     return idx >= 0 ? idx : 0;
-  }, [activeUploadedStudent, filteredUploadedStudents]);
+  }, [activeUploadedStudent, searchedStudents]);
 
   const handleStepStudent = (delta: number) => {
-    if (!filteredUploadedStudents.length) return;
-    const newIdx = (currentStudentIndex + delta + filteredUploadedStudents.length) % filteredUploadedStudents.length;
-    setSelectedStudent(filteredUploadedStudents[newIdx]);
+    if (!searchedStudents.length) return;
+    const newIdx = (currentStudentIndex + delta + searchedStudents.length) % searchedStudents.length;
+    setSelectedStudent(searchedStudents[newIdx]);
   };
 
   // Resolve active student model depending on viewMode
@@ -320,9 +323,14 @@ export const StudentViewPage: React.FC = () => {
                   const found = predictionResult?.students?.find((s) => s.study_id === e.target.value);
                   if (found) setSelectedStudent(found);
                 }}
-                className="bg-navy-850 text-slate-100 border border-navy-700 rounded px-2.5 py-1 text-xs font-mono focus:border-indigo-500 focus:outline-none"
+                className="bg-navy-850 text-slate-100 border border-navy-700 rounded px-2.5 py-1 text-xs font-mono focus:border-indigo-500 focus:outline-none max-w-[240px] sm:max-w-[280px] truncate"
               >
-                {filteredUploadedStudents.map((s) => (
+                {!searchedStudents.some((s) => s.study_id === activeUploadedStudent?.study_id) && activeUploadedStudent && (
+                  <option key={activeUploadedStudent.study_id} value={activeUploadedStudent.study_id}>
+                    {activeUploadedStudent.study_id} — PRI: {activeUploadedStudent.pri_score.toFixed(1)} ({activeUploadedStudent.risk_category}) [Active]
+                  </option>
+                )}
+                {searchedStudents.map((s) => (
                   <option key={s.study_id} value={s.study_id}>
                     {s.study_id} — PRI: {s.pri_score.toFixed(1)} ({s.risk_category})
                   </option>
@@ -334,11 +342,13 @@ export const StudentViewPage: React.FC = () => {
           {/* Stepper Controls */}
           <div className="flex items-center gap-2">
             <span className="text-slate-400 font-mono text-[11px]">
-              {filteredUploadedStudents.length > 0 ? `${currentStudentIndex + 1} of ${filteredUploadedStudents.length}` : '0 of 0'}
+              {searchedStudents.length > 0
+                ? `${currentStudentIndex + 1} of ${searchedStudents.length}${searchQuery ? ' (filtered)' : ''}`
+                : '0 of 0'}
             </span>
             <button
               onClick={() => handleStepStudent(-1)}
-              disabled={filteredUploadedStudents.length <= 1}
+              disabled={searchedStudents.length <= 1}
               className="p-1 rounded bg-navy-800 hover:bg-navy-750 text-slate-300 hover:text-white border border-navy-700 disabled:opacity-40"
               title="Previous Student"
             >
@@ -346,7 +356,7 @@ export const StudentViewPage: React.FC = () => {
             </button>
             <button
               onClick={() => handleStepStudent(1)}
-              disabled={filteredUploadedStudents.length <= 1}
+              disabled={searchedStudents.length <= 1}
               className="p-1 rounded bg-navy-800 hover:bg-navy-750 text-slate-300 hover:text-white border border-navy-700 disabled:opacity-40"
               title="Next Student"
             >
