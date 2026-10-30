@@ -65,10 +65,10 @@ export const ExplainabilityPage: React.FC = () => {
       <div>
         <h2 className="text-xl md:text-2xl font-bold text-white flex items-center gap-2">
           <Sparkles className="w-6 h-6 text-indigo-400" />
-          Model Explainability & Cooperative Game-Theoretic TreeSHAP
+          Model Explainability & Diagnostic Attribution
         </h2>
         <p className="text-sm text-slate-400 mt-1">
-          Exact Shapley attributions isolating global longitudinal drivers, temporal semester saliency, and local student diagnostics.
+          Transparent, explainable AI isolating global longitudinal risk drivers and personalized student diagnostics.
         </p>
       </div>
 
@@ -78,14 +78,14 @@ export const ExplainabilityPage: React.FC = () => {
           <div>
             <h3 className="text-sm font-bold text-white flex items-center gap-2">
               <Layers className="w-4 h-4 text-indigo-400" />
-              Global Mean Absolute SHAP Importance (Top 10 Drivers)
+              Global Key Risk Drivers (Top 10 Influential Indicators)
             </h3>
             <p className="text-xs text-slate-400 mt-0.5">
               Engagement and behavioral velocity indicators account for <strong>62.8% of global prognostic signal</strong>.
             </p>
           </div>
           <span className="text-xs px-2.5 py-1 rounded bg-indigo-500/10 text-indigo-400 font-mono border border-indigo-500/30">
-            TreeSHAP Axiomatic
+            TreeSHAP Attribution
           </span>
         </div>
 
