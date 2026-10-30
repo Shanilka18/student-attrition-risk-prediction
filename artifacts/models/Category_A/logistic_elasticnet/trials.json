@@ -1,0 +1,41 @@
+[
+  {
+    "trial": 0,
+    "params": {
+      "C": 1.0,
+      "l1_ratio": 0.5
+    },
+    "mean_cv_roc_auc": 0.7841,
+    "fold_scores": [
+      0.7952,
+      0.7729
+    ],
+    "duration_seconds": 2.86
+  },
+  {
+    "trial": 1,
+    "params": {
+      "C": 0.0745934328572655,
+      "l1_ratio": 0.9507143064099162
+    },
+    "mean_cv_roc_auc": 0.7846,
+    "fold_scores": [
+      0.7958,
+      0.7734
+    ],
+    "duration_seconds": 2.81
+  },
+  {
+    "trial": 2,
+    "params": {
+      "C": 4.5705630998014515,
+      "l1_ratio": 0.5986584841970366
+    },
+    "mean_cv_roc_auc": 0.7841,
+    "fold_scores": [
+      0.7952,
+      0.7729
+    ],
+    "duration_seconds": 2.7
+  }
+]

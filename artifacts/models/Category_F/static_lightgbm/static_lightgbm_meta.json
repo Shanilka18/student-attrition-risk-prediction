@@ -1,0 +1,19 @@
+{
+  "model_key": "static_lightgbm",
+  "category": "F",
+  "category_label": "Static-Snapshot Variants (value-of-trajectory study)",
+  "label": "LightGBM (Static Snapshot)",
+  "is_proposal_model": false,
+  "is_sequence_model": false,
+  "is_fitted": true,
+  "fit_time_seconds": 0.21,
+  "params": {
+    "n_estimators": 200,
+    "learning_rate": 0.015958237752949748,
+    "num_leaves": 22,
+    "class_weight": "balanced",
+    "verbosity": -1,
+    "random_state": 42,
+    "seed": 42
+  }
+}

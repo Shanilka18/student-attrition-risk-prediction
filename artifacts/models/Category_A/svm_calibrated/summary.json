@@ -1,0 +1,61 @@
+{
+  "model_key": "svm_calibrated",
+  "category": "A",
+  "category_label": "Linear & Simple Baselines (tabular)",
+  "label": "Linear SVM (Calibrated)",
+  "is_proposal_model": false,
+  "is_sequence_model": false,
+  "status": "COMPLETED",
+  "validation_metrics": {
+    "roc_auc": 0.8221,
+    "pr_auc": 0.203,
+    "brier_score": 0.0541,
+    "threshold": 0.0595,
+    "f1_score": 0.2649,
+    "recall": 0.7961,
+    "precision": 0.1589,
+    "accuracy": 0.7257,
+    "specificity": 0.7211,
+    "confusion_matrix": {
+      "tn": 2244,
+      "fp": 868,
+      "fn": 42,
+      "tp": 164
+    }
+  },
+  "stability_summary": {
+    "roc_auc_mean": 0.8221,
+    "roc_auc_std": 0.0,
+    "pr_auc_mean": 0.203,
+    "pr_auc_std": 0.0,
+    "brier_score_mean": 0.0539,
+    "brier_score_std": 0.0,
+    "f1_score_mean": 0.0092,
+    "f1_score_std": 0.0,
+    "recall_mean": 0.0049,
+    "recall_std": 0.0,
+    "precision_mean": 0.0909,
+    "precision_std": 0.0,
+    "accuracy_mean": 0.9352,
+    "accuracy_std": 0.0
+  },
+  "calibration": {
+    "method": "platt",
+    "is_fitted": true,
+    "brier_score_before": 0.0539,
+    "brier_score_after": 0.0541,
+    "brier_improvement_pct": 0.0
+  },
+  "threshold": {
+    "strategy": "recall_constrained",
+    "optimal_threshold": 0.0595,
+    "metrics": {
+      "f1_score": 0.2663,
+      "recall": 0.801,
+      "precision": 0.1597,
+      "accuracy": 0.726
+    }
+  },
+  "runtime_seconds": 6.39,
+  "artifact_dir": "D:\\research project\\artifacts\\models\\Category_A\\svm_calibrated"
+}

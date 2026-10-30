@@ -1,0 +1,61 @@
+{
+  "model_key": "bilstm",
+  "category": "E",
+  "category_label": "Deep Sequence Models (PyTorch, masked)",
+  "label": "BiLSTM",
+  "is_proposal_model": false,
+  "is_sequence_model": true,
+  "status": "COMPLETED",
+  "validation_metrics": {
+    "roc_auc": 0.8225,
+    "pr_auc": 0.2145,
+    "brier_score": 0.053,
+    "threshold": 0.0496,
+    "f1_score": 0.2345,
+    "recall": 0.8252,
+    "precision": 0.1367,
+    "accuracy": 0.6655,
+    "specificity": 0.6549,
+    "confusion_matrix": {
+      "tn": 2038,
+      "fp": 1074,
+      "fn": 36,
+      "tp": 170
+    }
+  },
+  "stability_summary": {
+    "roc_auc_mean": 0.8229,
+    "roc_auc_std": 0.0004,
+    "pr_auc_mean": 0.2152,
+    "pr_auc_std": 0.0007,
+    "brier_score_mean": 0.1875,
+    "brier_score_std": 0.0016,
+    "f1_score_mean": 0.2525,
+    "f1_score_std": 0.0015,
+    "recall_mean": 0.7767,
+    "recall_std": 0.004,
+    "precision_mean": 0.1507,
+    "precision_std": 0.0012,
+    "accuracy_mean": 0.7144,
+    "accuracy_std": 0.0036
+  },
+  "calibration": {
+    "method": "platt",
+    "is_fitted": true,
+    "brier_score_before": 0.1866,
+    "brier_score_after": 0.053,
+    "brier_improvement_pct": 71.59
+  },
+  "threshold": {
+    "strategy": "recall_constrained",
+    "optimal_threshold": 0.0496,
+    "metrics": {
+      "f1_score": 0.2345,
+      "recall": 0.8252,
+      "precision": 0.1367,
+      "accuracy": 0.6655
+    }
+  },
+  "runtime_seconds": 29.51,
+  "artifact_dir": "D:\\research project\\artifacts\\models\\Category_E\\bilstm"
+}

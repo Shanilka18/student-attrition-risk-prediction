@@ -1,0 +1,5 @@
+{
+  "n_neighbors": 11,
+  "weights": "uniform",
+  "metric": "euclidean"
+}

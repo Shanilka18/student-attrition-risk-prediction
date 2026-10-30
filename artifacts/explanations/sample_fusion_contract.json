@@ -1,0 +1,42 @@
+{
+  "participant_id": "STU_00002",
+  "sample_id": "STU_00002_t2",
+  "window_semester": 2,
+  "academic_risk_index": 14.88,
+  "risk_band": "High",
+  "top_factors": [
+    {
+      "name": "delay_mean",
+      "display_name": "Average Assignment Delay",
+      "direction": "RISK_INCREASING",
+      "contribution": 0.2578,
+      "feature_value": 4.4,
+      "unit": "Days",
+      "narrative": "Average Assignment Delay"
+    },
+    {
+      "name": "last_assignment_delay_days",
+      "display_name": "Latest Submission Delay",
+      "direction": "RISK_INCREASING",
+      "contribution": 0.2316,
+      "feature_value": 7.0,
+      "unit": "Days late",
+      "narrative": "Latest Submission Delay"
+    },
+    {
+      "name": "delay_max",
+      "display_name": "Maximum Assignment Delay",
+      "direction": "RISK_INCREASING",
+      "contribution": 0.0793,
+      "feature_value": 7.0,
+      "unit": "Days",
+      "narrative": "Maximum Assignment Delay"
+    }
+  ],
+  "model_name": "catboost",
+  "model_version": "1.0.0",
+  "calibrated": true,
+  "explanation_text": "High risk (14.9/100): Key drivers indicate that Average Assignment Delay is 4.40 Days (elevating attrition risk), recent coursework submissions are delayed by an average of 7.0 days, and Maximum Assignment Delay is 7.00 Days (elevating attrition risk).",
+  "timestamp_utc": "2026-10-19T16:41:25Z",
+  "provenance_tag": "SYNTHETIC"
+}

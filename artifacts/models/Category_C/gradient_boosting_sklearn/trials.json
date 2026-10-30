@@ -1,0 +1,47 @@
+[
+  {
+    "trial": 0,
+    "params": {
+      "n_estimators": 200,
+      "learning_rate": 0.05,
+      "max_depth": 4,
+      "subsample": 0.8
+    },
+    "mean_cv_roc_auc": 0.7677,
+    "fold_scores": [
+      0.775,
+      0.7604
+    ],
+    "duration_seconds": 12.18
+  },
+  {
+    "trial": 1,
+    "params": {
+      "n_estimators": 181,
+      "learning_rate": 0.24517932047070642,
+      "max_depth": 7,
+      "subsample": 0.7993292420985183
+    },
+    "mean_cv_roc_auc": 0.7061,
+    "fold_scores": [
+      0.711,
+      0.7012
+    ],
+    "duration_seconds": 18.38
+  },
+  {
+    "trial": 2,
+    "params": {
+      "n_estimators": 104,
+      "learning_rate": 0.009470040922904443,
+      "max_depth": 2,
+      "subsample": 0.9330880728874675
+    },
+    "mean_cv_roc_auc": 0.7736,
+    "fold_scores": [
+      0.7827,
+      0.7644
+    ],
+    "duration_seconds": 4.16
+  }
+]

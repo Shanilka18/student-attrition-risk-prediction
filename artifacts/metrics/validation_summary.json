@@ -1,0 +1,1710 @@
+[
+  {
+    "model_key": "gpa_threshold",
+    "category": "A",
+    "category_label": "Linear & Simple Baselines (tabular)",
+    "label": "GPA Threshold Rule (Reference)",
+    "is_proposal_model": false,
+    "is_sequence_model": false,
+    "status": "COMPLETED",
+    "validation_metrics": {
+      "roc_auc": 0.5106,
+      "pr_auc": 0.065,
+      "brier_score": 0.0581,
+      "threshold": 0.01,
+      "f1_score": 0.1169,
+      "recall": 1.0,
+      "precision": 0.0621,
+      "accuracy": 0.0621,
+      "specificity": 0.0,
+      "confusion_matrix": {
+        "tn": 0,
+        "fp": 3112,
+        "fn": 0,
+        "tp": 206
+      }
+    },
+    "stability_summary": {
+      "roc_auc_mean": 0.5106,
+      "roc_auc_std": 0.0,
+      "pr_auc_mean": 0.065,
+      "pr_auc_std": 0.0,
+      "brier_score_mean": 0.072,
+      "brier_score_std": 0.0,
+      "f1_score_mean": 0.0553,
+      "f1_score_std": 0.0,
+      "recall_mean": 0.034,
+      "recall_std": 0.0,
+      "precision_mean": 0.1489,
+      "precision_std": 0.0,
+      "accuracy_mean": 0.928,
+      "accuracy_std": 0.0
+    },
+    "calibration": {
+      "method": "platt",
+      "is_fitted": true,
+      "brier_score_before": 0.072,
+      "brier_score_after": 0.0581,
+      "brier_improvement_pct": 19.31
+    },
+    "threshold": {
+      "strategy": "recall_constrained",
+      "optimal_threshold": 0.01,
+      "metrics": {
+        "f1_score": 0.1169,
+        "recall": 1.0,
+        "precision": 0.0621,
+        "accuracy": 0.0621
+      }
+    },
+    "runtime_seconds": 1.54,
+    "artifact_dir": "D:\\research project\\artifacts\\models\\Category_A\\gpa_threshold"
+  },
+  {
+    "model_key": "gaussian_nb",
+    "category": "A",
+    "category_label": "Linear & Simple Baselines (tabular)",
+    "label": "Gaussian Naive Bayes",
+    "is_proposal_model": false,
+    "is_sequence_model": false,
+    "status": "COMPLETED",
+    "validation_metrics": {
+      "roc_auc": 0.8138,
+      "pr_auc": 0.2084,
+      "brier_score": 0.0537,
+      "threshold": 0.0397,
+      "f1_score": 0.2111,
+      "recall": 0.8738,
+      "precision": 0.1201,
+      "accuracy": 0.5946,
+      "specificity": 0.5762,
+      "confusion_matrix": {
+        "tn": 1793,
+        "fp": 1319,
+        "fn": 26,
+        "tp": 180
+      }
+    },
+    "stability_summary": {
+      "roc_auc_mean": 0.8139,
+      "roc_auc_std": 0.0,
+      "pr_auc_mean": 0.2084,
+      "pr_auc_std": 0.0,
+      "brier_score_mean": 0.1404,
+      "brier_score_std": 0.0,
+      "f1_score_mean": 0.2983,
+      "f1_score_std": 0.0,
+      "recall_mean": 0.5437,
+      "recall_std": 0.0,
+      "precision_mean": 0.2055,
+      "precision_std": 0.0,
+      "accuracy_mean": 0.8412,
+      "accuracy_std": 0.0
+    },
+    "calibration": {
+      "method": "platt",
+      "is_fitted": true,
+      "brier_score_before": 0.1404,
+      "brier_score_after": 0.0537,
+      "brier_improvement_pct": 61.73
+    },
+    "threshold": {
+      "strategy": "recall_constrained",
+      "optimal_threshold": 0.0397,
+      "metrics": {
+        "f1_score": 0.211,
+        "recall": 0.8738,
+        "precision": 0.12,
+        "accuracy": 0.5943
+      }
+    },
+    "runtime_seconds": 1.75,
+    "artifact_dir": "D:\\research project\\artifacts\\models\\Category_A\\gaussian_nb"
+  },
+  {
+    "model_key": "svm_calibrated",
+    "category": "A",
+    "category_label": "Linear & Simple Baselines (tabular)",
+    "label": "Linear SVM (Calibrated)",
+    "is_proposal_model": false,
+    "is_sequence_model": false,
+    "status": "COMPLETED",
+    "validation_metrics": {
+      "roc_auc": 0.8221,
+      "pr_auc": 0.203,
+      "brier_score": 0.0541,
+      "threshold": 0.0595,
+      "f1_score": 0.2649,
+      "recall": 0.7961,
+      "precision": 0.1589,
+      "accuracy": 0.7257,
+      "specificity": 0.7211,
+      "confusion_matrix": {
+        "tn": 2244,
+        "fp": 868,
+        "fn": 42,
+        "tp": 164
+      }
+    },
+    "stability_summary": {
+      "roc_auc_mean": 0.8221,
+      "roc_auc_std": 0.0,
+      "pr_auc_mean": 0.203,
+      "pr_auc_std": 0.0,
+      "brier_score_mean": 0.0539,
+      "brier_score_std": 0.0,
+      "f1_score_mean": 0.0092,
+      "f1_score_std": 0.0,
+      "recall_mean": 0.0049,
+      "recall_std": 0.0,
+      "precision_mean": 0.0909,
+      "precision_std": 0.0,
+      "accuracy_mean": 0.9352,
+      "accuracy_std": 0.0
+    },
+    "calibration": {
+      "method": "platt",
+      "is_fitted": true,
+      "brier_score_before": 0.0539,
+      "brier_score_after": 0.0541,
+      "brier_improvement_pct": 0.0
+    },
+    "threshold": {
+      "strategy": "recall_constrained",
+      "optimal_threshold": 0.0595,
+      "metrics": {
+        "f1_score": 0.2663,
+        "recall": 0.801,
+        "precision": 0.1597,
+        "accuracy": 0.726
+      }
+    },
+    "runtime_seconds": 6.39,
+    "artifact_dir": "D:\\research project\\artifacts\\models\\Category_A\\svm_calibrated"
+  },
+  {
+    "model_key": "logistic_elasticnet",
+    "category": "A",
+    "category_label": "Linear & Simple Baselines (tabular)",
+    "label": "Logistic Regression (ElasticNet)",
+    "is_proposal_model": false,
+    "is_sequence_model": false,
+    "status": "COMPLETED",
+    "validation_metrics": {
+      "roc_auc": 0.8184,
+      "pr_auc": 0.2052,
+      "brier_score": 0.0546,
+      "threshold": 0.0496,
+      "f1_score": 0.2357,
+      "recall": 0.8398,
+      "precision": 0.1371,
+      "accuracy": 0.6618,
+      "specificity": 0.6501,
+      "confusion_matrix": {
+        "tn": 2023,
+        "fp": 1089,
+        "fn": 33,
+        "tp": 173
+      }
+    },
+    "stability_summary": {
+      "roc_auc_mean": 0.8184,
+      "roc_auc_std": 0.0,
+      "pr_auc_mean": 0.2052,
+      "pr_auc_std": 0.0,
+      "brier_score_mean": 0.1853,
+      "brier_score_std": 0.0,
+      "f1_score_mean": 0.2654,
+      "f1_score_std": 0.0,
+      "recall_mean": 0.733,
+      "recall_std": 0.0,
+      "precision_mean": 0.162,
+      "precision_std": 0.0,
+      "accuracy_mean": 0.748,
+      "accuracy_std": 0.0
+    },
+    "calibration": {
+      "method": "platt",
+      "is_fitted": true,
+      "brier_score_before": 0.1853,
+      "brier_score_after": 0.0546,
+      "brier_improvement_pct": 70.51
+    },
+    "threshold": {
+      "strategy": "recall_constrained",
+      "optimal_threshold": 0.0496,
+      "metrics": {
+        "f1_score": 0.2357,
+        "recall": 0.8398,
+        "precision": 0.1371,
+        "accuracy": 0.6618
+      }
+    },
+    "runtime_seconds": 19.21,
+    "artifact_dir": "D:\\research project\\artifacts\\models\\Category_A\\logistic_elasticnet"
+  },
+  {
+    "model_key": "logistic_l2",
+    "category": "A",
+    "category_label": "Linear & Simple Baselines (tabular)",
+    "label": "Logistic Regression (L2)",
+    "is_proposal_model": false,
+    "is_sequence_model": false,
+    "status": "COMPLETED",
+    "validation_metrics": {
+      "roc_auc": 0.8198,
+      "pr_auc": 0.2016,
+      "brier_score": 0.0545,
+      "threshold": 0.0496,
+      "f1_score": 0.2381,
+      "recall": 0.835,
+      "precision": 0.1388,
+      "accuracy": 0.6682,
+      "specificity": 0.6571,
+      "confusion_matrix": {
+        "tn": 2045,
+        "fp": 1067,
+        "fn": 34,
+        "tp": 172
+      }
+    },
+    "stability_summary": {
+      "roc_auc_mean": 0.8198,
+      "roc_auc_std": 0.0,
+      "pr_auc_mean": 0.2016,
+      "pr_auc_std": 0.0,
+      "brier_score_mean": 0.1856,
+      "brier_score_std": 0.0,
+      "f1_score_mean": 0.2712,
+      "f1_score_std": 0.0,
+      "recall_mean": 0.767,
+      "recall_std": 0.0,
+      "precision_mean": 0.1648,
+      "precision_std": 0.0,
+      "accuracy_mean": 0.7441,
+      "accuracy_std": 0.0
+    },
+    "calibration": {
+      "method": "platt",
+      "is_fitted": true,
+      "brier_score_before": 0.1856,
+      "brier_score_after": 0.0545,
+      "brier_improvement_pct": 70.61
+    },
+    "threshold": {
+      "strategy": "recall_constrained",
+      "optimal_threshold": 0.0496,
+      "metrics": {
+        "f1_score": 0.2381,
+        "recall": 0.835,
+        "precision": 0.1388,
+        "accuracy": 0.6682
+      }
+    },
+    "runtime_seconds": 6.23,
+    "artifact_dir": "D:\\research project\\artifacts\\models\\Category_A\\logistic_l2"
+  },
+  {
+    "model_key": "knn",
+    "category": "A",
+    "category_label": "Linear & Simple Baselines (tabular)",
+    "label": "k-Nearest Neighbours",
+    "is_proposal_model": false,
+    "is_sequence_model": false,
+    "status": "COMPLETED",
+    "validation_metrics": {
+      "roc_auc": 0.7053,
+      "pr_auc": 0.1383,
+      "brier_score": 0.0562,
+      "threshold": 0.01,
+      "f1_score": 0.1169,
+      "recall": 1.0,
+      "precision": 0.0621,
+      "accuracy": 0.0621,
+      "specificity": 0.0,
+      "confusion_matrix": {
+        "tn": 0,
+        "fp": 3112,
+        "fn": 0,
+        "tp": 206
+      }
+    },
+    "stability_summary": {
+      "roc_auc_mean": 0.7053,
+      "roc_auc_std": 0.0,
+      "pr_auc_mean": 0.1383,
+      "pr_auc_std": 0.0,
+      "brier_score_mean": 0.058,
+      "brier_score_std": 0.0,
+      "f1_score_mean": 0.0467,
+      "f1_score_std": 0.0,
+      "recall_mean": 0.0243,
+      "recall_std": 0.0,
+      "precision_mean": 0.625,
+      "precision_std": 0.0,
+      "accuracy_mean": 0.9385,
+      "accuracy_std": 0.0
+    },
+    "calibration": {
+      "method": "platt",
+      "is_fitted": true,
+      "brier_score_before": 0.058,
+      "brier_score_after": 0.0562,
+      "brier_improvement_pct": 3.0
+    },
+    "threshold": {
+      "strategy": "recall_constrained",
+      "optimal_threshold": 0.01,
+      "metrics": {
+        "f1_score": 0.1169,
+        "recall": 1.0,
+        "precision": 0.0621,
+        "accuracy": 0.0621
+      }
+    },
+    "runtime_seconds": 4.55,
+    "artifact_dir": "D:\\research project\\artifacts\\models\\Category_A\\knn"
+  },
+  {
+    "model_key": "decision_tree",
+    "category": "B",
+    "category_label": "Tree & Bagging Ensembles (tabular)",
+    "label": "Decision Tree",
+    "is_proposal_model": false,
+    "is_sequence_model": false,
+    "status": "COMPLETED",
+    "validation_metrics": {
+      "roc_auc": 0.7402,
+      "pr_auc": 0.1669,
+      "brier_score": 0.0568,
+      "threshold": 0.0793,
+      "f1_score": 0.1999,
+      "recall": 0.801,
+      "precision": 0.1142,
+      "accuracy": 0.6019,
+      "specificity": 0.5887,
+      "confusion_matrix": {
+        "tn": 1832,
+        "fp": 1280,
+        "fn": 41,
+        "tp": 165
+      }
+    },
+    "stability_summary": {
+      "roc_auc_mean": 0.7424,
+      "roc_auc_std": 0.0032,
+      "pr_auc_mean": 0.1672,
+      "pr_auc_std": 0.0005,
+      "brier_score_mean": 0.1927,
+      "brier_score_std": 0.0003,
+      "f1_score_mean": 0.2004,
+      "f1_score_std": 0.0,
+      "recall_mean": 0.6845,
+      "recall_std": 0.0,
+      "precision_mean": 0.1174,
+      "precision_std": 0.0,
+      "accuracy_mean": 0.6609,
+      "accuracy_std": 0.0
+    },
+    "calibration": {
+      "method": "platt",
+      "is_fitted": true,
+      "brier_score_before": 0.1928,
+      "brier_score_after": 0.0568,
+      "brier_improvement_pct": 70.55
+    },
+    "threshold": {
+      "strategy": "recall_constrained",
+      "optimal_threshold": 0.0793,
+      "metrics": {
+        "f1_score": 0.1999,
+        "recall": 0.801,
+        "precision": 0.1142,
+        "accuracy": 0.6019
+      }
+    },
+    "runtime_seconds": 2.55,
+    "artifact_dir": "D:\\research project\\artifacts\\models\\Category_B\\decision_tree"
+  },
+  {
+    "model_key": "extra_trees",
+    "category": "B",
+    "category_label": "Tree & Bagging Ensembles (tabular)",
+    "label": "Extra Trees",
+    "is_proposal_model": false,
+    "is_sequence_model": false,
+    "status": "COMPLETED",
+    "validation_metrics": {
+      "roc_auc": 0.8201,
+      "pr_auc": 0.2113,
+      "brier_score": 0.0527,
+      "threshold": 0.0496,
+      "f1_score": 0.2424,
+      "recall": 0.8301,
+      "precision": 0.1419,
+      "accuracy": 0.6778,
+      "specificity": 0.6677,
+      "confusion_matrix": {
+        "tn": 2078,
+        "fp": 1034,
+        "fn": 35,
+        "tp": 171
+      }
+    },
+    "stability_summary": {
+      "roc_auc_mean": 0.8196,
+      "roc_auc_std": 0.001,
+      "pr_auc_mean": 0.2116,
+      "pr_auc_std": 0.0023,
+      "brier_score_mean": 0.1637,
+      "brier_score_std": 0.0003,
+      "f1_score_mean": 0.2776,
+      "f1_score_std": 0.0026,
+      "recall_mean": 0.7362,
+      "recall_std": 0.0046,
+      "precision_mean": 0.1711,
+      "precision_std": 0.0017,
+      "accuracy_mean": 0.7621,
+      "accuracy_std": 0.0016
+    },
+    "calibration": {
+      "method": "platt",
+      "is_fitted": true,
+      "brier_score_before": 0.1633,
+      "brier_score_after": 0.0527,
+      "brier_improvement_pct": 67.72
+    },
+    "threshold": {
+      "strategy": "recall_constrained",
+      "optimal_threshold": 0.0496,
+      "metrics": {
+        "f1_score": 0.2424,
+        "recall": 0.8301,
+        "precision": 0.1419,
+        "accuracy": 0.6778
+      }
+    },
+    "runtime_seconds": 8.41,
+    "artifact_dir": "D:\\research project\\artifacts\\models\\Category_B\\extra_trees"
+  },
+  {
+    "model_key": "random_forest",
+    "category": "B",
+    "category_label": "Tree & Bagging Ensembles (tabular)",
+    "label": "Random Forest",
+    "is_proposal_model": false,
+    "is_sequence_model": false,
+    "status": "COMPLETED",
+    "validation_metrics": {
+      "roc_auc": 0.8157,
+      "pr_auc": 0.2058,
+      "brier_score": 0.053,
+      "threshold": 0.0496,
+      "f1_score": 0.2303,
+      "recall": 0.8301,
+      "precision": 0.1337,
+      "accuracy": 0.6555,
+      "specificity": 0.644,
+      "confusion_matrix": {
+        "tn": 2004,
+        "fp": 1108,
+        "fn": 35,
+        "tp": 171
+      }
+    },
+    "stability_summary": {
+      "roc_auc_mean": 0.8164,
+      "roc_auc_std": 0.0008,
+      "pr_auc_mean": 0.2076,
+      "pr_auc_std": 0.0016,
+      "brier_score_mean": 0.1716,
+      "brier_score_std": 0.0002,
+      "f1_score_mean": 0.2652,
+      "f1_score_std": 0.0027,
+      "recall_mean": 0.7443,
+      "recall_std": 0.006,
+      "precision_mean": 0.1614,
+      "precision_std": 0.0017,
+      "accuracy_mean": 0.7439,
+      "accuracy_std": 0.0016
+    },
+    "calibration": {
+      "method": "platt",
+      "is_fitted": true,
+      "brier_score_before": 0.1717,
+      "brier_score_after": 0.053,
+      "brier_improvement_pct": 69.1
+    },
+    "threshold": {
+      "strategy": "recall_constrained",
+      "optimal_threshold": 0.0496,
+      "metrics": {
+        "f1_score": 0.2303,
+        "recall": 0.8301,
+        "precision": 0.1337,
+        "accuracy": 0.6555
+      }
+    },
+    "runtime_seconds": 13.68,
+    "artifact_dir": "D:\\research project\\artifacts\\models\\Category_B\\random_forest"
+  },
+  {
+    "model_key": "adaboost",
+    "category": "C",
+    "category_label": "Boosting \u2014 Engineered Trend Features (PROPOSAL BASELINE)",
+    "label": "AdaBoost",
+    "is_proposal_model": false,
+    "is_sequence_model": false,
+    "status": "COMPLETED",
+    "validation_metrics": {
+      "roc_auc": 0.8101,
+      "pr_auc": 0.2014,
+      "brier_score": 0.0532,
+      "threshold": 0.0595,
+      "f1_score": 0.2409,
+      "recall": 0.8058,
+      "precision": 0.1416,
+      "accuracy": 0.6847,
+      "specificity": 0.6767,
+      "confusion_matrix": {
+        "tn": 2106,
+        "fp": 1006,
+        "fn": 40,
+        "tp": 166
+      }
+    },
+    "stability_summary": {
+      "roc_auc_mean": 0.8101,
+      "roc_auc_std": 0.0,
+      "pr_auc_mean": 0.2014,
+      "pr_auc_std": 0.0,
+      "brier_score_mean": 0.0952,
+      "brier_score_std": 0.0,
+      "f1_score_mean": 0.0,
+      "f1_score_std": 0.0,
+      "recall_mean": 0.0,
+      "recall_std": 0.0,
+      "precision_mean": 0.0,
+      "precision_std": 0.0,
+      "accuracy_mean": 0.9379,
+      "accuracy_std": 0.0
+    },
+    "calibration": {
+      "method": "platt",
+      "is_fitted": true,
+      "brier_score_before": 0.0952,
+      "brier_score_after": 0.0532,
+      "brier_improvement_pct": 44.15
+    },
+    "threshold": {
+      "strategy": "recall_constrained",
+      "optimal_threshold": 0.0595,
+      "metrics": {
+        "f1_score": 0.2409,
+        "recall": 0.8058,
+        "precision": 0.1416,
+        "accuracy": 0.6847
+      }
+    },
+    "runtime_seconds": 39.56,
+    "artifact_dir": "D:\\research project\\artifacts\\models\\Category_C\\adaboost"
+  },
+  {
+    "model_key": "catboost",
+    "category": "C",
+    "category_label": "Boosting \u2014 Engineered Trend Features (PROPOSAL BASELINE)",
+    "label": "CatBoost",
+    "is_proposal_model": false,
+    "is_sequence_model": false,
+    "status": "COMPLETED",
+    "validation_metrics": {
+      "roc_auc": 0.8196,
+      "pr_auc": 0.2057,
+      "brier_score": 0.0527,
+      "threshold": 0.0496,
+      "f1_score": 0.2382,
+      "recall": 0.8204,
+      "precision": 0.1393,
+      "accuracy": 0.6742,
+      "specificity": 0.6645,
+      "confusion_matrix": {
+        "tn": 2068,
+        "fp": 1044,
+        "fn": 37,
+        "tp": 169
+      }
+    },
+    "stability_summary": {
+      "roc_auc_mean": 0.8196,
+      "roc_auc_std": 0.0,
+      "pr_auc_mean": 0.2057,
+      "pr_auc_std": 0.0,
+      "brier_score_mean": 0.1869,
+      "brier_score_std": 0.0,
+      "f1_score_mean": 0.2483,
+      "f1_score_std": 0.0,
+      "recall_mean": 0.7864,
+      "recall_std": 0.0,
+      "precision_mean": 0.1474,
+      "precision_std": 0.0,
+      "accuracy_mean": 0.7043,
+      "accuracy_std": 0.0
+    },
+    "calibration": {
+      "method": "platt",
+      "is_fitted": true,
+      "brier_score_before": 0.1869,
+      "brier_score_after": 0.0527,
+      "brier_improvement_pct": 71.79
+    },
+    "threshold": {
+      "strategy": "recall_constrained",
+      "optimal_threshold": 0.0496,
+      "metrics": {
+        "f1_score": 0.2382,
+        "recall": 0.8204,
+        "precision": 0.1393,
+        "accuracy": 0.6742
+      }
+    },
+    "runtime_seconds": 14.76,
+    "artifact_dir": "D:\\research project\\artifacts\\models\\Category_C\\catboost"
+  },
+  {
+    "model_key": "gradient_boosting_sklearn",
+    "category": "C",
+    "category_label": "Boosting \u2014 Engineered Trend Features (PROPOSAL BASELINE)",
+    "label": "Gradient Boosting (sklearn)",
+    "is_proposal_model": false,
+    "is_sequence_model": false,
+    "status": "COMPLETED",
+    "validation_metrics": {
+      "roc_auc": 0.8093,
+      "pr_auc": 0.1974,
+      "brier_score": 0.0536,
+      "threshold": 0.0397,
+      "f1_score": 0.2194,
+      "recall": 0.8447,
+      "precision": 0.1261,
+      "accuracy": 0.6269,
+      "specificity": 0.6125,
+      "confusion_matrix": {
+        "tn": 1906,
+        "fp": 1206,
+        "fn": 32,
+        "tp": 174
+      }
+    },
+    "stability_summary": {
+      "roc_auc_mean": 0.8094,
+      "roc_auc_std": 0.0001,
+      "pr_auc_mean": 0.1968,
+      "pr_auc_std": 0.001,
+      "brier_score_mean": 0.0542,
+      "brier_score_std": 0.0,
+      "f1_score_mean": 0.0,
+      "f1_score_std": 0.0,
+      "recall_mean": 0.0,
+      "recall_std": 0.0,
+      "precision_mean": 0.0,
+      "precision_std": 0.0,
+      "accuracy_mean": 0.9379,
+      "accuracy_std": 0.0
+    },
+    "calibration": {
+      "method": "platt",
+      "is_fitted": true,
+      "brier_score_before": 0.0542,
+      "brier_score_after": 0.0536,
+      "brier_improvement_pct": 1.0
+    },
+    "threshold": {
+      "strategy": "recall_constrained",
+      "optimal_threshold": 0.0397,
+      "metrics": {
+        "f1_score": 0.2191,
+        "recall": 0.8447,
+        "precision": 0.1259,
+        "accuracy": 0.6263
+      }
+    },
+    "runtime_seconds": 48.23,
+    "artifact_dir": "D:\\research project\\artifacts\\models\\Category_C\\gradient_boosting_sklearn"
+  },
+  {
+    "model_key": "lightgbm",
+    "category": "C",
+    "category_label": "Boosting \u2014 Engineered Trend Features (PROPOSAL BASELINE)",
+    "label": "LightGBM (Proposal Baseline)",
+    "is_proposal_model": true,
+    "is_sequence_model": false,
+    "status": "COMPLETED",
+    "validation_metrics": {
+      "roc_auc": 0.7896,
+      "pr_auc": 0.1792,
+      "brier_score": 0.0544,
+      "threshold": 0.0496,
+      "f1_score": 0.2102,
+      "recall": 0.8107,
+      "precision": 0.1208,
+      "accuracy": 0.6218,
+      "specificity": 0.6093,
+      "confusion_matrix": {
+        "tn": 1896,
+        "fp": 1216,
+        "fn": 39,
+        "tp": 167
+      }
+    },
+    "stability_summary": {
+      "roc_auc_mean": 0.7896,
+      "roc_auc_std": 0.0027,
+      "pr_auc_mean": 0.1831,
+      "pr_auc_std": 0.0042,
+      "brier_score_mean": 0.0974,
+      "brier_score_std": 0.0007,
+      "f1_score_mean": 0.2714,
+      "f1_score_std": 0.0108,
+      "recall_mean": 0.4207,
+      "recall_std": 0.0218,
+      "precision_mean": 0.2003,
+      "precision_std": 0.0068,
+      "accuracy_mean": 0.8599,
+      "accuracy_std": 0.0007
+    },
+    "calibration": {
+      "method": "platt",
+      "is_fitted": true,
+      "brier_score_before": 0.0971,
+      "brier_score_after": 0.0544,
+      "brier_improvement_pct": 44.02
+    },
+    "threshold": {
+      "strategy": "recall_constrained",
+      "optimal_threshold": 0.0496,
+      "metrics": {
+        "f1_score": 0.2101,
+        "recall": 0.8107,
+        "precision": 0.1207,
+        "accuracy": 0.6215
+      }
+    },
+    "runtime_seconds": 9.76,
+    "artifact_dir": "D:\\research project\\artifacts\\models\\Category_C\\lightgbm"
+  },
+  {
+    "model_key": "xgboost",
+    "category": "C",
+    "category_label": "Boosting \u2014 Engineered Trend Features (PROPOSAL BASELINE)",
+    "label": "XGBoost (Proposal Baseline)",
+    "is_proposal_model": true,
+    "is_sequence_model": false,
+    "status": "COMPLETED",
+    "validation_metrics": {
+      "roc_auc": 0.7861,
+      "pr_auc": 0.1843,
+      "brier_score": 0.0541,
+      "threshold": 0.0496,
+      "f1_score": 0.2081,
+      "recall": 0.8252,
+      "precision": 0.119,
+      "accuracy": 0.61,
+      "specificity": 0.5958,
+      "confusion_matrix": {
+        "tn": 1854,
+        "fp": 1258,
+        "fn": 36,
+        "tp": 170
+      }
+    },
+    "stability_summary": {
+      "roc_auc_mean": 0.7913,
+      "roc_auc_std": 0.0037,
+      "pr_auc_mean": 0.1862,
+      "pr_auc_std": 0.0028,
+      "brier_score_mean": 0.1164,
+      "brier_score_std": 0.0005,
+      "f1_score_mean": 0.2814,
+      "f1_score_std": 0.0046,
+      "recall_mean": 0.5307,
+      "recall_std": 0.0114,
+      "precision_mean": 0.1915,
+      "precision_std": 0.0029,
+      "accuracy_mean": 0.8317,
+      "accuracy_std": 0.0007
+    },
+    "calibration": {
+      "method": "platt",
+      "is_fitted": true,
+      "brier_score_before": 0.1167,
+      "brier_score_after": 0.0541,
+      "brier_improvement_pct": 53.66
+    },
+    "threshold": {
+      "strategy": "recall_constrained",
+      "optimal_threshold": 0.0496,
+      "metrics": {
+        "f1_score": 0.2081,
+        "recall": 0.8252,
+        "precision": 0.119,
+        "accuracy": 0.61
+      }
+    },
+    "runtime_seconds": 11.08,
+    "artifact_dir": "D:\\research project\\artifacts\\models\\Category_C\\xgboost"
+  },
+  {
+    "model_key": "mlp_tabular",
+    "category": "D",
+    "category_label": "Neural, Tabular (MLP)",
+    "label": "MLP (Engineered Features)",
+    "is_proposal_model": false,
+    "is_sequence_model": false,
+    "status": "COMPLETED",
+    "validation_metrics": {
+      "roc_auc": 0.8204,
+      "pr_auc": 0.2088,
+      "brier_score": 0.0535,
+      "threshold": 0.0595,
+      "f1_score": 0.2562,
+      "recall": 0.8058,
+      "precision": 0.1523,
+      "accuracy": 0.7095,
+      "specificity": 0.7031,
+      "confusion_matrix": {
+        "tn": 2188,
+        "fp": 924,
+        "fn": 40,
+        "tp": 166
+      }
+    },
+    "stability_summary": {
+      "roc_auc_mean": 0.8197,
+      "roc_auc_std": 0.0007,
+      "pr_auc_mean": 0.2115,
+      "pr_auc_std": 0.0023,
+      "brier_score_mean": 0.2023,
+      "brier_score_std": 0.0019,
+      "f1_score_mean": 0.2443,
+      "f1_score_std": 0.004,
+      "recall_mean": 0.8333,
+      "recall_std": 0.0061,
+      "precision_mean": 0.1432,
+      "precision_std": 0.0027,
+      "accuracy_mean": 0.6798,
+      "accuracy_std": 0.0077
+    },
+    "calibration": {
+      "method": "platt",
+      "is_fitted": true,
+      "brier_score_before": 0.2027,
+      "brier_score_after": 0.0535,
+      "brier_improvement_pct": 73.62
+    },
+    "threshold": {
+      "strategy": "recall_constrained",
+      "optimal_threshold": 0.0595,
+      "metrics": {
+        "f1_score": 0.2562,
+        "recall": 0.8058,
+        "precision": 0.1523,
+        "accuracy": 0.7095
+      }
+    },
+    "runtime_seconds": 12.18,
+    "artifact_dir": "D:\\research project\\artifacts\\models\\Category_D\\mlp_tabular"
+  },
+  {
+    "model_key": "cnn_1d",
+    "category": "E",
+    "category_label": "Deep Sequence Models (PyTorch, masked)",
+    "label": "1D-CNN",
+    "is_proposal_model": false,
+    "is_sequence_model": true,
+    "status": "COMPLETED",
+    "validation_metrics": {
+      "roc_auc": 0.8154,
+      "pr_auc": 0.2175,
+      "brier_score": 0.0532,
+      "threshold": 0.0496,
+      "f1_score": 0.2239,
+      "recall": 0.8155,
+      "precision": 0.1297,
+      "accuracy": 0.6489,
+      "specificity": 0.6379,
+      "confusion_matrix": {
+        "tn": 1985,
+        "fp": 1127,
+        "fn": 38,
+        "tp": 168
+      }
+    },
+    "stability_summary": {
+      "roc_auc_mean": 0.8141,
+      "roc_auc_std": 0.001,
+      "pr_auc_mean": 0.2106,
+      "pr_auc_std": 0.0051,
+      "brier_score_mean": 0.1949,
+      "brier_score_std": 0.0024,
+      "f1_score_mean": 0.2351,
+      "f1_score_std": 0.004,
+      "recall_mean": 0.7832,
+      "recall_std": 0.0061,
+      "precision_mean": 0.1383,
+      "precision_std": 0.0026,
+      "accuracy_mean": 0.6836,
+      "accuracy_std": 0.0049
+    },
+    "calibration": {
+      "method": "platt",
+      "is_fitted": true,
+      "brier_score_before": 0.193,
+      "brier_score_after": 0.0532,
+      "brier_improvement_pct": 72.44
+    },
+    "threshold": {
+      "strategy": "recall_constrained",
+      "optimal_threshold": 0.0496,
+      "metrics": {
+        "f1_score": 0.2239,
+        "recall": 0.8155,
+        "precision": 0.1297,
+        "accuracy": 0.6489
+      }
+    },
+    "runtime_seconds": 12.17,
+    "artifact_dir": "D:\\research project\\artifacts\\models\\Category_E\\cnn_1d"
+  },
+  {
+    "model_key": "bigru",
+    "category": "E",
+    "category_label": "Deep Sequence Models (PyTorch, masked)",
+    "label": "BiGRU",
+    "is_proposal_model": false,
+    "is_sequence_model": true,
+    "status": "COMPLETED",
+    "validation_metrics": {
+      "roc_auc": 0.8244,
+      "pr_auc": 0.2171,
+      "brier_score": 0.053,
+      "threshold": 0.0496,
+      "f1_score": 0.2387,
+      "recall": 0.8204,
+      "precision": 0.1397,
+      "accuracy": 0.6751,
+      "specificity": 0.6655,
+      "confusion_matrix": {
+        "tn": 2071,
+        "fp": 1041,
+        "fn": 37,
+        "tp": 169
+      }
+    },
+    "stability_summary": {
+      "roc_auc_mean": 0.8247,
+      "roc_auc_std": 0.0004,
+      "pr_auc_mean": 0.2166,
+      "pr_auc_std": 0.0015,
+      "brier_score_mean": 0.1854,
+      "brier_score_std": 0.001,
+      "f1_score_mean": 0.2572,
+      "f1_score_std": 0.0011,
+      "recall_mean": 0.7654,
+      "recall_std": 0.0023,
+      "precision_mean": 0.1546,
+      "precision_std": 0.0008,
+      "accuracy_mean": 0.7255,
+      "accuracy_std": 0.0015
+    },
+    "calibration": {
+      "method": "platt",
+      "is_fitted": true,
+      "brier_score_before": 0.1839,
+      "brier_score_after": 0.053,
+      "brier_improvement_pct": 71.16
+    },
+    "threshold": {
+      "strategy": "recall_constrained",
+      "optimal_threshold": 0.0496,
+      "metrics": {
+        "f1_score": 0.2387,
+        "recall": 0.8204,
+        "precision": 0.1397,
+        "accuracy": 0.6751
+      }
+    },
+    "runtime_seconds": 25.81,
+    "artifact_dir": "D:\\research project\\artifacts\\models\\Category_E\\bigru"
+  },
+  {
+    "model_key": "bilstm",
+    "category": "E",
+    "category_label": "Deep Sequence Models (PyTorch, masked)",
+    "label": "BiLSTM",
+    "is_proposal_model": false,
+    "is_sequence_model": true,
+    "status": "COMPLETED",
+    "validation_metrics": {
+      "roc_auc": 0.8225,
+      "pr_auc": 0.2145,
+      "brier_score": 0.053,
+      "threshold": 0.0496,
+      "f1_score": 0.2345,
+      "recall": 0.8252,
+      "precision": 0.1367,
+      "accuracy": 0.6655,
+      "specificity": 0.6549,
+      "confusion_matrix": {
+        "tn": 2038,
+        "fp": 1074,
+        "fn": 36,
+        "tp": 170
+      }
+    },
+    "stability_summary": {
+      "roc_auc_mean": 0.8229,
+      "roc_auc_std": 0.0004,
+      "pr_auc_mean": 0.2152,
+      "pr_auc_std": 0.0007,
+      "brier_score_mean": 0.1875,
+      "brier_score_std": 0.0016,
+      "f1_score_mean": 0.2525,
+      "f1_score_std": 0.0015,
+      "recall_mean": 0.7767,
+      "recall_std": 0.004,
+      "precision_mean": 0.1507,
+      "precision_std": 0.0012,
+      "accuracy_mean": 0.7144,
+      "accuracy_std": 0.0036
+    },
+    "calibration": {
+      "method": "platt",
+      "is_fitted": true,
+      "brier_score_before": 0.1866,
+      "brier_score_after": 0.053,
+      "brier_improvement_pct": 71.59
+    },
+    "threshold": {
+      "strategy": "recall_constrained",
+      "optimal_threshold": 0.0496,
+      "metrics": {
+        "f1_score": 0.2345,
+        "recall": 0.8252,
+        "precision": 0.1367,
+        "accuracy": 0.6655
+      }
+    },
+    "runtime_seconds": 29.51,
+    "artifact_dir": "D:\\research project\\artifacts\\models\\Category_E\\bilstm"
+  },
+  {
+    "model_key": "cnn_lstm",
+    "category": "E",
+    "category_label": "Deep Sequence Models (PyTorch, masked)",
+    "label": "CNN-LSTM Hybrid",
+    "is_proposal_model": false,
+    "is_sequence_model": true,
+    "status": "COMPLETED",
+    "validation_metrics": {
+      "roc_auc": 0.824,
+      "pr_auc": 0.2189,
+      "brier_score": 0.0526,
+      "threshold": 0.0496,
+      "f1_score": 0.229,
+      "recall": 0.8058,
+      "precision": 0.1334,
+      "accuracy": 0.6631,
+      "specificity": 0.6536,
+      "confusion_matrix": {
+        "tn": 2034,
+        "fp": 1078,
+        "fn": 40,
+        "tp": 166
+      }
+    },
+    "stability_summary": {
+      "roc_auc_mean": 0.8236,
+      "roc_auc_std": 0.0007,
+      "pr_auc_mean": 0.215,
+      "pr_auc_std": 0.0031,
+      "brier_score_mean": 0.1881,
+      "brier_score_std": 0.0102,
+      "f1_score_mean": 0.2558,
+      "f1_score_std": 0.0154,
+      "recall_mean": 0.7913,
+      "recall_std": 0.0105,
+      "precision_mean": 0.1527,
+      "precision_std": 0.0113,
+      "accuracy_mean": 0.7124,
+      "accuracy_std": 0.0277
+    },
+    "calibration": {
+      "method": "platt",
+      "is_fitted": true,
+      "brier_score_before": 0.2022,
+      "brier_score_after": 0.0526,
+      "brier_improvement_pct": 73.97
+    },
+    "threshold": {
+      "strategy": "recall_constrained",
+      "optimal_threshold": 0.0496,
+      "metrics": {
+        "f1_score": 0.229,
+        "recall": 0.8058,
+        "precision": 0.1334,
+        "accuracy": 0.6631
+      }
+    },
+    "runtime_seconds": 19.52,
+    "artifact_dir": "D:\\research project\\artifacts\\models\\Category_E\\cnn_lstm"
+  },
+  {
+    "model_key": "gru",
+    "category": "E",
+    "category_label": "Deep Sequence Models (PyTorch, masked)",
+    "label": "GRU (Proposal Model)",
+    "is_proposal_model": true,
+    "is_sequence_model": true,
+    "status": "COMPLETED",
+    "validation_metrics": {
+      "roc_auc": 0.8249,
+      "pr_auc": 0.2085,
+      "brier_score": 0.0533,
+      "threshold": 0.0496,
+      "f1_score": 0.2415,
+      "recall": 0.8301,
+      "precision": 0.1413,
+      "accuracy": 0.6763,
+      "specificity": 0.6661,
+      "confusion_matrix": {
+        "tn": 2073,
+        "fp": 1039,
+        "fn": 35,
+        "tp": 171
+      }
+    },
+    "stability_summary": {
+      "roc_auc_mean": 0.8246,
+      "roc_auc_std": 0.0004,
+      "pr_auc_mean": 0.2082,
+      "pr_auc_std": 0.0017,
+      "brier_score_mean": 0.1845,
+      "brier_score_std": 0.0045,
+      "f1_score_mean": 0.2593,
+      "f1_score_std": 0.0052,
+      "recall_mean": 0.7783,
+      "recall_std": 0.0061,
+      "precision_mean": 0.1556,
+      "precision_std": 0.0039,
+      "accuracy_mean": 0.7237,
+      "accuracy_std": 0.009
+    },
+    "calibration": {
+      "method": "platt",
+      "is_fitted": true,
+      "brier_score_before": 0.1907,
+      "brier_score_after": 0.0533,
+      "brier_improvement_pct": 72.06
+    },
+    "threshold": {
+      "strategy": "recall_constrained",
+      "optimal_threshold": 0.0496,
+      "metrics": {
+        "f1_score": 0.2415,
+        "recall": 0.8301,
+        "precision": 0.1413,
+        "accuracy": 0.6763
+      }
+    },
+    "runtime_seconds": 38.84,
+    "artifact_dir": "D:\\research project\\artifacts\\models\\Category_E\\gru"
+  },
+  {
+    "model_key": "gru_attention",
+    "category": "E",
+    "category_label": "Deep Sequence Models (PyTorch, masked)",
+    "label": "GRU + Attention",
+    "is_proposal_model": false,
+    "is_sequence_model": true,
+    "status": "COMPLETED",
+    "validation_metrics": {
+      "roc_auc": 0.8191,
+      "pr_auc": 0.2083,
+      "brier_score": 0.0534,
+      "threshold": 0.0496,
+      "f1_score": 0.2306,
+      "recall": 0.8058,
+      "precision": 0.1345,
+      "accuracy": 0.6661,
+      "specificity": 0.6568,
+      "confusion_matrix": {
+        "tn": 2044,
+        "fp": 1068,
+        "fn": 40,
+        "tp": 166
+      }
+    },
+    "stability_summary": {
+      "roc_auc_mean": 0.819,
+      "roc_auc_std": 0.0004,
+      "pr_auc_mean": 0.2061,
+      "pr_auc_std": 0.0024,
+      "brier_score_mean": 0.1877,
+      "brier_score_std": 0.0033,
+      "f1_score_mean": 0.2513,
+      "f1_score_std": 0.0029,
+      "recall_mean": 0.767,
+      "recall_std": 0.0069,
+      "precision_mean": 0.1503,
+      "precision_std": 0.0023,
+      "accuracy_mean": 0.7162,
+      "accuracy_std": 0.0067
+    },
+    "calibration": {
+      "method": "platt",
+      "is_fitted": true,
+      "brier_score_before": 0.1921,
+      "brier_score_after": 0.0534,
+      "brier_improvement_pct": 72.22
+    },
+    "threshold": {
+      "strategy": "recall_constrained",
+      "optimal_threshold": 0.0496,
+      "metrics": {
+        "f1_score": 0.2306,
+        "recall": 0.8058,
+        "precision": 0.1345,
+        "accuracy": 0.6661
+      }
+    },
+    "runtime_seconds": 40.89,
+    "artifact_dir": "D:\\research project\\artifacts\\models\\Category_E\\gru_attention"
+  },
+  {
+    "model_key": "lstm",
+    "category": "E",
+    "category_label": "Deep Sequence Models (PyTorch, masked)",
+    "label": "LSTM (Proposal Model)",
+    "is_proposal_model": true,
+    "is_sequence_model": true,
+    "status": "COMPLETED",
+    "validation_metrics": {
+      "roc_auc": 0.8222,
+      "pr_auc": 0.2075,
+      "brier_score": 0.0532,
+      "threshold": 0.0496,
+      "f1_score": 0.2398,
+      "recall": 0.8155,
+      "precision": 0.1406,
+      "accuracy": 0.679,
+      "specificity": 0.67,
+      "confusion_matrix": {
+        "tn": 2085,
+        "fp": 1027,
+        "fn": 38,
+        "tp": 168
+      }
+    },
+    "stability_summary": {
+      "roc_auc_mean": 0.8219,
+      "roc_auc_std": 0.0008,
+      "pr_auc_mean": 0.2071,
+      "pr_auc_std": 0.0022,
+      "brier_score_mean": 0.1864,
+      "brier_score_std": 0.0034,
+      "f1_score_mean": 0.2554,
+      "f1_score_std": 0.0037,
+      "recall_mean": 0.7702,
+      "recall_std": 0.0046,
+      "precision_mean": 0.1531,
+      "precision_std": 0.0028,
+      "accuracy_mean": 0.721,
+      "accuracy_std": 0.0071
+    },
+    "calibration": {
+      "method": "platt",
+      "is_fitted": true,
+      "brier_score_before": 0.191,
+      "brier_score_after": 0.0532,
+      "brier_improvement_pct": 72.15
+    },
+    "threshold": {
+      "strategy": "recall_constrained",
+      "optimal_threshold": 0.0496,
+      "metrics": {
+        "f1_score": 0.2398,
+        "recall": 0.8155,
+        "precision": 0.1406,
+        "accuracy": 0.679
+      }
+    },
+    "runtime_seconds": 46.66,
+    "artifact_dir": "D:\\research project\\artifacts\\models\\Category_E\\lstm"
+  },
+  {
+    "model_key": "lstm_attention",
+    "category": "E",
+    "category_label": "Deep Sequence Models (PyTorch, masked)",
+    "label": "LSTM + Attention",
+    "is_proposal_model": false,
+    "is_sequence_model": true,
+    "status": "COMPLETED",
+    "validation_metrics": {
+      "roc_auc": 0.8179,
+      "pr_auc": 0.2088,
+      "brier_score": 0.0534,
+      "threshold": 0.0496,
+      "f1_score": 0.2341,
+      "recall": 0.8155,
+      "precision": 0.1367,
+      "accuracy": 0.6688,
+      "specificity": 0.6591,
+      "confusion_matrix": {
+        "tn": 2051,
+        "fp": 1061,
+        "fn": 38,
+        "tp": 168
+      }
+    },
+    "stability_summary": {
+      "roc_auc_mean": 0.8173,
+      "roc_auc_std": 0.0005,
+      "pr_auc_mean": 0.2086,
+      "pr_auc_std": 0.0007,
+      "brier_score_mean": 0.1902,
+      "brier_score_std": 0.0031,
+      "f1_score_mean": 0.2473,
+      "f1_score_std": 0.0007,
+      "recall_mean": 0.7702,
+      "recall_std": 0.0083,
+      "precision_mean": 0.1474,
+      "precision_std": 0.0007,
+      "accuracy_mean": 0.709,
+      "accuracy_std": 0.0039
+    },
+    "calibration": {
+      "method": "platt",
+      "is_fitted": true,
+      "brier_score_before": 0.1941,
+      "brier_score_after": 0.0534,
+      "brier_improvement_pct": 72.51
+    },
+    "threshold": {
+      "strategy": "recall_constrained",
+      "optimal_threshold": 0.0496,
+      "metrics": {
+        "f1_score": 0.2341,
+        "recall": 0.8155,
+        "precision": 0.1367,
+        "accuracy": 0.6688
+      }
+    },
+    "runtime_seconds": 48.24,
+    "artifact_dir": "D:\\research project\\artifacts\\models\\Category_E\\lstm_attention"
+  },
+  {
+    "model_key": "tcn",
+    "category": "E",
+    "category_label": "Deep Sequence Models (PyTorch, masked)",
+    "label": "Temporal Convolutional Network",
+    "is_proposal_model": false,
+    "is_sequence_model": true,
+    "status": "COMPLETED",
+    "validation_metrics": {
+      "roc_auc": 0.8226,
+      "pr_auc": 0.2086,
+      "brier_score": 0.0534,
+      "threshold": 0.0496,
+      "f1_score": 0.2362,
+      "recall": 0.8398,
+      "precision": 0.1374,
+      "accuracy": 0.6627,
+      "specificity": 0.651,
+      "confusion_matrix": {
+        "tn": 2026,
+        "fp": 1086,
+        "fn": 33,
+        "tp": 173
+      }
+    },
+    "stability_summary": {
+      "roc_auc_mean": 0.8213,
+      "roc_auc_std": 0.0017,
+      "pr_auc_mean": 0.2025,
+      "pr_auc_std": 0.0045,
+      "brier_score_mean": 0.1866,
+      "brier_score_std": 0.0125,
+      "f1_score_mean": 0.2575,
+      "f1_score_std": 0.0129,
+      "recall_mean": 0.7961,
+      "recall_std": 0.0248,
+      "precision_mean": 0.1538,
+      "precision_std": 0.0103,
+      "accuracy_mean": 0.7134,
+      "accuracy_std": 0.0271
+    },
+    "calibration": {
+      "method": "platt",
+      "is_fitted": true,
+      "brier_score_before": 0.1974,
+      "brier_score_after": 0.0534,
+      "brier_improvement_pct": 72.98
+    },
+    "threshold": {
+      "strategy": "recall_constrained",
+      "optimal_threshold": 0.0496,
+      "metrics": {
+        "f1_score": 0.2362,
+        "recall": 0.8398,
+        "precision": 0.1374,
+        "accuracy": 0.6627
+      }
+    },
+    "runtime_seconds": 36.07,
+    "artifact_dir": "D:\\research project\\artifacts\\models\\Category_E\\tcn"
+  },
+  {
+    "model_key": "transformer_enc",
+    "category": "E",
+    "category_label": "Deep Sequence Models (PyTorch, masked)",
+    "label": "Transformer Encoder",
+    "is_proposal_model": false,
+    "is_sequence_model": true,
+    "status": "COMPLETED",
+    "validation_metrics": {
+      "roc_auc": 0.8182,
+      "pr_auc": 0.215,
+      "brier_score": 0.0528,
+      "threshold": 0.0496,
+      "f1_score": 0.2274,
+      "recall": 0.8301,
+      "precision": 0.1317,
+      "accuracy": 0.6498,
+      "specificity": 0.6379,
+      "confusion_matrix": {
+        "tn": 1985,
+        "fp": 1127,
+        "fn": 35,
+        "tp": 171
+      }
+    },
+    "stability_summary": {
+      "roc_auc_mean": 0.817,
+      "roc_auc_std": 0.0013,
+      "pr_auc_mean": 0.2159,
+      "pr_auc_std": 0.0008,
+      "brier_score_mean": 0.195,
+      "brier_score_std": 0.004,
+      "f1_score_mean": 0.2406,
+      "f1_score_std": 0.0057,
+      "recall_mean": 0.7994,
+      "recall_std": 0.015,
+      "precision_mean": 0.1417,
+      "precision_std": 0.0044,
+      "accuracy_mean": 0.6864,
+      "accuracy_std": 0.015
+    },
+    "calibration": {
+      "method": "platt",
+      "is_fitted": true,
+      "brier_score_before": 0.1982,
+      "brier_score_after": 0.0528,
+      "brier_improvement_pct": 73.38
+    },
+    "threshold": {
+      "strategy": "recall_constrained",
+      "optimal_threshold": 0.0496,
+      "metrics": {
+        "f1_score": 0.2274,
+        "recall": 0.8301,
+        "precision": 0.1317,
+        "accuracy": 0.6498
+      }
+    },
+    "runtime_seconds": 65.2,
+    "artifact_dir": "D:\\research project\\artifacts\\models\\Category_E\\transformer_enc"
+  },
+  {
+    "model_key": "vanilla_rnn",
+    "category": "E",
+    "category_label": "Deep Sequence Models (PyTorch, masked)",
+    "label": "Vanilla RNN",
+    "is_proposal_model": false,
+    "is_sequence_model": true,
+    "status": "COMPLETED",
+    "validation_metrics": {
+      "roc_auc": 0.8235,
+      "pr_auc": 0.2082,
+      "brier_score": 0.0532,
+      "threshold": 0.0496,
+      "f1_score": 0.2456,
+      "recall": 0.8155,
+      "precision": 0.1446,
+      "accuracy": 0.689,
+      "specificity": 0.6806,
+      "confusion_matrix": {
+        "tn": 2118,
+        "fp": 994,
+        "fn": 38,
+        "tp": 168
+      }
+    },
+    "stability_summary": {
+      "roc_auc_mean": 0.824,
+      "roc_auc_std": 0.0004,
+      "pr_auc_mean": 0.208,
+      "pr_auc_std": 0.0014,
+      "brier_score_mean": 0.186,
+      "brier_score_std": 0.0007,
+      "f1_score_mean": 0.2628,
+      "f1_score_std": 0.0022,
+      "recall_mean": 0.7735,
+      "recall_std": 0.0046,
+      "precision_mean": 0.1583,
+      "precision_std": 0.0014,
+      "accuracy_mean": 0.7306,
+      "accuracy_std": 0.0015
+    },
+    "calibration": {
+      "method": "platt",
+      "is_fitted": true,
+      "brier_score_before": 0.1866,
+      "brier_score_after": 0.0532,
+      "brier_improvement_pct": 71.52
+    },
+    "threshold": {
+      "strategy": "recall_constrained",
+      "optimal_threshold": 0.0496,
+      "metrics": {
+        "f1_score": 0.2456,
+        "recall": 0.8155,
+        "precision": 0.1446,
+        "accuracy": 0.689
+      }
+    },
+    "runtime_seconds": 14.31,
+    "artifact_dir": "D:\\research project\\artifacts\\models\\Category_E\\vanilla_rnn"
+  },
+  {
+    "model_key": "static_lightgbm",
+    "category": "F",
+    "category_label": "Static-Snapshot Variants (value-of-trajectory study)",
+    "label": "LightGBM (Static Snapshot)",
+    "is_proposal_model": false,
+    "is_sequence_model": false,
+    "status": "COMPLETED",
+    "validation_metrics": {
+      "roc_auc": 0.8009,
+      "pr_auc": 0.2078,
+      "brier_score": 0.0532,
+      "threshold": 0.0496,
+      "f1_score": 0.2221,
+      "recall": 0.8107,
+      "precision": 0.1287,
+      "accuracy": 0.6474,
+      "specificity": 0.6366,
+      "confusion_matrix": {
+        "tn": 1981,
+        "fp": 1131,
+        "fn": 39,
+        "tp": 167
+      }
+    },
+    "stability_summary": {
+      "roc_auc_mean": 0.8009,
+      "roc_auc_std": 0.0,
+      "pr_auc_mean": 0.2078,
+      "pr_auc_std": 0.0,
+      "brier_score_mean": 0.1809,
+      "brier_score_std": 0.0,
+      "f1_score_mean": 0.2461,
+      "f1_score_std": 0.0,
+      "recall_mean": 0.7282,
+      "recall_std": 0.0,
+      "precision_mean": 0.1481,
+      "precision_std": 0.0,
+      "accuracy_mean": 0.723,
+      "accuracy_std": 0.0
+    },
+    "calibration": {
+      "method": "platt",
+      "is_fitted": true,
+      "brier_score_before": 0.1809,
+      "brier_score_after": 0.0532,
+      "brier_improvement_pct": 70.57
+    },
+    "threshold": {
+      "strategy": "recall_constrained",
+      "optimal_threshold": 0.0496,
+      "metrics": {
+        "f1_score": 0.2221,
+        "recall": 0.8107,
+        "precision": 0.1287,
+        "accuracy": 0.6474
+      }
+    },
+    "runtime_seconds": 4.33,
+    "artifact_dir": "D:\\research project\\artifacts\\models\\Category_F\\static_lightgbm"
+  },
+  {
+    "model_key": "static_logistic",
+    "category": "F",
+    "category_label": "Static-Snapshot Variants (value-of-trajectory study)",
+    "label": "Logistic Regression (Static Snapshot)",
+    "is_proposal_model": false,
+    "is_sequence_model": false,
+    "status": "COMPLETED",
+    "validation_metrics": {
+      "roc_auc": 0.8146,
+      "pr_auc": 0.2062,
+      "brier_score": 0.0537,
+      "threshold": 0.0595,
+      "f1_score": 0.2544,
+      "recall": 0.8107,
+      "precision": 0.1509,
+      "accuracy": 0.7049,
+      "specificity": 0.6979,
+      "confusion_matrix": {
+        "tn": 2172,
+        "fp": 940,
+        "fn": 39,
+        "tp": 167
+      }
+    },
+    "stability_summary": {
+      "roc_auc_mean": 0.8146,
+      "roc_auc_std": 0.0,
+      "pr_auc_mean": 0.2062,
+      "pr_auc_std": 0.0,
+      "brier_score_mean": 0.1923,
+      "brier_score_std": 0.0,
+      "f1_score_mean": 0.2528,
+      "f1_score_std": 0.0,
+      "recall_mean": 0.8107,
+      "recall_std": 0.0,
+      "precision_mean": 0.1498,
+      "precision_std": 0.0,
+      "accuracy_mean": 0.7025,
+      "accuracy_std": 0.0
+    },
+    "calibration": {
+      "method": "platt",
+      "is_fitted": true,
+      "brier_score_before": 0.1923,
+      "brier_score_after": 0.0537,
+      "brier_improvement_pct": 72.08
+    },
+    "threshold": {
+      "strategy": "recall_constrained",
+      "optimal_threshold": 0.0595,
+      "metrics": {
+        "f1_score": 0.2544,
+        "recall": 0.8107,
+        "precision": 0.1509,
+        "accuracy": 0.7049
+      }
+    },
+    "runtime_seconds": 1.99,
+    "artifact_dir": "D:\\research project\\artifacts\\models\\Category_F\\static_logistic"
+  }
+]

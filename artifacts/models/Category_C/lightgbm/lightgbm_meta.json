@@ -1,0 +1,24 @@
+{
+  "model_key": "lightgbm",
+  "category": "C",
+  "category_label": "Boosting \u2014 Engineered Trend Features (PROPOSAL BASELINE)",
+  "label": "LightGBM (Proposal Baseline)",
+  "is_proposal_model": true,
+  "is_sequence_model": false,
+  "is_fitted": true,
+  "fit_time_seconds": 0.78,
+  "params": {
+    "n_estimators": 300,
+    "learning_rate": 0.05,
+    "num_leaves": 31,
+    "max_depth": -1,
+    "subsample": 0.8,
+    "colsample_bytree": 0.8,
+    "reg_alpha": 0.1,
+    "reg_lambda": 1.0,
+    "class_weight": "balanced",
+    "random_state": 42,
+    "verbosity": -1,
+    "seed": 42
+  }
+}

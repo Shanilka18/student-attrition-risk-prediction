@@ -1,0 +1,19 @@
+{
+  "model_key": "logistic_elasticnet",
+  "category": "A",
+  "category_label": "Linear & Simple Baselines (tabular)",
+  "label": "Logistic Regression (ElasticNet)",
+  "is_proposal_model": false,
+  "is_sequence_model": false,
+  "is_fitted": true,
+  "fit_time_seconds": 2.83,
+  "params": {
+    "C": 0.0745934328572655,
+    "l1_ratio": 0.9507143064099162,
+    "max_iter": 500,
+    "solver": "saga",
+    "class_weight": "balanced",
+    "random_state": 42,
+    "seed": 42
+  }
+}

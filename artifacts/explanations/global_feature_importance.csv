@@ -1,0 +1,23 @@
+feature_name,display_name,domain,mean_abs_shap,relative_importance_pct,rank
+last_attendance_pct,Latest Attendance Rate,Engagement,0.2059,16.75,1
+delay_mean,Average Assignment Delay,Behavioral,0.2042,16.61,2
+attendance_mean,Historical Attendance Mean,Engagement,0.1851,15.05,3
+last_assignment_delay_days,Latest Submission Delay,Behavioral,0.1769,14.39,4
+delay_max,Maximum Assignment Delay,Behavioral,0.0799,6.5,5
+cumulative_gpa,Cumulative Grade Point Average (cGPA),Academic,0.0538,4.38,6
+exam_mark_mean,Historical Exam Average,Academic,0.0513,4.17,7
+last_exam_marks,Latest Exam Average,Academic,0.0491,3.99,8
+last_gpa,Latest Semester GPA,Academic,0.0464,3.77,9
+sems_below_att_65,Semesters Below 65% Attendance,Engagement,0.0374,3.05,10
+gpa_rolling_mean,Recent GPA Rolling Mean,Academic,0.0333,2.71,11
+gpa_slope,GPA Trajectory Slope,Trend,0.029,2.36,12
+attendance_slope,Attendance Trajectory,Trend,0.0197,1.6,13
+delay_trend,Assignment Delay Trend,Trend,0.013,1.06,14
+exam_mark_slope,Exam Mark Trajectory,Trend,0.0103,0.84,15
+attendance_variance,Attendance Fluctuation (Variance),Consistency,0.0075,0.61,16
+last_late_assignments_count,Latest Late Submissions,Behavioral,0.007,0.57,17
+late_count_total,Cumulative Late Assignments,Behavioral,0.007,0.57,18
+gpa_max_drop,Single-Semester Worst GPA Drop,Shock,0.0052,0.43,19
+consecutive_declines,Consecutive Declining Semesters,Trend,0.0025,0.21,20
+sems_below_gpa_2,Semesters Below GPA 2.0 (Probation),Probation,0.0024,0.19,21
+gpa_volatility,GPA Volatility (Std Dev),Consistency,0.0023,0.18,22

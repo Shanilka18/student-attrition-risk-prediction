@@ -1,0 +1,16 @@
+{
+  "model_key": "adaboost",
+  "category": "C",
+  "category_label": "Boosting \u2014 Engineered Trend Features (PROPOSAL BASELINE)",
+  "label": "AdaBoost",
+  "is_proposal_model": false,
+  "is_sequence_model": false,
+  "is_fitted": true,
+  "fit_time_seconds": 6.72,
+  "params": {
+    "n_estimators": 306,
+    "learning_rate": 0.23852347578447078,
+    "random_state": 42,
+    "seed": 42
+  }
+}

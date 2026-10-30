@@ -1,0 +1,88 @@
+{
+  "seeds": [
+    42,
+    123,
+    999
+  ],
+  "stability_summary": {
+    "roc_auc_mean": 0.8221,
+    "roc_auc_std": 0.0,
+    "pr_auc_mean": 0.203,
+    "pr_auc_std": 0.0,
+    "brier_score_mean": 0.0539,
+    "brier_score_std": 0.0,
+    "f1_score_mean": 0.0092,
+    "f1_score_std": 0.0,
+    "recall_mean": 0.0049,
+    "recall_std": 0.0,
+    "precision_mean": 0.0909,
+    "precision_std": 0.0,
+    "accuracy_mean": 0.9352,
+    "accuracy_std": 0.0
+  },
+  "individual_runs": [
+    {
+      "seed": 42,
+      "fit_time_seconds": 0.81,
+      "metrics": {
+        "roc_auc": 0.8221,
+        "pr_auc": 0.203,
+        "brier_score": 0.0539,
+        "threshold": 0.5,
+        "f1_score": 0.0092,
+        "recall": 0.0049,
+        "precision": 0.0909,
+        "accuracy": 0.9352,
+        "specificity": 0.9968,
+        "confusion_matrix": {
+          "tn": 3102,
+          "fp": 10,
+          "fn": 205,
+          "tp": 1
+        }
+      }
+    },
+    {
+      "seed": 123,
+      "fit_time_seconds": 0.76,
+      "metrics": {
+        "roc_auc": 0.8221,
+        "pr_auc": 0.203,
+        "brier_score": 0.0539,
+        "threshold": 0.5,
+        "f1_score": 0.0092,
+        "recall": 0.0049,
+        "precision": 0.0909,
+        "accuracy": 0.9352,
+        "specificity": 0.9968,
+        "confusion_matrix": {
+          "tn": 3102,
+          "fp": 10,
+          "fn": 205,
+          "tp": 1
+        }
+      }
+    },
+    {
+      "seed": 999,
+      "fit_time_seconds": 0.79,
+      "metrics": {
+        "roc_auc": 0.8221,
+        "pr_auc": 0.203,
+        "brier_score": 0.0539,
+        "threshold": 0.5,
+        "f1_score": 0.0092,
+        "recall": 0.0049,
+        "precision": 0.0909,
+        "accuracy": 0.9352,
+        "specificity": 0.9968,
+        "confusion_matrix": {
+          "tn": 3102,
+          "fp": 10,
+          "fn": 205,
+          "tp": 1
+        }
+      }
+    }
+  ]
+}

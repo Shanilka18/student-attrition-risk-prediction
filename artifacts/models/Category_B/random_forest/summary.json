@@ -1,0 +1,61 @@
+{
+  "model_key": "random_forest",
+  "category": "B",
+  "category_label": "Tree & Bagging Ensembles (tabular)",
+  "label": "Random Forest",
+  "is_proposal_model": false,
+  "is_sequence_model": false,
+  "status": "COMPLETED",
+  "validation_metrics": {
+    "roc_auc": 0.8157,
+    "pr_auc": 0.2058,
+    "brier_score": 0.053,
+    "threshold": 0.0496,
+    "f1_score": 0.2303,
+    "recall": 0.8301,
+    "precision": 0.1337,
+    "accuracy": 0.6555,
+    "specificity": 0.644,
+    "confusion_matrix": {
+      "tn": 2004,
+      "fp": 1108,
+      "fn": 35,
+      "tp": 171
+    }
+  },
+  "stability_summary": {
+    "roc_auc_mean": 0.8164,
+    "roc_auc_std": 0.0008,
+    "pr_auc_mean": 0.2076,
+    "pr_auc_std": 0.0016,
+    "brier_score_mean": 0.1716,
+    "brier_score_std": 0.0002,
+    "f1_score_mean": 0.2652,
+    "f1_score_std": 0.0027,
+    "recall_mean": 0.7443,
+    "recall_std": 0.006,
+    "precision_mean": 0.1614,
+    "precision_std": 0.0017,
+    "accuracy_mean": 0.7439,
+    "accuracy_std": 0.0016
+  },
+  "calibration": {
+    "method": "platt",
+    "is_fitted": true,
+    "brier_score_before": 0.1717,
+    "brier_score_after": 0.053,
+    "brier_improvement_pct": 69.1
+  },
+  "threshold": {
+    "strategy": "recall_constrained",
+    "optimal_threshold": 0.0496,
+    "metrics": {
+      "f1_score": 0.2303,
+      "recall": 0.8301,
+      "precision": 0.1337,
+      "accuracy": 0.6555
+    }
+  },
+  "runtime_seconds": 13.68,
+  "artifact_dir": "D:\\research project\\artifacts\\models\\Category_B\\random_forest"
+}

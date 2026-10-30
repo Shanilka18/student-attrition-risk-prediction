@@ -1,0 +1,61 @@
+{
+  "model_key": "vanilla_rnn",
+  "category": "E",
+  "category_label": "Deep Sequence Models (PyTorch, masked)",
+  "label": "Vanilla RNN",
+  "is_proposal_model": false,
+  "is_sequence_model": true,
+  "status": "COMPLETED",
+  "validation_metrics": {
+    "roc_auc": 0.8235,
+    "pr_auc": 0.2082,
+    "brier_score": 0.0532,
+    "threshold": 0.0496,
+    "f1_score": 0.2456,
+    "recall": 0.8155,
+    "precision": 0.1446,
+    "accuracy": 0.689,
+    "specificity": 0.6806,
+    "confusion_matrix": {
+      "tn": 2118,
+      "fp": 994,
+      "fn": 38,
+      "tp": 168
+    }
+  },
+  "stability_summary": {
+    "roc_auc_mean": 0.824,
+    "roc_auc_std": 0.0004,
+    "pr_auc_mean": 0.208,
+    "pr_auc_std": 0.0014,
+    "brier_score_mean": 0.186,
+    "brier_score_std": 0.0007,
+    "f1_score_mean": 0.2628,
+    "f1_score_std": 0.0022,
+    "recall_mean": 0.7735,
+    "recall_std": 0.0046,
+    "precision_mean": 0.1583,
+    "precision_std": 0.0014,
+    "accuracy_mean": 0.7306,
+    "accuracy_std": 0.0015
+  },
+  "calibration": {
+    "method": "platt",
+    "is_fitted": true,
+    "brier_score_before": 0.1866,
+    "brier_score_after": 0.0532,
+    "brier_improvement_pct": 71.52
+  },
+  "threshold": {
+    "strategy": "recall_constrained",
+    "optimal_threshold": 0.0496,
+    "metrics": {
+      "f1_score": 0.2456,
+      "recall": 0.8155,
+      "precision": 0.1446,
+      "accuracy": 0.689
+    }
+  },
+  "runtime_seconds": 14.31,
+  "artifact_dir": "D:\\research project\\artifacts\\models\\Category_E\\vanilla_rnn"
+}

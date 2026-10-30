@@ -1,0 +1,44 @@
+[
+  {
+    "trial": 0,
+    "params": {
+      "n_neighbors": 7,
+      "weights": "distance",
+      "metric": "euclidean"
+    },
+    "mean_cv_roc_auc": 0.6404,
+    "fold_scores": [
+      0.6413,
+      0.6396
+    ],
+    "duration_seconds": 0.56
+  },
+  {
+    "trial": 1,
+    "params": {
+      "n_neighbors": 11,
+      "weights": "uniform",
+      "metric": "euclidean"
+    },
+    "mean_cv_roc_auc": 0.6632,
+    "fold_scores": [
+      0.6639,
+      0.6624
+    ],
+    "duration_seconds": 0.44
+  },
+  {
+    "trial": 2,
+    "params": {
+      "n_neighbors": 6,
+      "weights": "distance",
+      "metric": "manhattan"
+    },
+    "mean_cv_roc_auc": 0.6325,
+    "fold_scores": [
+      0.6333,
+      0.6317
+    ],
+    "duration_seconds": 1.43
+  }
+]

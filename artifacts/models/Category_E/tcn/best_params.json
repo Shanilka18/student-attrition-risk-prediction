@@ -1,0 +1,15 @@
+{
+  "num_channels": [
+    64,
+    64
+  ],
+  "kernel_size": 2,
+  "dropout": 0.11742508365045984,
+  "lr": 0.0029621516588303515,
+  "weight_decay": 0.0001,
+  "epochs": 50,
+  "batch_size": 256,
+  "early_stopping_patience": 10,
+  "grad_clip": 1.0,
+  "scheduler": "cosine"
+}

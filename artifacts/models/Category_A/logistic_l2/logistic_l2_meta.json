@@ -1,0 +1,18 @@
+{
+  "model_key": "logistic_l2",
+  "category": "A",
+  "category_label": "Linear & Simple Baselines (tabular)",
+  "label": "Logistic Regression (L2)",
+  "is_proposal_model": false,
+  "is_sequence_model": false,
+  "is_fitted": true,
+  "fit_time_seconds": 0.61,
+  "params": {
+    "C": 0.0745934328572655,
+    "max_iter": 500,
+    "solver": "lbfgs",
+    "class_weight": "balanced",
+    "random_state": 42,
+    "seed": 42
+  }
+}

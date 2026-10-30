@@ -1,0 +1,19 @@
+{
+  "model_key": "random_forest",
+  "category": "B",
+  "category_label": "Tree & Bagging Ensembles (tabular)",
+  "label": "Random Forest",
+  "is_proposal_model": false,
+  "is_sequence_model": false,
+  "is_fitted": true,
+  "fit_time_seconds": 1.74,
+  "params": {
+    "n_estimators": 319,
+    "max_depth": 6,
+    "min_samples_leaf": 6,
+    "class_weight": "balanced",
+    "n_jobs": -1,
+    "random_state": 42,
+    "seed": 42
+  }
+}

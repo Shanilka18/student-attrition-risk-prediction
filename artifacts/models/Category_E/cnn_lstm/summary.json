@@ -1,0 +1,61 @@
+{
+  "model_key": "cnn_lstm",
+  "category": "E",
+  "category_label": "Deep Sequence Models (PyTorch, masked)",
+  "label": "CNN-LSTM Hybrid",
+  "is_proposal_model": false,
+  "is_sequence_model": true,
+  "status": "COMPLETED",
+  "validation_metrics": {
+    "roc_auc": 0.824,
+    "pr_auc": 0.2189,
+    "brier_score": 0.0526,
+    "threshold": 0.0496,
+    "f1_score": 0.229,
+    "recall": 0.8058,
+    "precision": 0.1334,
+    "accuracy": 0.6631,
+    "specificity": 0.6536,
+    "confusion_matrix": {
+      "tn": 2034,
+      "fp": 1078,
+      "fn": 40,
+      "tp": 166
+    }
+  },
+  "stability_summary": {
+    "roc_auc_mean": 0.8236,
+    "roc_auc_std": 0.0007,
+    "pr_auc_mean": 0.215,
+    "pr_auc_std": 0.0031,
+    "brier_score_mean": 0.1881,
+    "brier_score_std": 0.0102,
+    "f1_score_mean": 0.2558,
+    "f1_score_std": 0.0154,
+    "recall_mean": 0.7913,
+    "recall_std": 0.0105,
+    "precision_mean": 0.1527,
+    "precision_std": 0.0113,
+    "accuracy_mean": 0.7124,
+    "accuracy_std": 0.0277
+  },
+  "calibration": {
+    "method": "platt",
+    "is_fitted": true,
+    "brier_score_before": 0.2022,
+    "brier_score_after": 0.0526,
+    "brier_improvement_pct": 73.97
+  },
+  "threshold": {
+    "strategy": "recall_constrained",
+    "optimal_threshold": 0.0496,
+    "metrics": {
+      "f1_score": 0.229,
+      "recall": 0.8058,
+      "precision": 0.1334,
+      "accuracy": 0.6631
+    }
+  },
+  "runtime_seconds": 19.52,
+  "artifact_dir": "D:\\research project\\artifacts\\models\\Category_E\\cnn_lstm"
+}

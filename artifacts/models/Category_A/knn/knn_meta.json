@@ -1,0 +1,17 @@
+{
+  "model_key": "knn",
+  "category": "A",
+  "category_label": "Linear & Simple Baselines (tabular)",
+  "label": "k-Nearest Neighbours",
+  "is_proposal_model": false,
+  "is_sequence_model": false,
+  "is_fitted": true,
+  "fit_time_seconds": 0.0,
+  "params": {
+    "n_neighbors": 11,
+    "weights": "uniform",
+    "metric": "euclidean",
+    "random_state": 42,
+    "seed": 42
+  }
+}

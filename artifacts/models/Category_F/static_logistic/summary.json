@@ -1,0 +1,61 @@
+{
+  "model_key": "static_logistic",
+  "category": "F",
+  "category_label": "Static-Snapshot Variants (value-of-trajectory study)",
+  "label": "Logistic Regression (Static Snapshot)",
+  "is_proposal_model": false,
+  "is_sequence_model": false,
+  "status": "COMPLETED",
+  "validation_metrics": {
+    "roc_auc": 0.8146,
+    "pr_auc": 0.2062,
+    "brier_score": 0.0537,
+    "threshold": 0.0595,
+    "f1_score": 0.2544,
+    "recall": 0.8107,
+    "precision": 0.1509,
+    "accuracy": 0.7049,
+    "specificity": 0.6979,
+    "confusion_matrix": {
+      "tn": 2172,
+      "fp": 940,
+      "fn": 39,
+      "tp": 167
+    }
+  },
+  "stability_summary": {
+    "roc_auc_mean": 0.8146,
+    "roc_auc_std": 0.0,
+    "pr_auc_mean": 0.2062,
+    "pr_auc_std": 0.0,
+    "brier_score_mean": 0.1923,
+    "brier_score_std": 0.0,
+    "f1_score_mean": 0.2528,
+    "f1_score_std": 0.0,
+    "recall_mean": 0.8107,
+    "recall_std": 0.0,
+    "precision_mean": 0.1498,
+    "precision_std": 0.0,
+    "accuracy_mean": 0.7025,
+    "accuracy_std": 0.0
+  },
+  "calibration": {
+    "method": "platt",
+    "is_fitted": true,
+    "brier_score_before": 0.1923,
+    "brier_score_after": 0.0537,
+    "brier_improvement_pct": 72.08
+  },
+  "threshold": {
+    "strategy": "recall_constrained",
+    "optimal_threshold": 0.0595,
+    "metrics": {
+      "f1_score": 0.2544,
+      "recall": 0.8107,
+      "precision": 0.1509,
+      "accuracy": 0.7049
+    }
+  },
+  "runtime_seconds": 1.99,
+  "artifact_dir": "D:\\research project\\artifacts\\models\\Category_F\\static_logistic"
+}

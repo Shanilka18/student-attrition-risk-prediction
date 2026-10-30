@@ -1,0 +1,38 @@
+[
+  {
+    "trial": 0,
+    "params": {
+      "var_smoothing": 1e-09
+    },
+    "mean_cv_roc_auc": 0.7701,
+    "fold_scores": [
+      0.7855,
+      0.7548
+    ],
+    "duration_seconds": 0.03
+  },
+  {
+    "trial": 1,
+    "params": {
+      "var_smoothing": 2.348881295853314e-09
+    },
+    "mean_cv_roc_auc": 0.7701,
+    "fold_scores": [
+      0.7855,
+      0.7548
+    ],
+    "duration_seconds": 0.02
+  },
+  {
+    "trial": 2,
+    "params": {
+      "var_smoothing": 0.0003601046734447537
+    },
+    "mean_cv_roc_auc": 0.7721,
+    "fold_scores": [
+      0.787,
+      0.7571
+    ],
+    "duration_seconds": 0.02
+  }
+]

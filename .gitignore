@@ -1,0 +1,56 @@
+# Python & Virtual Environments
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+ENV/
+
+# Testing & Linting
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+catboost_info/
+
+# Data Files (ignore actual data payloads, keep schema definitions)
+data/raw/*
+data/synthetic/*
+data/processed/*
+data/splits/*
+data/uploads/*
+!data/**/*.schema.json
+!data/**/.gitkeep
+
+# Artifacts (large binary models/checkpoints)
+artifacts/user_dataset/
+artifacts/models/**/*.pt
+artifacts/models/**/*.bin
+artifacts/models/**/*.joblib
+artifacts/models/**/*.cbm
+artifacts/models/**/*.pth
+artifacts/models/*.joblib
+!artifacts/**/.gitkeep
+
+# Frontend & Node
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+frontend/*.tsbuildinfo
+
+# OS & Editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.log
+
+# Personal academic / Viva / Presentation documents (Not for repository)
+*.pdf
+docs/viva/
+docs/presentation/
+docs/source/
+docs/AI_USE_DISCLOSURE.md

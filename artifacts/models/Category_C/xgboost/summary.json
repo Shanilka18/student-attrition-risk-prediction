@@ -1,0 +1,61 @@
+{
+  "model_key": "xgboost",
+  "category": "C",
+  "category_label": "Boosting \u2014 Engineered Trend Features (PROPOSAL BASELINE)",
+  "label": "XGBoost (Proposal Baseline)",
+  "is_proposal_model": true,
+  "is_sequence_model": false,
+  "status": "COMPLETED",
+  "validation_metrics": {
+    "roc_auc": 0.7861,
+    "pr_auc": 0.1843,
+    "brier_score": 0.0541,
+    "threshold": 0.0496,
+    "f1_score": 0.2081,
+    "recall": 0.8252,
+    "precision": 0.119,
+    "accuracy": 0.61,
+    "specificity": 0.5958,
+    "confusion_matrix": {
+      "tn": 1854,
+      "fp": 1258,
+      "fn": 36,
+      "tp": 170
+    }
+  },
+  "stability_summary": {
+    "roc_auc_mean": 0.7913,
+    "roc_auc_std": 0.0037,
+    "pr_auc_mean": 0.1862,
+    "pr_auc_std": 0.0028,
+    "brier_score_mean": 0.1164,
+    "brier_score_std": 0.0005,
+    "f1_score_mean": 0.2814,
+    "f1_score_std": 0.0046,
+    "recall_mean": 0.5307,
+    "recall_std": 0.0114,
+    "precision_mean": 0.1915,
+    "precision_std": 0.0029,
+    "accuracy_mean": 0.8317,
+    "accuracy_std": 0.0007
+  },
+  "calibration": {
+    "method": "platt",
+    "is_fitted": true,
+    "brier_score_before": 0.1167,
+    "brier_score_after": 0.0541,
+    "brier_improvement_pct": 53.66
+  },
+  "threshold": {
+    "strategy": "recall_constrained",
+    "optimal_threshold": 0.0496,
+    "metrics": {
+      "f1_score": 0.2081,
+      "recall": 0.8252,
+      "precision": 0.119,
+      "accuracy": 0.61
+    }
+  },
+  "runtime_seconds": 11.08,
+  "artifact_dir": "D:\\research project\\artifacts\\models\\Category_C\\xgboost"
+}

@@ -1,0 +1,25 @@
+{
+  "model_key": "bigru",
+  "category": "E",
+  "category_label": "Deep Sequence Models (PyTorch, masked)",
+  "label": "BiGRU",
+  "is_proposal_model": false,
+  "is_sequence_model": true,
+  "is_fitted": true,
+  "fit_time_seconds": 4.82,
+  "params": {
+    "hidden_size": 64,
+    "num_layers": 1,
+    "dropout": 0.3,
+    "bidirectional": true,
+    "lr": 0.001,
+    "weight_decay": 0.0001,
+    "epochs": 3,
+    "batch_size": 256,
+    "early_stopping_patience": 10,
+    "grad_clip": 1.0,
+    "scheduler": "cosine",
+    "random_state": 42,
+    "seed": 42
+  }
+}

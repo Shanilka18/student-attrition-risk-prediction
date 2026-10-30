@@ -1,0 +1,35 @@
+{
+  "data_source": "SYNTHETIC",
+  "model_key": "catboost",
+  "category": "C",
+  "label": "CatBoost",
+  "is_proposal_model": false,
+  "is_sequence_model": false,
+  "overall_rank": 1,
+  "composite_rank_score": 7.05,
+  "test_metrics": {
+    "roc_auc": 0.7815,
+    "pr_auc": 0.2125,
+    "f2_score": 0.3877,
+    "f1_score": 0.2256,
+    "recall": 0.7441,
+    "precision": 0.1329,
+    "balanced_accuracy": 0.7068,
+    "mcc": 0.2109,
+    "brier_score": 0.0547,
+    "brier_skill_score": 0.0828,
+    "ece": 0.0041,
+    "pseudo_r2": 0.0828,
+    "lead_time_semesters": 2.06
+  },
+  "efficiency": {
+    "inference_time_ms_per_student": 0.007,
+    "model_size_kb": 94.01,
+    "nfr1_compliant": true
+  },
+  "stability": {
+    "seed_std_roc_auc": 0.0,
+    "stable": true
+  },
+  "threshold": 0.0496
+}

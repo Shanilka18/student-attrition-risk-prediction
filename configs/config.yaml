@@ -1,0 +1,90 @@
+# Global Configuration for Academic Intelligence Framework
+# Project: Multi-Factor Student Attrition Risk Prediction
+# Author: V. S. H. Gunasekara (IT23164680)
+
+project:
+  name: "academic-intelligence-framework"
+  id: "KND_CDAP_IT_05"
+  version: "1.0.0"
+  institution: "SLIIT"
+  global_seed: 42
+  device: "auto"  # 'auto', 'cuda', 'mps', or 'cpu'
+
+paths:
+  raw_data_dir: "data/raw"
+  synthetic_data_dir: "data/synthetic"
+  processed_data_dir: "data/processed"
+  splits_dir: "data/splits"
+  uploads_dir: "data/uploads"
+  models_dir: "artifacts/models"
+  metrics_dir: "artifacts/metrics"
+  leaderboard_dir: "artifacts/leaderboard"
+  plots_dir: "artifacts/plots"
+  explanations_dir: "artifacts/explanations"
+  docs_dir: "docs"
+
+data:
+  cohort_size: 1000
+  num_semesters: 4  # Typical observation window before major attrition inflection
+  min_semesters: 2
+  target_attrition_rate: 0.20  # Calibrated to 20% realistic attrition (SLIATE benchmark ~20-48%)
+  noise_level: 0.18            # Prevents trivial separability (ensures AUC remains realistic <0.95)
+  group_column: "participant_id"
+  target_column: "attrition_label"
+  sequence_features:
+    - "gpa"
+    - "exam_mark_avg"
+    - "attendance_rate"
+    - "submission_delay_avg_days"
+
+splits:
+  test_ratio: 0.20
+  val_ratio: 0.20
+  n_cv_splits: 5
+  strategy: "stratified_group" # Non-negotiable: grouped by student ID, stratified by attrition label
+
+models:
+  baseline_models:
+    - "xgboost"
+    - "lightgbm"
+    - "catboost"
+    - "random_forest"
+    - "logistic_regression"
+  sequence_models:
+    - "lstm"
+    - "gru"
+    - "bilstm"
+
+tuning:
+  n_trials: 30
+  timeout_seconds: 300
+  early_stopping_rounds: 15
+
+metric_weights:
+  # For Academic Risk Index aggregation / ranking
+  auc_roc: 0.50
+  f1_score: 0.30
+  accuracy: 0.20
+
+risk_index:
+  min_scale: 0.0
+  max_scale: 100.0
+  low_risk_threshold: 35.0
+  high_risk_threshold: 70.0
+
+leaderboard:
+  # Primary ranking = weighted composite of ranks (favors PR-AUC, calibration, and early warning)
+  weights:
+    pr_auc: 0.25
+    roc_auc: 0.20
+    f2_score: 0.20
+    brier_score: 0.15
+    expected_calibration_error: 0.10
+    lead_time_semesters: 0.10
+  constraints:
+    max_inference_time_sec_per_student: 2.0  # Proposal NFR1: < 2s
+    max_seed_std: 0.05
+  bootstrap:
+    n_resamples: 1000
+    confidence_level: 0.95
+    seed: 42

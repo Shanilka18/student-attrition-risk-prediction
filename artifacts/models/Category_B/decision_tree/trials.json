@@ -1,0 +1,41 @@
+[
+  {
+    "trial": 0,
+    "params": {
+      "max_depth": 6,
+      "min_samples_leaf": 10
+    },
+    "mean_cv_roc_auc": 0.7116,
+    "fold_scores": [
+      0.7151,
+      0.7081
+    ],
+    "duration_seconds": 0.15
+  },
+  {
+    "trial": 1,
+    "params": {
+      "max_depth": 7,
+      "min_samples_leaf": 48
+    },
+    "mean_cv_roc_auc": 0.7198,
+    "fold_scores": [
+      0.7379,
+      0.7017
+    ],
+    "duration_seconds": 0.13
+  },
+  {
+    "trial": 2,
+    "params": {
+      "max_depth": 12,
+      "min_samples_leaf": 32
+    },
+    "mean_cv_roc_auc": 0.6838,
+    "fold_scores": [
+      0.6935,
+      0.6741
+    ],
+    "duration_seconds": 0.17
+  }
+]

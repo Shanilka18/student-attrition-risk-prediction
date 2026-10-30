@@ -1,0 +1,20 @@
+{
+  "model_key": "catboost",
+  "category": "C",
+  "category_label": "Boosting \u2014 Engineered Trend Features (PROPOSAL BASELINE)",
+  "label": "CatBoost",
+  "is_proposal_model": false,
+  "is_sequence_model": false,
+  "is_fitted": true,
+  "fit_time_seconds": 2.16,
+  "params": {
+    "iterations": 319,
+    "learning_rate": 0.009470976192691145,
+    "depth": 3,
+    "auto_class_weights": "Balanced",
+    "random_seed": 42,
+    "verbose": 0,
+    "random_state": 42,
+    "seed": 42
+  }
+}

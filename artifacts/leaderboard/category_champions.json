@@ -1,0 +1,53 @@
+{
+  "data_source": "SYNTHETIC",
+  "categories": {
+    "A": {
+      "model_key": "svm_calibrated",
+      "label": "Linear SVM (Calibrated)",
+      "test_roc_auc": 0.7777,
+      "test_pr_auc": 0.1914,
+      "test_f2_score": 0.4072,
+      "composite_rank": 13.1
+    },
+    "B": {
+      "model_key": "random_forest",
+      "label": "Random Forest",
+      "test_roc_auc": 0.7828,
+      "test_pr_auc": 0.2202,
+      "test_f2_score": 0.3798,
+      "composite_rank": 7.4
+    },
+    "C": {
+      "model_key": "catboost",
+      "label": "CatBoost",
+      "test_roc_auc": 0.7815,
+      "test_pr_auc": 0.2125,
+      "test_f2_score": 0.3877,
+      "composite_rank": 7.05
+    },
+    "D": {
+      "model_key": "mlp_tabular",
+      "label": "MLP (Engineered Features)",
+      "test_roc_auc": 0.774,
+      "test_pr_auc": 0.1996,
+      "test_f2_score": 0.4067,
+      "composite_rank": 12.5
+    },
+    "E": {
+      "model_key": "lstm_attention",
+      "label": "LSTM + Attention",
+      "test_roc_auc": 0.7758,
+      "test_pr_auc": 0.205,
+      "test_f2_score": 0.3997,
+      "composite_rank": 8.15
+    },
+    "F": {
+      "model_key": "static_logistic",
+      "label": "Logistic Regression (Static Snapshot)",
+      "test_roc_auc": 0.7686,
+      "test_pr_auc": 0.1758,
+      "test_f2_score": 0.3965,
+      "composite_rank": 19.55
+    }
+  }
+}

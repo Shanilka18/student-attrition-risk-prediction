@@ -1,0 +1,15 @@
+{
+  "model_key": "gaussian_nb",
+  "category": "A",
+  "category_label": "Linear & Simple Baselines (tabular)",
+  "label": "Gaussian Naive Bayes",
+  "is_proposal_model": false,
+  "is_sequence_model": false,
+  "is_fitted": true,
+  "fit_time_seconds": 0.01,
+  "params": {
+    "var_smoothing": 0.0003601046734447537,
+    "random_state": 42,
+    "seed": 42
+  }
+}
