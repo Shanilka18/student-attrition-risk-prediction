@@ -234,5 +234,19 @@ Each entry documents:
 - **Proposal Alignment**: Fulfills scientific provenance integrity, maintains zero-downtime operational capability, and enables real-world institutional scoring without contaminating the canonical synthetic thesis benchmark.
 - **Implications**: Added endpoints `GET /train/runs`, `POST /train/activate/{job_id}`, `POST /train/rollback`, and `DELETE /train/runs/{job_id}`. Updated `InferenceService` with thread-safe hot reload, Navbar with dynamic provenance badge, and Predict page with scoring activation, rollback, and past runs registry.
 
+### [DEC-024] 2026-10-30: Institutional Counseling Alignment, 2-Tab Triage Workspace, and State Persistence
+- **Context**: The web application interface was previously weighed down with research-heavy telemetry (raw hypothesis p-values, developer server badges, synthetic generator notes, and Python feature variable names). Academic advisors and lecturers require an intuitive, actionable portal that prioritizes clinical triage, visual gauges, and persistent workspace navigation.
+- **Alternatives Considered**:
+  - *Option A*: Retain researcher-focused telemetry and statistical hypothesis text across the frontend.
+  - *Option B*: Reorganize the portal into a clean institutional early-warning tool:
+    1. Lift batch prediction state to `App.tsx` so uploaded cohorts survive tab navigation.
+    2. Split the Predict page into a 2-sub-tab triage workspace (`Individual Student Diagnostic` visual dashboard with continuous spectrum gauge and Recharts TreeSHAP feature attribution chart + `Cohort Triage Table` with search and risk filters).
+    3. Replace research hypothesis debates with an Institutional Clinical Triage Matrix (0-5 Low, 5-12 Moderate, 12-22 High, 22+ Critical).
+    4. Remove developer health badges and synthetic generation disclaimers from the top navbar.
+- **Decision**: Option B. Grounding the UI in an institutional counseling persona delivers high operational value to university faculty while preserving statistical rigor in the codebase and underlying APIs.
+- **Proposal Alignment**: Directly advances Usability and Human-in-the-Loop Decision Support objectives by providing actionable clinical guidance rather than raw probabilities.
+- **Implications**: Updated `App.tsx`, `Navbar.tsx`, `OverviewPage.tsx`, `DataPage.tsx`, and `PredictPage.tsx` with zero compile errors and full test suite compatibility.
+
+
 
 
