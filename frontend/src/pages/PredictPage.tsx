@@ -23,6 +23,14 @@ import {
   ShieldCheck,
   Clock,
   Sparkles,
+  User,
+  Users,
+  Search,
+  ChevronLeft,
+  ChevronRight,
+  Activity,
+  ArrowUpRight,
+  ArrowDownRight,
 } from 'lucide-react';
 import {
   ResponsiveContainer,
@@ -32,6 +40,8 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
+  Cell,
+  ReferenceLine,
 } from 'recharts';
 import { api } from '../api/client';
 import type {
@@ -52,19 +62,55 @@ import { LoadingState } from '../components/StateViews';
 interface PredictPageProps {
   meta?: MetaResponse | null;
   onRefreshMeta?: () => void;
+  // Lifted state — persisted across tab navigation
+  persistedFile?: File | null;
+  onFileChange?: (f: File | null) => void;
+  persistedUploadErrors?: ValidationErrorDetail[] | null;
+  onUploadErrorsChange?: (e: ValidationErrorDetail[] | null) => void;
+  persistedBatchResult?: BatchUploadResult | null;
+  onBatchResultChange?: (r: BatchUploadResult | null) => void;
+  persistedSelectedStudent?: StudentPredictionResult | null;
+  onSelectedStudentChange?: (s: StudentPredictionResult | null) => void;
+  persistedDiagStudentId?: string;
+  onDiagStudentIdChange?: (id: string) => void;
 }
 
-export const PredictPage: React.FC<PredictPageProps> = ({ meta, onRefreshMeta }) => {
+export const PredictPage: React.FC<PredictPageProps> = ({
+  meta,
+  onRefreshMeta,
+  persistedFile,
+  onFileChange,
+  persistedUploadErrors,
+  onUploadErrorsChange,
+  persistedBatchResult,
+  onBatchResultChange,
+  persistedSelectedStudent,
+  onSelectedStudentChange,
+  persistedDiagStudentId,
+  onDiagStudentIdChange,
+}) => {
   const [activeTab, setActiveTab] = useState<'upload' | 'simulate'>('upload');
 
-  // File Upload State
-  const [file, setFile] = useState<File | null>(null);
+  // File Upload State — initialised from persisted parent state when available
+  const [file, setFileLocal] = useState<File | null>(persistedFile ?? null);
   const [uploading, setUploading] = useState<boolean>(false);
-  const [uploadErrors, setUploadErrors] = useState<ValidationErrorDetail[] | null>(null);
-  const [batchResult, setBatchResult] = useState<BatchUploadResult | null>(null);
-  const [selectedStudent, setSelectedStudent] = useState<StudentPredictionResult | null>(null);
-  const [diagStudentId, setDiagStudentId] = useState<string>('STU_00001');
+  const [uploadErrors, setUploadErrorsLocal] = useState<ValidationErrorDetail[] | null>(persistedUploadErrors ?? null);
+  const [batchResult, setBatchResultLocal] = useState<BatchUploadResult | null>(persistedBatchResult ?? null);
+  const [selectedStudent, setSelectedStudentLocal] = useState<StudentPredictionResult | null>(persistedSelectedStudent ?? null);
+  const [diagStudentId, setDiagStudentIdLocal] = useState<string>(persistedDiagStudentId ?? 'STU_00001');
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Results Sub-Navigation & Filters
+  const [resultsSubTab, setResultsSubTab] = useState<'individual' | 'table'>('individual');
+  const [tableSearchQuery, setTableSearchQuery] = useState<string>('');
+  const [tableBandFilter, setTableBandFilter] = useState<'ALL' | 'Critical' | 'High' | 'Moderate' | 'Low'>('ALL');
+
+  // Sync helpers — update both local state and lifted parent state together
+  const setFile = (v: File | null) => { setFileLocal(v); onFileChange?.(v); };
+  const setUploadErrors = (v: ValidationErrorDetail[] | null) => { setUploadErrorsLocal(v); onUploadErrorsChange?.(v); };
+  const setBatchResult = (v: BatchUploadResult | null) => { setBatchResultLocal(v); onBatchResultChange?.(v); };
+  const setSelectedStudent = (v: StudentPredictionResult | null) => { setSelectedStudentLocal(v); onSelectedStudentChange?.(v); };
+  const setDiagStudentId = (v: string) => { setDiagStudentIdLocal(v); onDiagStudentIdChange?.(v); };
 
   // Retraining State
   const [inspectLoading, setInspectLoading] = useState<boolean>(false);
@@ -1012,138 +1058,585 @@ export const PredictPage: React.FC<PredictPageProps> = ({ meta, onRefreshMeta })
                 </div>
               </div>
 
-              {/* Student Results Table */}
-              <div className="rounded-xl border border-slate-800 bg-slate-900/40 overflow-hidden">
-                <div className="p-4 border-b border-slate-800 flex items-center justify-between">
-                  <div>
-                    <h3 className="text-sm font-bold text-white">Student Attrition Triage Table</h3>
-                    <p className="text-xs text-slate-400 mt-0.5">
-                      Evaluated with Champion <strong>CatBoost (Category C)</strong> with exact TreeSHAP attributions. Click any row to inspect trajectory.
-                    </p>
-                  </div>
-                  <span className="text-xs text-slate-400 font-mono">
-                    {batchResult.predictions.length} Predictions
-                  </span>
-                </div>
-
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left text-xs border-collapse table-fixed min-w-[900px]">
-                    <colgroup>
-                      <col className="w-24" />
-                      <col className="w-16" />
-                      <col className="w-28" />
-                      <col className="w-24" />
-                      <col className="w-44" />
-                      <col />
-                    </colgroup>
-                    <thead>
-                      <tr className="bg-slate-950/80 border-b border-slate-800 text-slate-400 uppercase font-semibold">
-                        <th className="py-2.5 px-3">Student ID</th>
-                        <th className="py-2.5 px-3">Window (t)</th>
-                        <th className="py-2.5 px-3">Academic Risk Index</th>
-                        <th className="py-2.5 px-3">Risk Band</th>
-                        <th className="py-2.5 px-3">Top Driving Factors</th>
-                        <th className="py-2.5 px-3">Clinical Explanation Narrative</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-800/60 font-sans text-slate-300">
-                      {batchResult.predictions.map(p => {
-                        const isSelected = selectedStudent?.student_id === p.student_id;
-                        return (
-                          <tr
-                            key={p.student_id}
-                            onClick={() => { setSelectedStudent(p); setDiagStudentId(p.student_id); }}
-                            className={`cursor-pointer transition-colors ${
-                              isSelected ? 'bg-indigo-950/30' : 'hover:bg-slate-800/30'
-                            }`}
-                          >
-                            <td className="py-3 px-3 font-mono font-bold text-indigo-300 align-top">
-                              {p.student_id}
-                            </td>
-                            <td className="py-3 px-3 font-mono text-slate-400 align-top">
-                              Sem {p.window_semester}
-                            </td>
-                            <td className="py-3 px-3 font-mono font-bold text-slate-100 align-top">
-                              {p.academic_risk_index.toFixed(1)} / 100
-                            </td>
-                            <td className="py-3 px-3 align-top">
-                              <RiskBadge band={p.risk_band} score={p.academic_risk_index} />
-                            </td>
-                            <td className="py-3 px-3 text-[11px] text-slate-400 align-top">
-                              {p.top_factors.map(f => f.display_name).join(', ')}
-                            </td>
-                            <td className="py-3 px-3 text-xs text-slate-200 align-top leading-relaxed">
-                              {p.explanation_text}
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-              {/* Selected Student Expanded View */}
-              {batchResult && batchResult.predictions.length > 0 && (() => {
+              {/* Sub-Navigation: Individual Diagnostic vs Cohort Triage Table */}
+              {(() => {
                 const diagStudent = batchResult.predictions.find(
                   p => p.student_id.toLowerCase() === diagStudentId.trim().toLowerCase()
-                ) ?? selectedStudent;
-                if (!diagStudent) return null;
+                ) ?? selectedStudent ?? batchResult.predictions[0];
+
+                const currentIndex = diagStudent
+                  ? batchResult.predictions.findIndex(p => p.student_id === diagStudent.student_id)
+                  : -1;
+
+                const urgentCases = batchResult.predictions
+                  .filter(p => p.risk_band === 'Critical' || p.risk_band === 'High')
+                  .slice(0, 6);
+
+                const actionProtocols: Record<string, { priority: string; action: string; color: string }> = {
+                  Critical: {
+                    priority: 'EMERGENCY CLINICAL REVIEW',
+                    action: 'Emergency faculty-level review, customized study plan, and student welfare outreach.',
+                    color: 'border-rose-500/40 bg-rose-950/20 text-rose-300',
+                  },
+                  High: {
+                    priority: 'URGENT FORMAL INTERVENTION',
+                    action: 'Mandatory academic advising session and financial/personal support check-in.',
+                    color: 'border-amber-500/40 bg-amber-950/20 text-amber-300',
+                  },
+                  Moderate: {
+                    priority: 'PREVENTIVE COUNSELING ALERT',
+                    action: 'Peer tutoring invitation and course load advisory notification.',
+                    color: 'border-sky-500/40 bg-sky-950/20 text-sky-300',
+                  },
+                  Low: {
+                    priority: 'ROUTINE ACADEMIC MONITORING',
+                    action: 'Standard academic monitoring. No active intervention necessary.',
+                    color: 'border-emerald-500/40 bg-emerald-950/20 text-emerald-300',
+                  },
+                };
+
+                const protocol = diagStudent ? (actionProtocols[diagStudent.risk_band] || actionProtocols.Low) : actionProtocols.Low;
+
+                const factorChartData = diagStudent
+                  ? diagStudent.top_factors.map(f => ({
+                      name: f.display_name,
+                      contribution: Number(f.contribution.toFixed(4)),
+                      observedValue: `${f.feature_value} ${f.unit}`.trim(),
+                      direction: f.direction,
+                    }))
+                  : [];
+
+                const riskPos = diagStudent ? Math.min(100, Math.max(0, diagStudent.academic_risk_index)) : 0;
+
+                const filteredTableRows = batchResult.predictions.filter(p => {
+                  const matchesSearch = p.student_id.toLowerCase().includes(tableSearchQuery.toLowerCase());
+                  const matchesBand = tableBandFilter === 'ALL' || p.risk_band === tableBandFilter;
+                  return matchesSearch && matchesBand;
+                });
+
                 return (
-                <div className="rounded-xl border border-indigo-500/40 bg-slate-900/60 p-5 space-y-4">
-                  <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                    <div>
-                      <h4 className="text-sm font-bold text-white flex items-center gap-2">
-                        Student Diagnostic Detail:
-                        <input
-                          type="text"
-                          value={diagStudentId}
-                          onChange={e => {
-                            setDiagStudentId(e.target.value);
-                            const found = batchResult.predictions.find(
-                              p => p.student_id.toLowerCase() === e.target.value.trim().toLowerCase()
-                            );
-                            if (found) setSelectedStudent(found);
-                          }}
-                          className="font-mono text-indigo-400 bg-transparent border-b border-indigo-500/60 focus:border-indigo-400 outline-none w-36 text-sm px-1 pb-0.5 transition-colors"
-                          placeholder="STU_00001"
-                          spellCheck={false}
-                        />
-                      </h4>
-                      {batchResult.predictions.find(p => p.student_id.toLowerCase() === diagStudentId.trim().toLowerCase())
-                        ? null
-                        : <p className="text-[11px] text-amber-400 mt-0.5">No match — showing last selected student</p>
-                      }
-                      <p className="text-xs text-slate-400 mt-0.5">
-                        Calibrated Attrition Risk: <strong className="text-white">{diagStudent.academic_risk_index.toFixed(1)}/100</strong> ({diagStudent.risk_band} Band)
-                      </p>
-                    </div>
-                    <RiskBadge band={diagStudent.risk_band} size="lg" />
-                  </div>
+                  <div className="space-y-6">
+                    {/* View Switcher Bar */}
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-3">
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setResultsSubTab('individual')}
+                          className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
+                            resultsSubTab === 'individual'
+                              ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30'
+                              : 'bg-slate-900/60 text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 border border-slate-800'
+                          }`}
+                        >
+                          <User className="w-3.5 h-3.5" />
+                          <span>Individual Student Diagnostic</span>
+                          {diagStudent && (
+                            <span className="font-mono bg-indigo-950/70 border border-indigo-400/30 text-indigo-300 px-1.5 py-0.5 rounded text-[10px]">
+                              {diagStudent.student_id}
+                            </span>
+                          )}
+                        </button>
 
-                  <div className="rounded-lg bg-indigo-950/20 border border-indigo-500/20 p-3 text-xs text-slate-200">
-                    <strong className="text-indigo-400 block mb-1">Plain-Language Diagnostic Sentence:</strong>
-                    "{diagStudent.explanation_text}"
-                  </div>
-
-                  {/* Top Driving Factors */}
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    {diagStudent.top_factors.map((f, idx) => (
-                      <div key={idx} className="p-3 rounded-lg bg-slate-950 border border-slate-800 text-xs">
-                        <span className="text-[10px] uppercase font-bold text-slate-400 block">
-                          Factor #{idx + 1} ({f.direction === 'RISK_INCREASING' ? 'Risk Elevator' : 'Stabilizer'})
-                        </span>
-                        <div className="font-semibold text-slate-200 mt-0.5">{f.display_name}</div>
-                        <div className="flex justify-between items-baseline mt-2 font-mono text-[11px]">
-                          <span className="text-slate-400">Value: {f.feature_value} {f.unit}</span>
-                          <span className={f.direction === 'RISK_INCREASING' ? 'text-rose-400 font-bold' : 'text-emerald-400 font-bold'}>
-                            {f.direction === 'RISK_INCREASING' ? '+' : ''}{f.contribution.toFixed(4)}
+                        <button
+                          type="button"
+                          onClick={() => setResultsSubTab('table')}
+                          className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
+                            resultsSubTab === 'table'
+                              ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30'
+                              : 'bg-slate-900/60 text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 border border-slate-800'
+                          }`}
+                        >
+                          <Users className="w-3.5 h-3.5" />
+                          <span>Cohort Triage Table</span>
+                          <span className="font-mono bg-slate-800 text-slate-300 px-1.5 py-0.5 rounded text-[10px]">
+                            {batchResult.predictions.length}
                           </span>
+                        </button>
+                      </div>
+
+                      <div className="flex items-center gap-2 text-xs">
+                        <span className="text-slate-500 font-mono text-[11px]">High-Risk Flagged:</span>
+                        <span className="px-2.5 py-0.5 rounded-full bg-rose-500/10 border border-rose-500/30 text-rose-400 font-mono font-semibold text-[11px] flex items-center gap-1">
+                          <AlertTriangle className="w-3 h-3 text-rose-400" />
+                          {batchResult.summary.high_risk_count} Students
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* ── TAB 1: INDIVIDUAL STUDENT DIAGNOSTIC ────────────────────── */}
+                    {resultsSubTab === 'individual' && diagStudent && (
+                      <div className="space-y-6">
+                        {/* 1. Selector Bar & Quick-Jump Chips */}
+                        <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4 space-y-3">
+                          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+                            <div className="flex items-center gap-3">
+                              <div className="flex items-center gap-1.5 bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 focus-within:border-indigo-500">
+                                <Search className="w-3.5 h-3.5 text-slate-500" />
+                                <input
+                                  type="text"
+                                  value={diagStudentId}
+                                  onChange={e => {
+                                    setDiagStudentId(e.target.value);
+                                    const found = batchResult.predictions.find(
+                                      p => p.student_id.toLowerCase() === e.target.value.trim().toLowerCase()
+                                    );
+                                    if (found) setSelectedStudent(found);
+                                  }}
+                                  className="font-mono text-indigo-400 bg-transparent outline-none w-28 text-xs font-semibold"
+                                  placeholder="STU_00001"
+                                  spellCheck={false}
+                                />
+                              </div>
+
+                              <div className="flex items-center gap-1">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    if (currentIndex > 0) {
+                                      const prev = batchResult.predictions[currentIndex - 1];
+                                      setSelectedStudent(prev);
+                                      setDiagStudentId(prev.student_id);
+                                    }
+                                  }}
+                                  disabled={currentIndex <= 0}
+                                  className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-30 disabled:cursor-not-allowed text-slate-300 transition-colors"
+                                  title="Previous Student"
+                                >
+                                  <ChevronLeft className="w-4 h-4" />
+                                </button>
+                                <span className="text-[11px] font-mono text-slate-400 px-1">
+                                  {currentIndex >= 0 ? currentIndex + 1 : 1} / {batchResult.predictions.length}
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    if (currentIndex >= 0 && currentIndex < batchResult.predictions.length - 1) {
+                                      const next = batchResult.predictions[currentIndex + 1];
+                                      setSelectedStudent(next);
+                                      setDiagStudentId(next.student_id);
+                                    }
+                                  }}
+                                  disabled={currentIndex === -1 || currentIndex >= batchResult.predictions.length - 1}
+                                  className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-30 disabled:cursor-not-allowed text-slate-300 transition-colors"
+                                  title="Next Student"
+                                >
+                                  <ChevronRight className="w-4 h-4" />
+                                </button>
+                              </div>
+                            </div>
+
+                            {/* Quick-Jump Urgent Case Pills */}
+                            {urgentCases.length > 0 && (
+                              <div className="flex flex-wrap items-center gap-1.5 text-xs">
+                                <span className="text-[11px] text-slate-400 font-mono flex items-center gap-1 mr-1">
+                                  <AlertCircle className="w-3 h-3 text-rose-400" />
+                                  Urgent Triage:
+                                </span>
+                                {urgentCases.map(u => (
+                                  <button
+                                    key={u.student_id}
+                                    type="button"
+                                    onClick={() => {
+                                      setSelectedStudent(u);
+                                      setDiagStudentId(u.student_id);
+                                    }}
+                                    className={`px-2 py-0.5 rounded-md text-[10px] font-mono font-medium transition-all ${
+                                      diagStudent.student_id === u.student_id
+                                        ? 'bg-indigo-600 text-white font-bold ring-2 ring-indigo-400'
+                                        : u.risk_band === 'Critical'
+                                        ? 'bg-rose-950/60 text-rose-300 border border-rose-800/50 hover:bg-rose-900/50'
+                                        : 'bg-amber-950/60 text-amber-300 border border-amber-800/50 hover:bg-amber-900/50'
+                                    }`}
+                                    title={`Select ${u.student_id} (${u.risk_band} - ${u.academic_risk_index.toFixed(1)})`}
+                                  >
+                                    {u.student_id} ({u.academic_risk_index.toFixed(1)})
+                                  </button>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* 2. Primary KPI & Spectrum Card */}
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                          {/* Left: Risk Score & Continuous Spectrum Meter */}
+                          <div className="lg:col-span-2 rounded-xl border border-indigo-500/30 bg-slate-900/60 p-5 space-y-4">
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <div className="flex items-center gap-2">
+                                  <h3 className="text-sm font-bold text-white">Student Diagnostic Profile</h3>
+                                  <span className="font-mono text-xs px-2 py-0.5 rounded bg-indigo-950 text-indigo-300 border border-indigo-800/50">
+                                    {diagStudent.student_id}
+                                  </span>
+                                  <span className="text-xs text-slate-400">
+                                    • Sem {diagStudent.window_semester}
+                                  </span>
+                                </div>
+                                <p className="text-xs text-slate-400 mt-1">
+                                  Calibrated against longitudinal historical attrition baseline
+                                </p>
+                              </div>
+                              <RiskBadge band={diagStudent.risk_band} size="lg" />
+                            </div>
+
+                            {/* Big Score + Spectrum Visual */}
+                            <div className="bg-slate-950/80 rounded-xl p-4 border border-slate-800/80 space-y-3">
+                              <div className="flex items-baseline justify-between">
+                                <div>
+                                  <span className="text-[11px] uppercase font-mono text-slate-400">Academic Risk Index (ARI)</span>
+                                  <div className="text-3xl font-extrabold font-mono text-white mt-0.5 flex items-baseline gap-1.5">
+                                    <span>{diagStudent.academic_risk_index.toFixed(1)}</span>
+                                    <span className="text-sm text-slate-500 font-normal">/ 100</span>
+                                  </div>
+                                </div>
+                                <div className="text-right">
+                                  <span className="text-[11px] uppercase font-mono text-slate-400">Empirical Base Rate</span>
+                                  <div className="text-sm font-mono text-slate-300 mt-0.5">
+                                    6.4% cohort average
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Continuous Risk Spectrum Bar */}
+                              <div className="space-y-1.5 pt-1">
+                                <div className="relative h-3 w-full rounded-full bg-slate-800 overflow-hidden flex">
+                                  <div style={{ width: '5%' }} className="bg-emerald-500 h-full" title="Low: 0 - 5.0" />
+                                  <div style={{ width: '7%' }} className="bg-sky-500 h-full" title="Moderate: 5.0 - 12.0" />
+                                  <div style={{ width: '10%' }} className="bg-amber-500 h-full" title="High: 12.0 - 22.0" />
+                                  <div style={{ width: '78%' }} className="bg-rose-500 h-full" title="Critical: 22.0 - 100.0" />
+                                </div>
+
+                                {/* Pin indicator for student score */}
+                                <div className="relative w-full h-4">
+                                  <div
+                                    className="absolute -top-1 -translate-x-1/2 flex flex-col items-center transition-all duration-300"
+                                    style={{ left: `${riskPos}%` }}
+                                  >
+                                    <div className="w-2.5 h-2.5 bg-white rounded-full shadow-md shadow-black border-2 border-indigo-600" />
+                                    <span className="text-[9px] font-mono font-bold text-indigo-300 mt-0.5">
+                                      {diagStudent.academic_risk_index.toFixed(1)}
+                                    </span>
+                                  </div>
+                                </div>
+
+                                {/* Range legends */}
+                                <div className="flex justify-between text-[10px] text-slate-500 font-mono px-0.5">
+                                  <span>0 (Low)</span>
+                                  <span>5.0 (Moderate)</span>
+                                  <span>12.0 (High)</span>
+                                  <span>22.0+ (Critical)</span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Right: Clinical Action Protocol Card */}
+                          <div className={`rounded-xl border p-5 flex flex-col justify-between ${protocol.color}`}>
+                            <div className="space-y-2">
+                              <div className="flex items-center gap-1.5 text-xs font-bold font-mono tracking-wide">
+                                <ShieldCheck className="w-4 h-4" />
+                                {protocol.priority}
+                              </div>
+                              <p className="text-xs font-medium leading-relaxed opacity-95">
+                                {protocol.action}
+                              </p>
+                            </div>
+
+                            <div className="pt-4 border-t border-current/15 text-[11px] space-y-1 font-mono opacity-80">
+                              <div>• Decision Boundary: Recall ≥ 80%</div>
+                              <div>• Model: Champion CatBoost (Seq C)</div>
+                              <div>• Attribution: TreeSHAP Axiomatic</div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* 3. Visuals Grid: Feature Contributions Bar Chart + Top 3 Driver Cards */}
+                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                          {/* Left: Recharts Horizontal Bar Chart of Feature Attributions */}
+                          <div className="lg:col-span-7 rounded-xl border border-slate-800 bg-slate-900/60 p-5 space-y-4">
+                            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                              <div>
+                                <h4 className="text-sm font-bold text-white flex items-center gap-2">
+                                  <Activity className="w-4 h-4 text-indigo-400" />
+                                  Feature Attribution Impact (TreeSHAP &phi;)
+                                </h4>
+                                <p className="text-xs text-slate-400 mt-0.5">
+                                  Exact mathematical contribution pushing risk higher (+) or stabilizing (-)
+                                </p>
+                              </div>
+                            </div>
+
+                            <div className="h-64 w-full">
+                              <ResponsiveContainer width="100%" height="100%">
+                                <BarChart
+                                  layout="vertical"
+                                  data={factorChartData}
+                                  margin={{ top: 10, right: 30, left: 40, bottom: 5 }}
+                                >
+                                  <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
+                                  <XAxis
+                                    type="number"
+                                    stroke="#64748b"
+                                    fontSize={10}
+                                    tickFormatter={v => (v > 0 ? `+${v}` : `${v}`)}
+                                  />
+                                  <YAxis
+                                    type="category"
+                                    dataKey="name"
+                                    stroke="#94a3b8"
+                                    fontSize={11}
+                                    width={140}
+                                    tick={{ fill: '#cbd5e1' }}
+                                  />
+                                  <Tooltip
+                                    content={({ active, payload }) => {
+                                      if (active && payload && payload.length) {
+                                        const data = payload[0].payload;
+                                        const isElevator = data.direction === 'RISK_INCREASING';
+                                        return (
+                                          <div className="bg-slate-950 border border-slate-800 p-3 rounded-lg shadow-xl text-xs space-y-1">
+                                            <div className="font-bold text-white">{data.name}</div>
+                                            <div className="text-slate-400">Observed Value: <span className="font-mono text-slate-200">{data.observedValue}</span></div>
+                                            <div className="flex items-center gap-1 font-mono">
+                                              <span>Contribution:</span>
+                                              <span className={isElevator ? 'text-rose-400 font-bold' : 'text-emerald-400 font-bold'}>
+                                                {data.contribution > 0 ? `+${data.contribution}` : data.contribution}
+                                              </span>
+                                            </div>
+                                            <div className={`text-[10px] font-semibold ${isElevator ? 'text-rose-400' : 'text-emerald-400'}`}>
+                                              {isElevator ? '▲ Elevates Attrition Risk' : '▼ Protective Stabilizer'}
+                                            </div>
+                                          </div>
+                                        );
+                                      }
+                                      return null;
+                                    }}
+                                  />
+                                  <ReferenceLine x={0} stroke="#475569" strokeWidth={1.5} />
+                                  <Bar dataKey="contribution" radius={[0, 4, 4, 0]}>
+                                    {factorChartData.map((entry, index) => (
+                                      <Cell
+                                        key={`cell-${index}`}
+                                        fill={entry.direction === 'RISK_INCREASING' ? '#f43f5e' : '#10b981'}
+                                      />
+                                    ))}
+                                  </Bar>
+                                </BarChart>
+                              </ResponsiveContainer>
+                            </div>
+
+                            <div className="flex items-center justify-end gap-4 text-xs font-mono pt-1 text-slate-400">
+                              <span className="flex items-center gap-1.5">
+                                <span className="w-2.5 h-2.5 rounded-sm bg-rose-500" />
+                                <span>Risk Elevator (+)</span>
+                              </span>
+                              <span className="flex items-center gap-1.5">
+                                <span className="w-2.5 h-2.5 rounded-sm bg-emerald-500" />
+                                <span>Stabilizer (-)</span>
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Right: Top 3 Driver Feature Cards Grid */}
+                          <div className="lg:col-span-5 space-y-3">
+                            <div className="text-xs font-semibold text-slate-300 uppercase tracking-wider font-mono">
+                              Key Diagnostic Signals
+                            </div>
+
+                            {diagStudent.top_factors.map((f, idx) => {
+                              const isElevator = f.direction === 'RISK_INCREASING';
+                              return (
+                                <div
+                                  key={idx}
+                                  className="p-3.5 rounded-xl bg-slate-900/60 border border-slate-800 text-xs hover:border-slate-700 transition-all space-y-2"
+                                >
+                                  <div className="flex items-center justify-between">
+                                    <span className="text-[10px] uppercase font-bold font-mono px-2 py-0.5 rounded bg-slate-950 text-slate-400 border border-slate-800">
+                                      Factor #{idx + 1}
+                                    </span>
+                                    <span
+                                      className={`inline-flex items-center gap-1 text-[11px] font-bold font-mono ${
+                                        isElevator ? 'text-rose-400' : 'text-emerald-400'
+                                      }`}
+                                    >
+                                      {isElevator ? (
+                                        <>
+                                          <ArrowUpRight className="w-3.5 h-3.5" />
+                                          Risk Elevator
+                                        </>
+                                      ) : (
+                                        <>
+                                          <ArrowDownRight className="w-3.5 h-3.5" />
+                                          Protective Stabilizer
+                                        </>
+                                      )}
+                                    </span>
+                                  </div>
+
+                                  <div className="font-semibold text-sm text-slate-100">
+                                    {f.display_name}
+                                  </div>
+
+                                  <div className="flex items-center justify-between pt-1 font-mono text-xs border-t border-slate-800/60">
+                                    <span className="text-slate-400">
+                                      Observed: <strong className="text-slate-200">{f.feature_value} {f.unit}</strong>
+                                    </span>
+                                    <span
+                                      className={`font-bold px-1.5 py-0.5 rounded ${
+                                        isElevator ? 'bg-rose-950/60 text-rose-300' : 'bg-emerald-950/60 text-emerald-300'
+                                      }`}
+                                    >
+                                      {f.direction === 'RISK_INCREASING' ? '+' : ''}{f.contribution.toFixed(4)}
+                                    </span>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+
+                        {/* 4. Automated Clinical Diagnostic Sentence Callout */}
+                        <div className="rounded-xl bg-indigo-950/30 border border-indigo-500/30 p-5 space-y-2">
+                          <div className="flex items-center gap-2 text-indigo-400 text-xs font-bold uppercase tracking-wider font-mono">
+                            <Sparkles className="w-4 h-4 text-indigo-400" />
+                            Automated Clinical Diagnostic Narrative
+                          </div>
+                          <blockquote className="text-sm text-slate-200 font-sans leading-relaxed italic pl-3 border-l-2 border-indigo-500">
+                            "{diagStudent.explanation_text}"
+                          </blockquote>
+                          <p className="text-[11px] text-slate-500 pt-1">
+                            Synthesized in real-time from Platt-calibrated probability distributions and top TreeSHAP factor rankings.
+                          </p>
                         </div>
                       </div>
-                    ))}
+                    )}
+
+                    {/* ── TAB 2: COHORT TRIAGE TABLE ──────────────────────────────── */}
+                    {resultsSubTab === 'table' && (
+                      <div className="space-y-4">
+                        {/* Table Controls: Search + Band Filters */}
+                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 bg-slate-900/60 p-3 rounded-xl border border-slate-800">
+                          <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-1.5 bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 focus-within:border-indigo-500">
+                              <Search className="w-3.5 h-3.5 text-slate-500" />
+                              <input
+                                type="text"
+                                value={tableSearchQuery}
+                                onChange={e => setTableSearchQuery(e.target.value)}
+                                placeholder="Search student ID..."
+                                className="bg-transparent text-xs text-slate-200 placeholder-slate-500 outline-none w-40 font-mono"
+                              />
+                            </div>
+                            {tableSearchQuery && (
+                              <button
+                                type="button"
+                                onClick={() => setTableSearchQuery('')}
+                                className="text-xs text-slate-400 hover:text-white"
+                              >
+                                Clear
+                              </button>
+                            )}
+                          </div>
+
+                          {/* Band Filter Pills */}
+                          <div className="flex flex-wrap items-center gap-1.5 text-xs">
+                            {(['ALL', 'Critical', 'High', 'Moderate', 'Low'] as const).map(b => (
+                              <button
+                                key={b}
+                                type="button"
+                                onClick={() => setTableBandFilter(b)}
+                                className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-colors ${
+                                  tableBandFilter === b
+                                    ? 'bg-indigo-600 text-white font-semibold'
+                                    : 'bg-slate-950 text-slate-400 hover:text-slate-200 border border-slate-800'
+                                }`}
+                              >
+                                {b === 'ALL'
+                                  ? `All (${batchResult.predictions.length})`
+                                  : `${b} (${batchResult.summary.risk_band_counts[b] ?? 0})`}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Table */}
+                        <div className="rounded-xl border border-slate-800 bg-slate-900/40 overflow-hidden">
+                          <div className="p-4 border-b border-slate-800 flex items-center justify-between">
+                            <div>
+                              <h3 className="text-sm font-bold text-white">Student Attrition Triage Table</h3>
+                              <p className="text-xs text-slate-400 mt-0.5">
+                                Click any student row to switch directly to their <strong>Individual Diagnostic View</strong>.
+                              </p>
+                            </div>
+                            <span className="text-xs text-slate-400 font-mono">
+                              Showing {filteredTableRows.length} Students
+                            </span>
+                          </div>
+
+                          <div className="overflow-x-auto max-h-[560px]">
+                            <table className="w-full text-left text-xs border-collapse table-fixed min-w-[900px]">
+                              <colgroup>
+                                <col className="w-24" />
+                                <col className="w-16" />
+                                <col className="w-28" />
+                                <col className="w-24" />
+                                <col className="w-44" />
+                                <col />
+                              </colgroup>
+                              <thead className="sticky top-0 z-10">
+                                <tr className="bg-slate-950 border-b border-slate-800 text-slate-400 uppercase font-semibold">
+                                  <th className="py-2.5 px-3">Student ID</th>
+                                  <th className="py-2.5 px-3">Window (t)</th>
+                                  <th className="py-2.5 px-3">Academic Risk Index</th>
+                                  <th className="py-2.5 px-3">Risk Band</th>
+                                  <th className="py-2.5 px-3">Top Driving Factors</th>
+                                  <th className="py-2.5 px-3">Clinical Explanation Narrative</th>
+                                </tr>
+                              </thead>
+                              <tbody className="divide-y divide-slate-800/60 font-sans text-slate-300">
+                                {filteredTableRows.map(p => {
+                                  const isSelected = selectedStudent?.student_id === p.student_id;
+                                  return (
+                                    <tr
+                                      key={p.student_id}
+                                      onClick={() => {
+                                        setSelectedStudent(p);
+                                        setDiagStudentId(p.student_id);
+                                        setResultsSubTab('individual');
+                                      }}
+                                      className={`cursor-pointer transition-colors ${
+                                        isSelected ? 'bg-indigo-950/40' : 'hover:bg-slate-800/40'
+                                      }`}
+                                      title="Click to open individual diagnostic deep-dive"
+                                    >
+                                      <td className="py-3 px-3 font-mono font-bold text-indigo-300 align-top">
+                                        {p.student_id}
+                                      </td>
+                                      <td className="py-3 px-3 font-mono text-slate-400 align-top">
+                                        Sem {p.window_semester}
+                                      </td>
+                                      <td className="py-3 px-3 font-mono font-bold text-slate-100 align-top">
+                                        {p.academic_risk_index.toFixed(1)} / 100
+                                      </td>
+                                      <td className="py-3 px-3 align-top">
+                                        <RiskBadge band={p.risk_band} score={p.academic_risk_index} />
+                                      </td>
+                                      <td className="py-3 px-3 text-[11px] text-slate-400 align-top">
+                                        {p.top_factors.map(f => f.display_name).join(', ')}
+                                      </td>
+                                      <td className="py-3 px-3 text-xs text-slate-200 align-top leading-relaxed">
+                                        {p.explanation_text}
+                                      </td>
+                                    </tr>
+                                  );
+                                })}
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
-                </div>
                 );
               })()}
             </div>
