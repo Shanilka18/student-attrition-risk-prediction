@@ -7,6 +7,9 @@ import type {
   LeaderboardResponse,
   ResearchQuestionAnswer,
   DataSummaryResponse,
+  BatchUploadResult,
+  StudentPredictionResult,
+  ValidationErrorDetail,
 } from './api/client';
 import { Navbar } from './components/Navbar';
 import type { PageId } from './components/Navbar';
@@ -26,6 +29,13 @@ export function AppContent() {
   const [leaderboard, setLeaderboard] = useState<LeaderboardResponse | null>(null);
   const [researchAnswer, setResearchAnswer] = useState<ResearchQuestionAnswer | null>(null);
   const [dataSummary, setDataSummary] = useState<DataSummaryResponse | null>(null);
+
+  // Predict Page — lifted state so it survives tab navigation
+  const [predictFile, setPredictFile] = useState<File | null>(null);
+  const [predictUploadErrors, setPredictUploadErrors] = useState<ValidationErrorDetail[] | null>(null);
+  const [predictBatchResult, setPredictBatchResult] = useState<BatchUploadResult | null>(null);
+  const [predictSelectedStudent, setPredictSelectedStudent] = useState<StudentPredictionResult | null>(null);
+  const [predictDiagStudentId, setPredictDiagStudentId] = useState<string>('STU_00001');
 
   const refreshMeta = () => {
     api.getMeta().then(setMeta).catch(console.warn);
@@ -71,13 +81,26 @@ export function AppContent() {
         {currentPage === 'explainability' && <ExplainabilityPage />}
 
         {currentPage === 'predict' && (
-          <PredictPage meta={meta} onRefreshMeta={refreshMeta} />
+          <PredictPage
+            meta={meta}
+            onRefreshMeta={refreshMeta}
+            persistedFile={predictFile}
+            onFileChange={setPredictFile}
+            persistedUploadErrors={predictUploadErrors}
+            onUploadErrorsChange={setPredictUploadErrors}
+            persistedBatchResult={predictBatchResult}
+            onBatchResultChange={setPredictBatchResult}
+            persistedSelectedStudent={predictSelectedStudent}
+            onSelectedStudentChange={setPredictSelectedStudent}
+            persistedDiagStudentId={predictDiagStudentId}
+            onDiagStudentIdChange={setPredictDiagStudentId}
+          />
         )}
       </main>
 
       {/* 3. Footer */}
       <footer className="border-t border-slate-900 bg-slate-950/80 py-6 px-4 text-xs text-slate-500">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+        {/* <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div>
             <span className="font-semibold text-slate-300">
               Academic Intelligence Framework (KND_CDAP_IT_05)
@@ -91,7 +114,7 @@ export function AppContent() {
             <span>•</span>
             <span>NFR1 Compliant (&lt; 2.0s)</span>
           </div>
-        </div>
+        </div> */}
       </footer>
     </div>
   );
