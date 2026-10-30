@@ -73,8 +73,8 @@ def explain_student_instance(
         "total_shap_sum": round(total_shap, 4),
         "predicted_value": round(predicted_val, 4),
         "feature_breakdown": breakdown,
-        "top_risk_increasing": risk_increasing[:3],
-        "top_risk_decreasing": risk_decreasing[:3],
+        "top_risk_increasing": risk_increasing,
+        "top_risk_decreasing": risk_decreasing,
     }
 
 
