@@ -47,17 +47,21 @@ flowchart LR
 ---
 
 ### Page 1: Overview (`/overview`)
-* **Visual**: Project hero card, headline performance cards, 4-stage pipeline diagram, and formal hypothesis adjudication box.
-* **Demonstration Action**: Open the application at [http://localhost:5173](http://localhost:5173). Call attention to the persistent **[Models trained on SYNTHETIC data]** banner and the top-level telemetry cards.
+* **Visual**: Project hero card, headline performance cards (ROC-AUC, PR-AUC, F2, Brier, Lead Time, Latency), Institutional Clinical Triage Protocols matrix (Routine, Monitoring, Urgent, Emergency), and the 4-Stage Operational Dataflow.
+* **Demonstration Action**: Open the application at [http://localhost:5173](http://localhost:5173). Point out the clean university portal header, the 6 telemetry metric cards, and the clinical counseling action protocol matrix.
 * **Viva Talking Points**:
-  > *"Good morning, esteemed panel. My research component investigates whether deep sequence-aware models like LSTMs or GRUs can genuinely outperform gradient-boosted decision trees trained on engineered longitudinal trend features for student attrition early warning. Rather than relying on cross-sectional snapshots, our pipeline processes 4 semester-by-semester academic dimensions over 8 semesters."*
+  > *"Good morning, esteemed panel. My research component investigates whether deep sequence-aware models like LSTMs or GRUs can genuinely outperform gradient-boosted decision trees trained on engineered longitudinal trend features for student attrition early warning. Rather than relying on cross-sectional snapshots, our pipeline processes multi-semester academic and behavioral trends over 8 semesters, mapping results directly into actionable counseling protocols."*
 * **Key Evidence to Highlight**:
-  - Point to the **Headline Metric Cards**: Champion model **CatBoost** achieving **0.8196 ROC-AUC**, **0.2057 PR-AUC**, **0.0527 Brier score**, and an average lead time of **2.0 semesters** (~12 months).
-  - Point to the **Formal Hypothesis Adjudication Box**: Explain that while deep sequence models achieved slightly higher raw test AUC ($+0.02, p=0.03$), CatBoost provides equivalent clinical triage utility with exact TreeSHAP interpretability and sub-20ms inference latency.
+  - Point to the **Headline Metric Cards**: Champion model **CatBoost** achieving **0.8196 ROC-AUC**, **0.2057 PR-AUC**, **0.0527 Brier score**, and an average lead time of **2.0 to 2.5 semesters** (~12 months).
+  - Point to the **Institutional Clinical Triage Protocols**: Explain how calibrated risk scores are mapped into 4 concrete intervention bands (Routine, Monitoring, Urgent, and Emergency).
 
 ---
 
 ### Page 2: Data & Cohort (`/data`)
+* **Visual**: High-level cohort summary cards (total enrolled records, semester sequence length, retention baseline) and interactive statistical distribution plots.
+* **Demonstration Action**: Click the **Data & Cohort** tab. Show how clicking any statistical plot thumbnail expands it into an interactive high-resolution view for audit.
+* **Viva Talking Points**:
+  > *"The Data page documents our student cohort distributions. It demonstrates that academic disengagement is multi-dimensional—requiring longitudinal tracking of attendance rates and assignment timeliness alongside traditional marks."*
 * **Visual**: 5,000-student cohort telemetry, the 4 academic signals dictionary, the motivating naive baseline failure card, 7 latent archetypes, and the interactive audit plots gallery.
 * **Demonstration Action**: Click the **Data & Cohort** tab. Scroll through the feature dictionary and click on `cohort_gpa_trends.png` or `correlation_heatmap.png` to demonstrate the modal zoom.
 * **Viva Talking Points**:
@@ -119,14 +123,16 @@ flowchart LR
 ---
 
 ### Page 8: PREDICT & Upload (`/predict`)
-* **Visual**: Drag-and-drop file upload zone, format guidance, outcome detection chip, "Retrain on My Data" action button, live validation report, batch triage table, single-student simulator, and retrained champion result card.
-* **Demonstration Action 1 (Live Prediction)**:
+* **Visual**: Drag-and-drop file upload zone, format guidance, outcome detection chip, "Retrain on My Data" action button, live validation report, 2-sub-tab triage workspace (`Individual Student Diagnostic` visual dashboard and `Cohort Triage Table`), single-student simulator, and retrained champion result card.
+* **Demonstration Action 1 (Live Prediction & Two-Tab Triage)**:
   1. Click **Template (Inference)** to demonstrate availability of standard observation schema templates.
   2. Drag and drop `upload_template.csv` into the drop zone.
   3. Observe the outcome chip: `"No outcome column found — inference only"`.
   4. Click **Execute Model Inference & Explainability**.
-  5. Show the live results: 3 students scored, triage summary cards, color-coded risk badges (**High** for `STU_DEMO_02`, **Low** for `STU_DEMO_01` and `STU_DEMO_03`).
-  6. Click on `STU_DEMO_02` row to expand their trajectory and top factors.
+  5. Show the live 2-sub-tab results workspace:
+     - **Individual Student Diagnostic View**: Explore the selected student with the continuous risk spectrum gauge (Low, Moderate, High, Critical), clinical intervention action protocol card, horizontal Recharts TreeSHAP feature contribution chart, and quick-jump triage pills for high-risk students.
+     - **Cohort Triage Table View**: Search students by ID, filter by risk band (`ALL`, `Critical`, `High`, `Moderate`, `Low`), and click any row to immediately switch to their individual diagnostic deep-dive.
+  6. Point out that switching across tabs (*Overview*, *Leaderboard*, *Data*, etc.) persists the uploaded dataset and selected student without loss of state.
   7. Click **Single-Student Simulator** tab: adjust GPA from 3.4 down to 2.1 across 3 semesters, click **Compute Academic Risk Index**, and watch the live risk index jump into the High band!
 * **Demonstration Action 2 (Live Retraining on User Data)**:
   1. Click **Template (With Outcomes)** to download `academic_observation_template_with_outcomes.csv` containing longitudinal records plus `attrited` and `attrition_semester`.
