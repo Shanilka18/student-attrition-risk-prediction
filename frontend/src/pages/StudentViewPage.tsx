@@ -71,6 +71,8 @@ export const StudentViewPage: React.FC = () => {
       factors: { stress: 3.33, motivation: 3.0, belongingness: 3.0, self_efficacy: 3.67, peer_support: 3.33 },
       shap_decomposition: [
         { feature: 'STRESS', val: 5.4, direction: 'risk_increasing' },
+        { feature: 'MOTIVATION', val: 2.8, direction: 'risk_increasing' },
+        { feature: 'BELONGING', val: -3.1, direction: 'risk_decreasing' },
         { feature: 'SELF-EFFICACY', val: -6.8, direction: 'risk_decreasing' },
         { feature: 'PEER SUPPORT', val: -4.1, direction: 'risk_decreasing' },
       ],
@@ -83,10 +85,11 @@ export const StudentViewPage: React.FC = () => {
       risk_category: 'Low' as const,
       factors: { stress: 1.67, motivation: 4.67, belongingness: 4.33, self_efficacy: 4.67, peer_support: 4.67 },
       shap_decomposition: [
-        { feature: 'MOTIVATION', val: -14.2, direction: 'risk_decreasing' },
-        { feature: 'BELONGINGNESS', val: -11.5, direction: 'risk_decreasing' },
-        { feature: 'PEER NETWORK', val: -10.8, direction: 'risk_decreasing' },
         { feature: 'STRESS', val: 2.1, direction: 'risk_increasing' },
+        { feature: 'MOTIVATION', val: -14.2, direction: 'risk_decreasing' },
+        { feature: 'BELONGING', val: -11.5, direction: 'risk_decreasing' },
+        { feature: 'SELF-EFFICACY', val: -8.9, direction: 'risk_decreasing' },
+        { feature: 'PEER SUPPORT', val: -10.8, direction: 'risk_decreasing' },
       ],
       headline: 'Psychosocial risk is LOW. Strong protective factors across all psychological domains.',
       guidance: 'Standard Academic Track: Student displays high resilience and strong institutional connection.',
@@ -151,34 +154,90 @@ export const StudentViewPage: React.FC = () => {
   const student = useMemo(() => {
     if (viewMode === 'uploaded' && activeUploadedStudent) {
       const stu = activeUploadedStudent;
-      const riskContribs = (stu.top_risk_contributors || []).map((c) => ({
-        feature: (c.factor || c.feature || 'Stress').replace('factor_', '').toUpperCase(),
-        val: Number(Math.abs(c.shap_value).toFixed(2)),
-        direction: 'risk_increasing',
-      }));
-      const protContribs = (stu.top_protective_contributors || []).map((c) => ({
-        feature: (c.factor || c.feature || 'Protective').replace('factor_', '').toUpperCase(),
-        val: -Number(Math.abs(c.shap_value).toFixed(2)),
-        direction: 'risk_decreasing',
-      }));
+      const factorScores = stu.factor_scores || {
+        stress: 3.0,
+        motivation: 3.0,
+        belongingness: 3.0,
+        self_efficacy: 3.0,
+        peer_support: 3.0,
+      };
 
-      const combinedShap = [...riskContribs, ...protContribs];
+      // Map raw contributor items
+      const factorMap: Record<string, { val: number; direction: string }> = {};
 
-      // Fallback decomposition if contributors list is empty
-      const shapDecomp = combinedShap.length > 0
-        ? combinedShap
-        : [
-            { feature: 'STRESS', val: Number(((stu.factor_scores.stress - 3.0) * 4).toFixed(2)), direction: 'risk_increasing' },
-            { feature: 'MOTIVATION', val: Number(((3.0 - stu.factor_scores.motivation) * 3).toFixed(2)), direction: 'risk_decreasing' },
-            { feature: 'BELONGING', val: Number(((3.0 - stu.factor_scores.belongingness) * 3).toFixed(2)), direction: 'risk_decreasing' },
-            { feature: 'PEER SUPPORT', val: Number(((3.0 - stu.factor_scores.peer_support) * 2).toFixed(2)), direction: 'risk_decreasing' },
-          ];
+      (stu.top_risk_contributors || []).forEach((c) => {
+        const raw = (c.factor || c.feature || '').replace('factor_', '').toLowerCase();
+        let key = raw;
+        if (raw.includes('stress')) key = 'STRESS';
+        else if (raw.includes('motiv')) key = 'MOTIVATION';
+        else if (raw.includes('belong')) key = 'BELONGING';
+        else if (raw.includes('effic') || raw.includes('self')) key = 'SELF-EFFICACY';
+        else if (raw.includes('peer')) key = 'PEER SUPPORT';
+        else key = raw.toUpperCase();
+
+        factorMap[key] = {
+          val: Number(Math.abs(c.shap_value).toFixed(2)),
+          direction: 'risk_increasing',
+        };
+      });
+
+      (stu.top_protective_contributors || []).forEach((c) => {
+        const raw = (c.factor || c.feature || '').replace('factor_', '').toLowerCase();
+        let key = raw;
+        if (raw.includes('stress')) key = 'STRESS';
+        else if (raw.includes('motiv')) key = 'MOTIVATION';
+        else if (raw.includes('belong')) key = 'BELONGING';
+        else if (raw.includes('effic') || raw.includes('self')) key = 'SELF-EFFICACY';
+        else if (raw.includes('peer')) key = 'PEER SUPPORT';
+        else key = raw.toUpperCase();
+
+        factorMap[key] = {
+          val: -Number(Math.abs(c.shap_value).toFixed(2)),
+          direction: 'risk_decreasing',
+        };
+      });
+
+      // Guarantee ALL 5 canonical psychometric factors are always present!
+      const canonicalKeys = ['STRESS', 'MOTIVATION', 'BELONGING', 'SELF-EFFICACY', 'PEER SUPPORT'];
+      const shapDecomp = canonicalKeys.map((fKey) => {
+        if (factorMap[fKey]) {
+          return {
+            feature: fKey,
+            val: factorMap[fKey].val,
+            direction: factorMap[fKey].direction,
+          };
+        }
+        // Fallback calculation from factor score if missing from SHAP list
+        let estimatedVal = 0;
+        let dir = 'risk_decreasing';
+        if (fKey === 'STRESS') {
+          estimatedVal = Number(((factorScores.stress - 3.0) * 3.5).toFixed(2));
+          dir = estimatedVal >= 0 ? 'risk_increasing' : 'risk_decreasing';
+        } else if (fKey === 'MOTIVATION') {
+          estimatedVal = Number(((3.0 - factorScores.motivation) * 3.0).toFixed(2));
+          dir = estimatedVal >= 0 ? 'risk_increasing' : 'risk_decreasing';
+        } else if (fKey === 'BELONGING') {
+          estimatedVal = Number(((3.0 - factorScores.belongingness) * 2.8).toFixed(2));
+          dir = estimatedVal >= 0 ? 'risk_increasing' : 'risk_decreasing';
+        } else if (fKey === 'SELF-EFFICACY') {
+          estimatedVal = Number(((3.0 - factorScores.self_efficacy) * 2.5).toFixed(2));
+          dir = estimatedVal >= 0 ? 'risk_increasing' : 'risk_decreasing';
+        } else if (fKey === 'PEER SUPPORT') {
+          estimatedVal = Number(((3.0 - factorScores.peer_support) * 2.0).toFixed(2));
+          dir = estimatedVal >= 0 ? 'risk_increasing' : 'risk_decreasing';
+        }
+        return {
+          feature: fKey,
+          val: Math.abs(estimatedVal),
+          direction: dir,
+        };
+      });
 
       return {
         study_id: stu.study_id,
         pri_score: stu.pri_score,
         risk_category: stu.risk_category,
-        factors: stu.factor_scores,
+        factors: factorScores,
         shap_decomposition: shapDecomp,
         headline: stu.narrative_headline || `Student ${stu.study_id} classified under ${stu.risk_category} risk tier.`,
         guidance: stu.narrative_actionable_advice || stu.narrative_drivers || 'Standard institutional follow-up recommended.',
