@@ -1,5 +1,5 @@
 
-# Multi-Factor Student Attrition Risk Prediction in Higher Education
+# Multi-Factor Student Attrition Risk Prediction Using Academic, Engagement, Psychosocial, Environmental Factors
 
 An Explainable AI-Based Framework for Early Identification of Student Attrition Risk in Sri Lankan Higher Education Institutions.
 
